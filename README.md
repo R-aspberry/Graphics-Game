@@ -240,4 +240,68 @@ You are asked to submit a video recording for your screen while you are playing 
 ●	Grant us access to the drive link. 
 ●	The project submission deadline is on Monday, November 2nd, 2026 @ 11:59 PM 
  
- 
+
+
+ Members project distribution:-
+
+ Work distribution among 4 members
+
+Member 1 — Core Game Engine
+Gameplay foundation
+Responsibilities
+- Set up the OpenGL window, rendering loop, coordinate system, and game states.
+- Implement the playfield grid with at least three horizontal lanes.
+- Implement lane hover highlighting, selection, and deselection.
+- Handle mouse and keyboard input.
+- Implement player movement, lane restrictions, collision detection, and game updates.
+- Create the common interfaces used by other modules.
+Main files: Game, GameState, Grid, InputHandler, Collision.
+Deliverable: A working game scene with selectable lanes and a functional gameplay loop.
+
+
+
+
+Member 2 — Players, Enemies & Combat
+Combat mechanics
+Responsibilities
+- Implement the three player types: Melee, Ranged, and Defense.
+- Implement the three enemy types: Easy, Medium, and Hard.
+- Handle movement speeds, health, damage, attacking, and defeat animations.
+- Implement projectiles and attack collision detection.
+- Implement jumping and ducking to avoid incoming attacks.
+- Implement defense-player protection for players behind it.
+- Display player and enemy health.
+Main files: Player, MeleePlayer, RangedPlayer, DefensePlayer, Enemy, Projectile, CombatSystem.
+Deliverable: All six character types with their required behaviors and combat mechanics.
+
+
+
+
+Member 3 — Economy, Waves & Game Flow
+Progression system
+Responsibilities
+- Implement collectible drops and collection when players collide with them.
+- Manage the player's coin balance and player purchase costs.
+- Implement locked and unlocked player types and their unlock rules.
+- Implement the three enemy waves: 3 Easy enemies, 5 Easy/Medium enemies, and 10 Easy/Medium/Hard enemies.
+- Spawn enemies in random lanes and manage wave progression.
+- Implement winning and losing conditions.
+- Stop all movement and attacks when the player loses.
+Main files: Economy, Collectible, WaveManager, EnemySpawner, GameManager.
+Deliverable: A complete progression system from the beginning of the game through victory or defeat.
+
+
+
+
+Member 4 — Graphics, UI, Cutscene & Menus
+Visual experience
+Responsibilities
+- Develop the chosen theme and detailed character designs.
+- Create the environment with at least five appropriate environmental elements.
+- Design the Home Base so it is visually distinct.
+- Implement the player cards, coin display, lane highlighting visuals, and health indicators.
+- Create the animated 10–20 second introductory cutscene with a player, enemy, and interaction or dialogue.
+- Implement the Main Menu, Pause Menu, and Win/Lose Menu.
+- Integrate animations and visual damage feedback.
+Main files: Renderer (coordinate with Member 1), UI, MainMenu, PauseMenu, EndMenu, Cutscene, and visual assets.
+Deliverable: A visually complete game with the required menus, environment, and animated introduction.
