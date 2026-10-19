@@ -31,3 +31,15 @@ target_link_libraries(TowerDefense PRIVATE
     glm::glm
     dwmapi
 )
+
+# Separate executable for testing the Enemy class
+add_executable(EnemyTests
+    tests/EnemyTest.cpp
+    src/entities/Enemy.cpp
+)
+
+target_link_libraries(EnemyTests PRIVATE glm::glm)
+
+target_include_directories(EnemyTests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/entities
+)
