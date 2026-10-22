@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.20)
 
 project(TowerDefense LANGUAGES C CXX)
@@ -21,11 +22,3 @@ if(WIN32)
     target_link_libraries(TowerDefense PRIVATE opengl32 winmm)
 endif()
 
-if(APPLE)
-    target_link_libraries(TowerDefense PRIVATE
-        "-framework OpenGL"
-        "-framework Cocoa"
-        "-framework IOKit"
-        "-framework CoreVideo"
-    )
-endif()
