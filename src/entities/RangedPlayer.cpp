@@ -37,7 +37,7 @@ class RangedPlayer :public Player{
         actionState = ActionState::Attacking;
         attackTimer = 0.0f;
         Projectile* projectile  = new Projectile(Constants::ProjectileSpeed, x + width, y + height / 2.0f,this, laneIndex);
-         projectiles.push_back(projectile);
+        projectiles.push_back(projectile);
     }
 
     void finishAttack(){

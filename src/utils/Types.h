@@ -11,6 +11,7 @@ enum class EnemyState {
     FIGHTING, //enemy is attacking the player
     DEAD //enemy is dead
 // this file contains shared enums 
+};
 
 enum class ActionState {
     Idle,
