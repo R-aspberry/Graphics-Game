@@ -18,6 +18,7 @@ find_package(OpenGL REQUIRED)
 
 add_executable(TowerDefense
     src/main.cpp
+    src/world/Grid.cpp
 )
 
 target_include_directories(TowerDefense PRIVATE

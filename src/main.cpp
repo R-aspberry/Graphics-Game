@@ -7,16 +7,34 @@
 #include <GLFW/glfw3native.h>
 #include <dwmapi.h>
 #include <iostream>
+#define STB_IMAGE_IMPLEMENTATION
+#include "../external/stb/stb_image.h"
+#include "world/Grid.h"
 
 static const char* vertexShaderSource = R"(
 #version 330 core
+
 layout (location = 0) in vec3 aPos;
-void main() { gl_Position = vec4(aPos, 1.0); }
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+void main() {
+    gl_Position = vec4(aPos, 1.0);
+    TexCoord = aTexCoord;
+}
 )";
 static const char* fragmentShaderSource = R"(
 #version 330 core
+
+in vec2 TexCoord;
 out vec4 FragColor;
-void main() { FragColor = vec4(1.0, 0.5, 0.2, 1.0); }
+
+uniform sampler2D backgroundTexture;
+
+void main() {
+    FragColor = texture(backgroundTexture, TexCoord);
+}
 )";
 
 static GLuint compileShader(GLenum kind, const char* source) {
@@ -52,19 +70,6 @@ void customizeTitleBar(GLFWwindow* window) {
     DwmSetWindowAttribute(hwnd, 35, &background, sizeof(background));
     DwmSetWindowAttribute(hwnd, 36, &textColor, sizeof(textColor));
 
-    // Remove minimize and maximize buttons
-    LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
-
-    style &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
-
-    SetWindowLongPtr(hwnd, GWL_STYLE, style);
-
-    SetWindowPos(
-        hwnd, nullptr,
-        0, 0, 0, 0,
-        SWP_NOMOVE | SWP_NOSIZE |
-        SWP_NOZORDER | SWP_FRAMECHANGED
-    );
 }
 int main() {
     if (!glfwInit()) {
@@ -74,6 +79,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     GLFWwindow* window = glfwCreateWindow(1000, 700, "Tower Defense Game", nullptr, nullptr);
     if (!window) {
@@ -123,35 +129,133 @@ int main() {
     }
 
     const float vertices[] = {
-        -0.5f, -0.4f, 0.0f,
-         0.5f, -0.4f, 0.0f,
-         0.5f,  0.4f, 0.0f,
-        -0.5f, -0.4f, 0.0f,
-         0.5f,  0.4f, 0.0f,
-        -0.5f,  0.4f, 0.0f
+    // X      Y      Z       U     V
+    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+     1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f, 0.0f,   1.0f, 1.0f,
+
+    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+     1.0f,  1.0f, 0.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f, 0.0f,   0.0f, 1.0f
     };
+
     GLuint vao = 0, vbo = 0;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
     glBindVertexArray(0);
+    int imageWidth = 0;
+int imageHeight = 0;
+int channels = 0;
 
+stbi_set_flip_vertically_on_load(true);
+
+unsigned char* pixels = stbi_load(
+    "assets/backgrounds/cyberpunk.png",
+    &imageWidth,
+    &imageHeight,
+    &channels,
+    4
+);
+
+if (!pixels) {
+    std::cerr << "Failed to load background: "
+              << stbi_failure_reason() << '\n';
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 1;
+}
+
+std::cout << "Background loaded: "
+          << imageWidth << " x " << imageHeight << '\n';
+
+GLuint backgroundTexture = 0;
+
+glGenTextures(1, &backgroundTexture);
+glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    GL_RGBA,
+    imageWidth,
+    imageHeight,
+    0,
+    GL_RGBA,
+    GL_UNSIGNED_BYTE,
+    pixels
+);
+
+glGenerateMipmap(GL_TEXTURE_2D);
+
+stbi_image_free(pixels);
+
+glUseProgram(program);
+glUniform1i(glGetUniformLocation(program, "backgroundTexture"), 0);
+    Grid grid;
+    for (const Lane& lane : grid.getLanes()) {
+    std::cout << "Lane " << lane.id
+              << " Top: " << lane.top
+              << " Bottom: " << lane.bottom
+              << '\n';
+}
+    int previousHoveredLane = -1;
     while (!glfwWindowShouldClose(window)) {
         int framebufferWidth = 0, framebufferHeight = 0;
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
         glViewport(0, 0, framebufferWidth, framebufferHeight);
         glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+       glUseProgram(program);
+         glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         glfwSwapBuffers(window);
         glfwPollEvents();
+        double mouseX, mouseY;
+
+glfwGetCursorPos(window, &mouseX, &mouseY);
+
+int windowWidth, windowHeight;
+glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+if (windowWidth > 0 && windowHeight > 0) {
+
+    float normalizedX = static_cast<float>(mouseX / windowWidth);
+    float normalizedY = static_cast<float>(mouseY / windowHeight);
+
+    int hoveredLane = grid.getLaneAtPosition(normalizedX, normalizedY);
+
+    if (hoveredLane != previousHoveredLane) {
+
+        if (hoveredLane != -1) {
+            std::cout << "Hovering over Lane "
+                      << hoveredLane << std::endl;
+        }
+        else {
+            std::cout << "Mouse outside lanes" << std::endl;
+        }
+
+        previousHoveredLane = hoveredLane;
+    }
+}
     }
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
     glDeleteProgram(program);
+    glDeleteTextures(1, &backgroundTexture);
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
