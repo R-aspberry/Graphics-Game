@@ -232,6 +232,7 @@ glUniform1i(glGetUniformLocation(program, "backgroundTexture"), 0);
               << '\n';
 }
     int previousHoveredLane = -1;
+    int previousLeftMouseState = GLFW_RELEASE;
     while (!glfwWindowShouldClose(window)) {
         int framebufferWidth = 0, framebufferHeight = 0;
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
@@ -258,6 +259,23 @@ if (windowWidth > 0 && windowHeight > 0) {
     float normalizedY = static_cast<float>(mouseY / windowHeight);
 
     int hoveredLane = grid.getLaneAtPosition(normalizedX, normalizedY);
+
+    int leftMouseState = glfwGetMouseButton(
+    window,
+    GLFW_MOUSE_BUTTON_LEFT
+);
+
+if (leftMouseState == GLFW_PRESS &&
+    previousLeftMouseState == GLFW_RELEASE &&
+    hoveredLane != -1) {
+
+    grid.toggleLaneSelection(hoveredLane);
+
+    std::cout << "Lane " << hoveredLane
+              << " selection toggled!" << std::endl;
+}
+
+previousLeftMouseState = leftMouseState;
 
     if (hoveredLane != previousHoveredLane) {
 
