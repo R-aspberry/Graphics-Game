@@ -1,3 +1,0 @@
-/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/CMakeFiles/TowerDefense.dir
-/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/CMakeFiles/edit_cache.dir
-/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/CMakeFiles/rebuild_cache.dir

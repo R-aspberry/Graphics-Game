@@ -3,6 +3,9 @@
 #include <cmath>
 #include <string>
 #include "Enemy.h"
+#include "EasyEnemy.h"
+#include "MediumEnemy.h"
+#include "HardEnemy.h"
 
 int passed = 0;
 int failed = 0;
@@ -204,6 +207,192 @@ int main() {
 
     check(healthyEnemy.getHealth() == 5,
           "Healthy enemy retains its health");
+    
+    
+    // -----------------------------------------
+    // TEST 9: EasyEnemy (Sword Fighter)
+    // -----------------------------------------
+
+    std::cout << "\n--- EasyEnemy Tests ---\n";
+
+    EasyEnemy swordFighter(
+        2,
+        glm::vec2(900.0f, 250.0f),
+        2.0f
+    );
+
+    // Test initial properties
+    check(swordFighter.getHealth() == 5,
+          "EasyEnemy starts with 5 HP");
+
+    check(swordFighter.getMaxHealth() == 5,
+          "EasyEnemy maximum health is 5");
+
+    check(swordFighter.getDamage() == 1,
+          "EasyEnemy deals 1 damage");
+
+    check(approximatelyEqual(swordFighter.getSpeed(), 60.0f),
+          "EasyEnemy speed is 60");
+
+    check(swordFighter.getLane() == 2,
+          "EasyEnemy spawns in the correct lane");
+
+    check(swordFighter.getState() == EnemyState::MOVING,
+          "EasyEnemy starts in MOVING state");
+
+    check(approximatelyEqual(swordFighter.getAttackInterval(), 2.0f),
+          "EasyEnemy uses the supplied attack interval");
+
+    // Test inherited movement
+    swordFighter.update(0.5f);
+
+    check(approximatelyEqual(swordFighter.getPosition().x, 870.0f),
+          "EasyEnemy inherits movement correctly");
+
+    check(approximatelyEqual(swordFighter.getPosition().y, 250.0f),
+          "EasyEnemy stays in its lane");
+
+    // Test inherited damage
+    swordFighter.takeDamage(2);
+
+    check(swordFighter.getHealth() == 3,
+          "EasyEnemy inherits damage handling");
+
+    // Test inherited death behavior
+    swordFighter.takeDamage(5);
+
+    check(swordFighter.getHealth() == 0,
+          "EasyEnemy health reaches zero");
+
+    check(swordFighter.getState() == EnemyState::DEAD,
+          "EasyEnemy dies correctly");
+
+    check(!swordFighter.canAttack(),
+          "Dead EasyEnemy cannot attack");
+
+
+    
+    // -----------------------------------------
+    // TEST 10: MediumEnemy (Archer)
+    // -----------------------------------------
+
+    std::cout << "\n--- MediumEnemy Tests ---\n";
+
+    MediumEnemy archer(
+        1,
+        glm::vec2(900.0f, 175.0f),
+        1.5f
+    );
+
+    // Test initial properties
+    check(archer.getHealth() == 5,
+          "MediumEnemy starts with 5 HP");
+
+    check(archer.getMaxHealth() == 5,
+          "MediumEnemy maximum health is 5");
+
+    check(archer.getDamage() == 1,
+          "MediumEnemy deals 1 damage");
+
+    check(approximatelyEqual(archer.getSpeed(), 60.0f),
+          "MediumEnemy speed is 60");
+
+    check(archer.getLane() == 1,
+          "MediumEnemy spawns in the correct lane");
+
+    check(archer.getState() == EnemyState::MOVING,
+          "MediumEnemy starts in MOVING state");
+
+    check(approximatelyEqual(archer.getAttackInterval(), 1.5f),
+          "MediumEnemy uses the supplied attack interval");
+
+    // Test inherited movement
+    archer.update(0.5f);
+
+    check(approximatelyEqual(archer.getPosition().x, 870.0f),
+          "MediumEnemy inherits movement correctly");
+
+    check(approximatelyEqual(archer.getPosition().y, 175.0f),
+          "MediumEnemy stays in its lane");
+
+    // Test inherited damage
+    archer.takeDamage(2);
+
+    check(archer.getHealth() == 3,
+          "MediumEnemy inherits damage handling");
+
+    // Test inherited death behavior
+    archer.takeDamage(5);
+
+    check(archer.getHealth() == 0,
+          "MediumEnemy health reaches zero");
+
+    check(archer.getState() == EnemyState::DEAD,
+          "MediumEnemy dies correctly");
+
+    check(!archer.canAttack(),
+          "Dead MediumEnemy cannot attack");
+
+      
+    // -----------------------------------------
+    // TEST 11: HardEnemy (Armored Knight)
+    // -----------------------------------------
+
+    std::cout << "\n--- HardEnemy Tests ---\n";
+
+    HardEnemy knight(
+        3,
+        glm::vec2(900.0f, 325.0f),
+        2.0f
+    );
+
+    check(knight.getHealth() == 7,
+          "HardEnemy starts with 7 HP");
+
+    check(knight.getMaxHealth() == 7,
+          "HardEnemy maximum health is 7");
+
+    check(knight.getDamage() == 2,
+          "HardEnemy deals 2 damage");
+
+    check(approximatelyEqual(knight.getSpeed(), 110.0f),
+          "HardEnemy speed is 110");
+
+    check(knight.getLane() == 3,
+          "HardEnemy spawns in the correct lane");
+
+    check(knight.getState() == EnemyState::MOVING,
+          "HardEnemy starts in MOVING state");
+
+    check(approximatelyEqual(knight.getAttackInterval(), 2.0f),
+          "HardEnemy uses the supplied attack interval");
+
+    // Inherited movement
+    knight.update(0.5f);
+
+    check(approximatelyEqual(knight.getPosition().x, 845.0f),
+          "HardEnemy moves 55 units in 0.5 seconds");
+
+    check(approximatelyEqual(knight.getPosition().y, 325.0f),
+          "HardEnemy stays in its lane");
+
+    // Inherited damage handling
+    knight.takeDamage(2);
+
+    check(knight.getHealth() == 5,
+          "HardEnemy health decreases from 7 to 5");
+
+    // Inherited death behavior
+    knight.takeDamage(10);
+
+    check(knight.getHealth() == 0,
+          "HardEnemy health cannot become negative");
+
+    check(knight.getState() == EnemyState::DEAD,
+          "HardEnemy enters DEAD state");
+
+    check(!knight.canAttack(),
+          "Dead HardEnemy cannot attack");
 
     // -----------------------------------------
     // FINAL RESULTS

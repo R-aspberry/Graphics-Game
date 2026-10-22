@@ -1,11 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-
-enum class EnemyState {
-    MOVING, //enemy walking towards the player
-    FIGHTING, //enemy is attacking the player
-    DEAD //enemy is dead
-};
+#include "../utils/Types.h"
 
 class Enemy{
     private : 
