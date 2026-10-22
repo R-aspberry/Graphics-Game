@@ -12,7 +12,15 @@ add_executable(TowerDefense
     src/main.cpp
     src/ui/MainMenu.cpp
     src/glad.c
+    src/Shader.cpp
+src/Renderer.cpp
+src/utils/ResourceManager.cpp
+src/Game.cpp
+src/Shader.cpp
+src/Renderer.cpp
+src/utils/ResourceManager.cpp
 )
+
 target_include_directories(TowerDefense PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
