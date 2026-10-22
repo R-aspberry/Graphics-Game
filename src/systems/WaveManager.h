@@ -12,6 +12,9 @@ class WaveManager {
         float spawnTimer;
         std::vector<std::unique_ptr<Enemy>> activeEnemies;
         bool spawnEnemy();
+        bool isWaveComplete() const;
+        void startNextWave() ;
+        bool gameWon;
 
     public:
         WaveManager();
@@ -28,4 +31,11 @@ class WaveManager {
         }
         return activeEnemies[index].get();
        }
+       int getCurrentWave() const{
+        return currentWave;
+       }
+       Enemy* getEnemyAt(std::size_t index);
+       bool hasWon() const {
+            return gameWon;
+        }
 };
