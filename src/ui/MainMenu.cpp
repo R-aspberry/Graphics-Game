@@ -1,8 +1,13 @@
 #include "MainMenu.h"
 #include <glad/glad.h>
 #include <iostream>
+#ifdef __APPLE__
+#include <cstdlib>
+#endif
+#ifdef __WIN32__
 #include <windows.h>
 #include <mmsystem.h>
+#endif
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 const char* vertexShaderSource = R"(
@@ -98,8 +103,17 @@ glAttachShader(shaderProgram, vertexShader);
 glAttachShader(shaderProgram, fragmentShader);
 glLinkProgram(shaderProgram);
 
-sndPlaySound("assets/backgroundsound.wav", SND_ASYNC | SND_LOOP | SND_NOSTOP);
-
+#ifdef _WIN32
+    PlaySound(
+        TEXT("assets/backgroundsound.wav"),
+        NULL,
+        SND_ASYNC | SND_LOOP | SND_FILENAME
+    );
+#elif defined(__APPLE__)
+    std::system(
+        "afplay assets/backgroundsound.wav >/dev/null 2>&1 &"
+    );
+#endif
 int width, height, nrChannels;
 stbi_set_flip_vertically_on_load(true);
 unsigned char* data = stbi_load("assets/background.png", &width, &height, &nrChannels, 0); // 3shan a import el background bas

@@ -1,0 +1,19 @@
+# Build directories
+build/
+build-ucrt/
+build-windows/
+
+# IDEs and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Compiled binaries and objects
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib

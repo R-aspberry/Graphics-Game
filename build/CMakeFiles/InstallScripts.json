@@ -1,7 +1,10 @@
 {
 	"InstallScripts" : 
 	[
-		"/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/cmake_install.cmake"
+		"/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/cmake_install.cmake",
+		"/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/external/glfw/cmake_install.cmake",
+		"/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/external/glfw/src/cmake_install.cmake",
+		"/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/build/external/glfw/docs/cmake_install.cmake"
 	],
 	"Parallel" : false
 }
