@@ -1,6 +1,8 @@
 #define GLAD_GL_IMPLEMENTATION
 #define GLFW_INCLUDE_NONE
-#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#include "ui/MainMenu.h"
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
@@ -19,57 +21,55 @@ out vec4 FragColor;
 void main() { FragColor = vec4(1.0, 0.5, 0.2, 1.0); }
 )";
 
-static GLuint compileShader(GLenum kind, const char* source) {
-    GLuint shader = glCreateShader(kind);
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
-    GLint success = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char log[1024] = {};
-        glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
-        std::cerr << "Shader error: " << log << '\n';
-        glDeleteShader(shader);
-        return 0;
+enum class GameState {
+    MENU,
+    CUTSCENE,
+    PLAYING
+};
+
+GameState gameState = GameState::MENU;
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        if (gameState == GameState::MENU)
+        {
+            double mouseX, mouseY;
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
+
+            if (width <= 0 || height <= 0)
+            {
+                return; // Avoid division by zero el window mmkn teb2a feha moshkela
+            }
+
+            double x = (2.0 * mouseX / width) - 1.0; // Convert mouse x w y to OpenGL coordinates 3shan y align 
+            double y = 1.0 - (2.0 * mouseY / height);
+
+          // Start rectangle
+if (x >= -0.46 && x <= -0.10 &&
+    y >= 0.00 && y <= 0.20)
+{
+    gameState = GameState::CUTSCENE;
+    std::cout << "Start clicked!\n";
+}
+// Exit rectangle
+else if (x >= 0.10 && x <= 0.46 &&
+         y >= 0.00 && y <= 0.20)
+{
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+        }
     }
-    return shader;
 }
-void customizeTitleBar(GLFWwindow* window) {
 
-    HWND hwnd = glfwGetWin32Window(window);
-
-    // Light gray title bar
-    COLORREF background = RGB(229, 231, 235);
-
-    // Dark text
-    COLORREF textColor = RGB(17, 24, 39);
-
-    // Use light appearance
-    BOOL darkMode = FALSE;
-    DwmSetWindowAttribute(hwnd, 20, &darkMode, sizeof(darkMode));
-
-    // Change title bar colors
-    DwmSetWindowAttribute(hwnd, 35, &background, sizeof(background));
-    DwmSetWindowAttribute(hwnd, 36, &textColor, sizeof(textColor));
-
-    // Remove minimize and maximize buttons
-    LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
-
-    style &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
-
-    SetWindowLongPtr(hwnd, GWL_STYLE, style);
-
-    SetWindowPos(
-        hwnd, nullptr,
-        0, 0, 0, 0,
-        SWP_NOMOVE | SWP_NOSIZE |
-        SWP_NOZORDER | SWP_FRAMECHANGED
-    );
-}
-int main() {
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW\n";
-        return 1;
+int main(){
+    if (!glfwInit()){
+        std::cerr << "Failed to initialize window \n";
+        return -1;
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -83,6 +83,12 @@ int main() {
     }
     customizeTitleBar(window);
     glfwMakeContextCurrent(window);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    std::cerr << "Failed to initialize GLAD\n";
+    return -1;
+}
+    MainMenu mainMenu;
+    mainMenu.init();
     glfwSwapInterval(1);
     if (!gladLoadGL(glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
@@ -146,6 +152,7 @@ int main() {
         glViewport(0, 0, framebufferWidth, framebufferHeight);
         glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        mainMenu.draw();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -154,5 +161,6 @@ int main() {
     glDeleteProgram(program);
     glfwDestroyWindow(window);
     glfwTerminate();
+
     return 0;
 }
