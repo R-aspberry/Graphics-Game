@@ -1,16 +1,15 @@
 #define GLAD_GL_IMPLEMENTATION
 #define GLFW_INCLUDE_NONE
-#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#include "ui/MainMenu.h"
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <dwmapi.h>
 #include <iostream>
-#define STB_IMAGE_IMPLEMENTATION
-#include "../external/stb/stb_image.h"
-#include "world/Grid.h"
-
+    
 static const char* vertexShaderSource = R"(
 #version 330 core
 
@@ -37,34 +36,50 @@ void main() {
 }
 )";
 
-static GLuint compileShader(GLenum kind, const char* source) {
-    GLuint shader = glCreateShader(kind);
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
-    GLint success = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char log[1024] = {};
-        glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
-        std::cerr << "Shader error: " << log << '\n';
-        glDeleteShader(shader);
-        return 0;
-    }
-    return shader;
+enum class GameState {
+    MENU,
+    CUTSCENE,
+    PLAYING
+};
+
+GameState gameState = GameState::MENU;
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        if (gameState == GameState::MENU)
+        {
+            double mouseX, mouseY;
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
+
+            if (width <= 0 || height <= 0)
+            {
+                return; // Avoid division by zero el window mmkn teb2a feha moshkela
+            }
+
+            double x = (2.0 * mouseX / width) - 1.0; // Convert mouse x w y to OpenGL coordinates 3shan y align 
+            double y = 1.0 - (2.0 * mouseY / height);
+
+          // Start rectangle
+if (x >= -0.46 && x <= -0.10 &&
+    y >= 0.00 && y <= 0.20)
+{
+    gameState = GameState::CUTSCENE;
+    std::cout << "Start clicked!\n";
 }
-void customizeTitleBar(GLFWwindow* window) {
-
-    HWND hwnd = glfwGetWin32Window(window);
-
-    // Light gray title bar
-    COLORREF background = RGB(229, 231, 235);
-
-    // Dark text
-    COLORREF textColor = RGB(17, 24, 39);
-
-    // Use light appearance
-    BOOL darkMode = FALSE;
-    DwmSetWindowAttribute(hwnd, 20, &darkMode, sizeof(darkMode));
+// Exit rectangle
+else if (x >= 0.10 && x <= 0.46 &&
+         y >= 0.00 && y <= 0.20)
+{
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+        }
+    }
+}
 
     // Change title bar colors
     DwmSetWindowAttribute(hwnd, 35, &background, sizeof(background));
@@ -89,6 +104,12 @@ int main() {
     }
     customizeTitleBar(window);
     glfwMakeContextCurrent(window);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    std::cerr << "Failed to initialize GLAD\n";
+    return -1;
+}
+    MainMenu mainMenu;
+    mainMenu.init();
     glfwSwapInterval(1);
     if (!gladLoadGL(glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
@@ -258,5 +279,6 @@ if (windowWidth > 0 && windowHeight > 0) {
     glDeleteTextures(1, &backgroundTexture);
     glfwDestroyWindow(window);
     glfwTerminate();
+
     return 0;
 }

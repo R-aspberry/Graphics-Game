@@ -1,0 +1,10 @@
+# pragma once
+# include "Enemy.h"
+
+class EasyEnemy : public Enemy {
+
+    public:
+        EasyEnemy(int lane, glm::vec2 position, float attackInterval);
+
+};
+

@@ -1,7 +1,44 @@
+
+# CMake build folders
 build/
 build-*/
 cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+
+# Visual Studio and VS Code local settings
 .vs/
-.DS_Store
+.vscode/
 *.user
 *.suo
+
+# Compiled files
+*.exe
+*.obj
+*.o
+*.pdb
+*.ilk
+
+# Operating system files
+.DS_Store
+Thumbs.db
+# Build directories
+build/
+build-ucrt/
+build-windows/
+
+# IDEs and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Compiled binaries and objects
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
