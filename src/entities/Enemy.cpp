@@ -4,6 +4,9 @@ Enemy::Enemy(int health, int damage, float speed, float attackInterval, int lane
     : health(health), damage(damage), speed(speed), attackInterval(attackInterval), timeSinceLastAttack(0.0f), lane(lane), maxHealth(health), position(position), state(EnemyState::MOVING) {}
 
 void Enemy:: update(float deltaTime) {
+    if (deltaTime < 0.0f) {
+        return;
+    }
     if (state == EnemyState::MOVING)
         moveTowardsBase(deltaTime);
     if (state != EnemyState::DEAD)

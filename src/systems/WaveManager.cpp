@@ -7,7 +7,46 @@
 # include <utility>
 
 WaveManager::WaveManager() : currentWave(1), enemiesSpawnedInWave(0), 
-                totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f) {}
+                totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f),gameWon(false) {}
+
+void WaveManager::startNextWave() {
+    if (currentWave >= 3 || !isWaveComplete()) {
+        return;
+    }
+
+    currentWave++;
+
+    enemiesSpawnedInWave = 0;
+    spawnTimer = 0.0f;
+
+    if (currentWave == 2) {
+        totalEnemiesInWave = GameConfig::WAVE_2_COUNT;
+    }
+    else if (currentWave == 3) {
+        totalEnemiesInWave = GameConfig::WAVE_3_COUNT;
+    }
+
+    activeEnemies.clear();
+}
+
+bool WaveManager::isWaveComplete() const {
+    if(enemiesSpawnedInWave < totalEnemiesInWave) {
+        return false;
+    }
+    for (const auto& enemy : activeEnemies) {
+        if (enemy->getState() != EnemyState::DEAD) {
+            return false;
+        }
+    }
+    return true;
+}
+
+Enemy* WaveManager::getEnemyAt(std::size_t index) {
+    if (index >= activeEnemies.size()) {
+        return nullptr;
+    }
+    return activeEnemies[index].get();
+}
 
 bool WaveManager::spawnEnemy() {
     static std::mt19937 generator{std::random_device{}()}; //random number generator
@@ -22,13 +61,32 @@ bool WaveManager::spawnEnemy() {
     std::unique_ptr<Enemy> enemy;
     EnemyType enemyType = EnemyType::EASY;
 
-    if (currentWave == 2){
-        std::uniform_int_distribution<int> enemyDistribution(0, 1);
-        enemyType = static_cast<EnemyType>(enemyDistribution(generator));
+   if (currentWave == 2) {
+        if (enemiesSpawnedInWave == 0) {
+            enemyType = EnemyType::EASY;
+        }
+        else if (enemiesSpawnedInWave == 1) {
+            enemyType = EnemyType::MEDIUM;
+        }
+        else {
+            std::uniform_int_distribution<int> enemyDistribution(0, 1);
+            enemyType = static_cast<EnemyType>(enemyDistribution(generator));
+        }
     }
     if (currentWave == 3){
-        std::uniform_int_distribution<int> enemyDistribution(0, 2);
-        enemyType = static_cast<EnemyType>(enemyDistribution(generator));
+        if (enemiesSpawnedInWave == 0) {
+            enemyType = EnemyType::EASY;
+        }
+        else if (enemiesSpawnedInWave == 1) {
+            enemyType = EnemyType::MEDIUM;
+        }
+        else if (enemiesSpawnedInWave == 2) {
+            enemyType = EnemyType::HARD;
+        }
+        else {
+            std::uniform_int_distribution<int> enemyDistribution(0, 2);
+            enemyType = static_cast<EnemyType>(enemyDistribution(generator));
+        }
     }
 
     glm::vec2 spawnPosition(900.0f, 100.0f + lane * 75.0f); //calculate spawn position based on lane
@@ -42,28 +100,45 @@ bool WaveManager::spawnEnemy() {
     else {
         enemy = std::make_unique<HardEnemy>(lane, spawnPosition, 2.0f);
     }
-    
+
     activeEnemies.push_back(std::move(enemy));
     return true;
   
 }
 
+
 void WaveManager::update(float deltaTime) {
-    if (deltaTime <0.0f){
+    if (deltaTime < 0.0f || gameWon) {
         return;
     }
-    spawnTimer += deltaTime;
-    for(auto& enemy : activeEnemies) {
+
+    // Update existing enemies
+    for (auto& enemy : activeEnemies) {
         enemy->update(deltaTime);
     }
-    while(spawnTimer >= GameConfig::ENEMY_SPAWN_INTERVAL && enemiesSpawnedInWave < totalEnemiesInWave) {
+
+    // Update spawning timer
+    spawnTimer += deltaTime;
+
+    // Spawn enemies
+    while (spawnTimer >= GameConfig::ENEMY_SPAWN_INTERVAL &&
+           enemiesSpawnedInWave < totalEnemiesInWave) {
+
         if (!spawnEnemy()) {
             break;
         }
+
         enemiesSpawnedInWave++;
         spawnTimer -= GameConfig::ENEMY_SPAWN_INTERVAL;
     }
 
+    // Check whether the wave is complete
+    if (isWaveComplete()) {
+        if (currentWave == 3) {
+            gameWon = true;
+        }
+        else {
+            startNextWave();
+        }
+    }
 }
-
-

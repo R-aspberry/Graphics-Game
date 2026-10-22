@@ -32,7 +32,30 @@ target_link_libraries(TowerDefense PRIVATE
     dwmapi
 )
 
-# Tests for Enemy, EasyEnemy, MediumEnemy, and HardEnemy
+#
+# =====================================
+# Enemy Tests
+# =====================================
+
+add_executable(EnemyTests
+    tests/EnemyTest.cpp
+    src/entities/Enemy.cpp
+    src/entities/EasyEnemy.cpp
+    src/entities/MediumEnemy.cpp
+    src/entities/HardEnemy.cpp
+)
+
+target_link_libraries(EnemyTests PRIVATE glm::glm)
+
+target_include_directories(EnemyTests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/entities
+)
+
+
+# =====================================
+# WaveManager Tests
+# =====================================
+
 add_executable(WaveManagerTests
     tests/WaveManagerTest.cpp
     src/systems/WaveManager.cpp
@@ -47,5 +70,4 @@ target_link_libraries(WaveManagerTests PRIVATE glm::glm)
 target_include_directories(WaveManagerTests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/entities
 )
-
 
