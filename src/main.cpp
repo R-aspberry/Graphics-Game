@@ -1,14 +1,15 @@
-#define GLAD_GL_IMPLEMENTATION
 #define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-#include "ui/MainMenu.h"
-
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+
 #include <dwmapi.h>
 #include <iostream>
+
+#include "../external/stb/stb_image.h"
+#include "world/Grid.h"
+#include "ui/MainMenu.h"
     
 static const char* vertexShaderSource = R"(
 #version 330 core
@@ -35,7 +36,27 @@ void main() {
     FragColor = texture(backgroundTexture, TexCoord);
 }
 )";
+static GLuint compileShader(GLenum kind, const char* source) {
+    GLuint shader = glCreateShader(kind);
 
+    glShaderSource(shader, 1, &source, nullptr);
+    glCompileShader(shader);
+
+    GLint success = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        char log[1024] = {};
+        glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
+
+        std::cerr << "Shader error: " << log << '\n';
+
+        glDeleteShader(shader);
+        return 0;
+    }
+
+    return shader;
+}
 enum class GameState {
     MENU,
     CUTSCENE,
@@ -81,11 +102,21 @@ else if (x >= 0.10 && x <= 0.46 &&
     }
 }
 
-    // Change title bar colors
+void customizeTitleBar(GLFWwindow* window) {
+
+    HWND hwnd = glfwGetWin32Window(window);
+
+    COLORREF background = RGB(229, 231, 235);
+    COLORREF textColor = RGB(17, 24, 39);
+
+    BOOL darkMode = FALSE;
+
+    DwmSetWindowAttribute(hwnd, 20, &darkMode, sizeof(darkMode));
+
     DwmSetWindowAttribute(hwnd, 35, &background, sizeof(background));
     DwmSetWindowAttribute(hwnd, 36, &textColor, sizeof(textColor));
-
 }
+
 int main() {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
@@ -102,21 +133,21 @@ int main() {
         glfwTerminate();
         return 1;
     }
-    customizeTitleBar(window);
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+   customizeTitleBar(window);
+
+glfwMakeContextCurrent(window);
+glfwSwapInterval(1);
+
+if (!gladLoadGL(glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD\n";
-    return -1;
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 1;
 }
-    MainMenu mainMenu;
-    mainMenu.init();
-    glfwSwapInterval(1);
-    if (!gladLoadGL(glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD\n";
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
+
+MainMenu mainMenu;
+mainMenu.init();
+glfwSetMouseButtonCallback(window, mouseButtonCallback);
     GLint major = 0, minor = 0;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);

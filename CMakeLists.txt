@@ -15,6 +15,9 @@ add_executable(TowerDefense
     src/glad.c
 )
 target_include_directories(TowerDefense PRIVATE
+    "${CMAKE_SOURCE_DIR}/external/glad/include"
+)
+target_include_directories(TowerDefense PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
@@ -22,4 +25,9 @@ target_link_libraries(TowerDefense PRIVATE glfw)
 if(WIN32)
     target_link_libraries(TowerDefense PRIVATE opengl32 winmm)
 endif()
+
+if(WIN32)
+    target_link_libraries(TowerDefense PRIVATE winmm)
+endif()
+target_link_libraries(TowerDefense PRIVATE dwmapi)
 
