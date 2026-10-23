@@ -50,6 +50,11 @@ static GLuint compileShader(GLenum kind, const char* source) {
         glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
 
         std::cerr << "Shader error: " << log << '\n';
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#include "ui/MainMenu.h"
+#include "Game.h"
+#include <iostream>
 
         glDeleteShader(shader);
         return 0;
@@ -89,7 +94,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 if (x >= -0.46 && x <= -0.10 &&
     y >= 0.00 && y <= 0.20)
 {
-    gameState = GameState::CUTSCENE;
+    gameState = GameState::PLAYING;
     std::cout << "Start clicked!\n";
 }
 // Exit rectangle
@@ -128,10 +133,10 @@ int main() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     GLFWwindow* window = glfwCreateWindow(1000, 700, "Tower Defense Game", nullptr, nullptr);
-    if (!window) {
-        std::cerr << "Failed to create OpenGL window\n";
+    if (!window){
+        std::cerr << "Failed to create window \n";
         glfwTerminate();
-        return 1;
+        return -1;
     }
    customizeTitleBar(window);
 
@@ -153,32 +158,8 @@ glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     std::cout << "OpenGL " << major << "." << minor << " initialized\n";
 
-    GLuint vert = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
-    GLuint frag = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
-    if (!vert || !frag) {
-        if (vert) glDeleteShader(vert);
-        if (frag) glDeleteShader(frag);
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vert);
-    glAttachShader(program, frag);
-    glLinkProgram(program);
-    GLint linked = 0;
-    glGetProgramiv(program, GL_LINK_STATUS, &linked);
-    glDeleteShader(vert);
-    glDeleteShader(frag);
-    if (!linked) {
-        char log[1024] = {};
-        glGetProgramInfoLog(program, sizeof(log), nullptr, log);
-        std::cerr << "Shader program link error: " << log << '\n';
-        glDeleteProgram(program);
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
+    Game game;
+    glfwSwapInterval(1);
 
     const float vertices[] = {
     // X      Y      Z       U     V
@@ -275,6 +256,33 @@ glUniform1i(glGetUniformLocation(program, "backgroundTexture"), 0);
       glBindTexture(GL_TEXTURE_2D, backgroundTexture);
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+    float vertices[] = {
+        -0.5f, -0.4f,
+         0.5f, -0.4f,
+         0.5f,  0.4f,
+
+        -0.5f, -0.4f,
+        0.5f,  0.4f,
+        -0.5f,  0.4f
+    };  
+    
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    while (!glfwWindowShouldClose(window)){
+        int framebufferWidth, framebufferHeight;
+        glfwGetFramebufferSize(window,&framebufferWidth,&framebufferHeight);
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
+        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (gameState == GameState::MENU)
+{
+    mainMenu.draw();
+}
+else if (gameState == GameState::PLAYING)
+{
+    game.init();
+    game.update(0.0f);
+    game.render();
+}
         glfwSwapBuffers(window);
         glfwPollEvents();
         double mouseX, mouseY;
@@ -326,8 +334,9 @@ previousLeftMouseState = leftMouseState;
     glDeleteVertexArrays(1, &vao);
     glDeleteProgram(program);
     glDeleteTextures(1, &backgroundTexture);
+
     glfwDestroyWindow(window);
     glfwTerminate();
 
     return 0;
-}
+};

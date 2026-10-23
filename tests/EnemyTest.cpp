@@ -2,6 +2,9 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <memory>
+#include <limits>
+#include "../src/utils/Constants.h"
 #include "Enemy.h"
 #include "EasyEnemy.h"
 #include "MediumEnemy.h"
@@ -393,6 +396,145 @@ int main() {
 
     check(!knight.canAttack(),
           "Dead HardEnemy cannot attack");
+
+    // -----------------------------------------
+    // ADDITIONAL BOUNDARY AND EDGE CASES
+    // -----------------------------------------
+    std::cout << "\n--- Initial Values and Zero Time ---\n";
+    Enemy initial(5, 2, 60.0f, 2.0f, 3, glm::vec2(900.0f, 325.0f));
+    check(approximatelyEqual(initial.getTimeSinceLastAttack(), 0.0f),
+          "Attack timer begins at zero");
+    check(approximatelyEqual(initial.getAttackInterval(), 2.0f),
+          "Base enemy preserves its attack interval");
+    check(!initial.canAttack(), "Fresh enemy cannot attack before cooldown");
+    initial.update(0.0f);
+    check(approximatelyEqual(initial.getPosition().x, 900.0f),
+          "Zero deltaTime does not move enemy");
+    check(approximatelyEqual(initial.getTimeSinceLastAttack(), 0.0f),
+          "Zero deltaTime does not advance cooldown");
+
+    std::cout << "\n--- Cooldown Thresholds ---\n";
+    Enemy cooldown(5, 1, 60.0f, 2.0f, 0, glm::vec2(900.0f, 100.0f));
+    cooldown.update(1.5f);
+    check(!cooldown.canAttack(), "Cannot attack strictly before cooldown ends");
+    cooldown.update(0.5f);
+    check(cooldown.canAttack(), "Can attack exactly at cooldown threshold");
+    check(approximatelyEqual(cooldown.getTimeSinceLastAttack(), 2.0f),
+          "Cooldown timer is exactly 2 seconds at threshold");
+    cooldown.update(4.0f);
+    check(cooldown.canAttack(), "Cooldown remains ready until manually reset");
+    check(approximatelyEqual(cooldown.getTimeSinceLastAttack(), 6.0f),
+          "Cooldown continues increasing beyond threshold");
+    cooldown.resetAttackTimer();
+    check(!cooldown.canAttack(), "Reset makes attack unavailable again");
+    check(approximatelyEqual(cooldown.getTimeSinceLastAttack(), 0.0f),
+          "Reset sets cooldown timer to zero");
+    cooldown.setState(EnemyState::FIGHTING);
+    const float beforeFight = cooldown.getPosition().x;
+    cooldown.update(2.0f);
+    check(cooldown.canAttack(), "Cooldown runs during FIGHTING state");
+    check(approximatelyEqual(cooldown.getPosition().x, beforeFight),
+          "FIGHTING state stops movement");
+    cooldown.setState(EnemyState::MOVING);
+    cooldown.update(0.25f);
+    check(approximatelyEqual(cooldown.getPosition().x, beforeFight - 15.0f),
+          "Movement resumes and handles fractional deltaTime");
+
+    std::cout << "\n--- Damage Boundaries and Invalid States ---\n";
+    Enemy damageBoundary(7, 2, 110.0f, 1.0f, 1, glm::vec2(900.0f, 175.0f));
+    damageBoundary.takeDamage(0);
+    check(damageBoundary.getHealth() == 7, "Zero damage is ignored");
+    damageBoundary.takeDamage(-1);
+    check(damageBoundary.getHealth() == 7, "Negative damage is ignored");
+    damageBoundary.takeDamage(6);
+    check(damageBoundary.getHealth() == 1 &&
+          damageBoundary.getState() != EnemyState::DEAD,
+          "Damage leaving exactly 1 HP does not kill");
+    damageBoundary.takeDamage(1);
+    check(damageBoundary.getHealth() == 0 &&
+          damageBoundary.getState() == EnemyState::DEAD,
+          "Exact lethal damage clamps to zero and kills");
+    damageBoundary.takeDamage(std::numeric_limits<int>::max());
+    check(damageBoundary.getHealth() == 0,
+          "Additional damage to dead enemy is ignored");
+    damageBoundary.setState(EnemyState::FIGHTING);
+    check(damageBoundary.getState() == EnemyState::DEAD,
+          "Dead enemy cannot re-enter FIGHTING");
+    damageBoundary.resetAttackTimer();
+    check(!damageBoundary.canAttack(), "Dead enemy cannot attack after timer reset");
+
+    Enemy livingState(5, 1, 60.0f, 2.0f, 0, glm::vec2(800.0f, 100.0f));
+    livingState.setState(EnemyState::FIGHTING);
+    livingState.setState(EnemyState::DEAD);
+    check(livingState.getState() == EnemyState::FIGHTING,
+          "setState(DEAD) cannot kill from FIGHTING without damage");
+    livingState.setState(EnemyState::MOVING);
+    check(livingState.getState() == EnemyState::MOVING,
+          "Living enemy may return to MOVING");
+    livingState.takeDamage(std::numeric_limits<int>::max());
+    check(livingState.getHealth() == 0 &&
+          livingState.getState() == EnemyState::DEAD,
+          "Large overkill damage is clamped to zero");
+
+    std::cout << "\n--- Config, Inheritance, and Ownership ---\n";
+    EasyEnemy extraEasy(0, glm::vec2(900.0f, 100.0f), 0.75f);
+    MediumEnemy extraMedium(1, glm::vec2(900.0f, 175.0f), 1.25f);
+    HardEnemy extraHard(3, glm::vec2(900.0f, 325.0f), 3.0f);
+    check(extraEasy.getHealth() == GameConfig::EASY_ENEMY_HP &&
+          extraEasy.getDamage() == GameConfig::EASY_ENEMY_DAMAGE &&
+          approximatelyEqual(extraEasy.getSpeed(), GameConfig::EASY_ENEMY_SPEED),
+          "EasyEnemy initial stats follow GameConfig");
+    check(extraMedium.getHealth() == GameConfig::MEDIUM_ENEMY_HP &&
+          extraMedium.getDamage() == GameConfig::MEDIUM_ENEMY_DAMAGE &&
+          approximatelyEqual(extraMedium.getSpeed(), GameConfig::MEDIUM_ENEMY_SPEED),
+          "MediumEnemy initial stats follow GameConfig");
+    check(extraHard.getHealth() == GameConfig::HARD_ENEMY_HP &&
+          extraHard.getDamage() == GameConfig::HARD_ENEMY_DAMAGE &&
+          approximatelyEqual(extraHard.getSpeed(), GameConfig::HARD_ENEMY_SPEED),
+          "HardEnemy initial stats follow GameConfig");
+    check(approximatelyEqual(extraEasy.getAttackInterval(), 0.75f) &&
+          approximatelyEqual(extraMedium.getAttackInterval(), 1.25f) &&
+          approximatelyEqual(extraHard.getAttackInterval(), 3.0f),
+          "Each subclass retains its own supplied cooldown");
+    check(extraEasy.getLane() == 0 && extraMedium.getLane() == 1 &&
+          extraHard.getLane() == 3,
+          "Subclass constructors preserve valid lane indices");
+
+    std::unique_ptr<Enemy> polymorphic =
+        std::make_unique<HardEnemy>(2, glm::vec2(900.0f, 250.0f), 2.0f);
+    check(dynamic_cast<HardEnemy*>(polymorphic.get()) != nullptr,
+          "Parent-class unique_ptr preserves the actual child type");
+    polymorphic->update(1.0f);
+    check(approximatelyEqual(polymorphic->getPosition().x,
+                             900.0f - GameConfig::HARD_ENEMY_SPEED),
+          "Parent-class unique_ptr can update subclass movement");
+    polymorphic->takeDamage(GameConfig::HARD_ENEMY_HP);
+    check(polymorphic->getState() == EnemyState::DEAD,
+          "Parent-class unique_ptr can kill subclass enemy");
+
+    struct DestructionProbe : Enemy {
+        bool& wasDestroyed;
+        explicit DestructionProbe(bool& flag)
+            : Enemy(1, 1, 1.0f, 1.0f, 0, glm::vec2(0.0f)),
+              wasDestroyed(flag) {}
+        ~DestructionProbe() override { wasDestroyed = true; }
+    };
+    bool derivedDestructorCalled = false;
+    {
+        std::unique_ptr<Enemy> pointer =
+            std::make_unique<DestructionProbe>(derivedDestructorCalled);
+    }
+    check(derivedDestructorCalled,
+          "Virtual destructor calls derived destructor through Enemy pointer");
+
+    std::cout << "\n--- Negative deltaTime Regression ---\n";
+    Enemy negativeTime(5, 1, 60.0f, 2.0f, 0,
+                       glm::vec2(900.0f, 100.0f));
+    negativeTime.update(-1.0f);
+    check(approximatelyEqual(negativeTime.getPosition().x, 900.0f),
+          "Negative deltaTime must not move enemy backwards");
+    check(approximatelyEqual(negativeTime.getTimeSinceLastAttack(), 0.0f),
+          "Negative deltaTime must not reduce attack timer");
 
     // -----------------------------------------
     // FINAL RESULTS
