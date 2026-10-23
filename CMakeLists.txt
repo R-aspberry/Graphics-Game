@@ -10,6 +10,7 @@ add_subdirectory(external/glfw)
 
 add_executable(TowerDefense
     src/main.cpp
+    src/world/Grid.cpp
     src/ui/MainMenu.cpp
     src/glad.c
     src/Shader.cpp
@@ -22,28 +23,10 @@ src/utils/ResourceManager.cpp
 )
 
 target_include_directories(TowerDefense PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/external/glad/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/external/glad/include"
 )
-
-target_link_libraries(TowerDefense PRIVATE
-    glfw
-    OpenGL::GL
-    glm::glm
-    dwmapi
-)
-
-#
-# =====================================
-# Enemy Tests
-# =====================================
-
-add_executable(EnemyTests
-    tests/EnemyTest.cpp
-    src/entities/Enemy.cpp
-    src/entities/EasyEnemy.cpp
-    src/entities/MediumEnemy.cpp
-    src/entities/HardEnemy.cpp
+target_include_directories(TowerDefense PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(EnemyTests PRIVATE glm::glm)
@@ -71,4 +54,9 @@ target_link_libraries(WaveManagerTests PRIVATE glm::glm)
 target_include_directories(WaveManagerTests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/entities
 )
+
+if(WIN32)
+    target_link_libraries(TowerDefense PRIVATE winmm)
+endif()
+target_link_libraries(TowerDefense PRIVATE dwmapi)
 
