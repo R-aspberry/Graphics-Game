@@ -2,7 +2,7 @@
 #include <mmsystem.h>
 
 #include "MainMenu.h"
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <iostream>
 #ifdef __APPLE__
 #include <cstdlib>
