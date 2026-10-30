@@ -400,22 +400,40 @@ int main() {
     // -----------------------------------------
     // ADDITIONAL BOUNDARY AND EDGE CASES
     // -----------------------------------------
-    std::cout << "\n--- Initial Values and Zero Time ---\n";
-    Enemy initial(5, 2, 60.0f, 2.0f, 3, glm::vec2(900.0f, 325.0f));
-    check(approximatelyEqual(initial.getTimeSinceLastAttack(), 0.0f),
-          "Attack timer begins at zero");
-    check(approximatelyEqual(initial.getAttackInterval(), 2.0f),
-          "Base enemy preserves its attack interval");
-    check(!initial.canAttack(), "Fresh enemy cannot attack before cooldown");
-    initial.update(0.0f);
-    check(approximatelyEqual(initial.getPosition().x, 900.0f),
-          "Zero deltaTime does not move enemy");
-    check(approximatelyEqual(initial.getTimeSinceLastAttack(), 0.0f),
-          "Zero deltaTime does not advance cooldown");
+    
+std::cout << "\n--- Initial Values and Zero Time ---\n";
+
+Enemy initial(5, 2, 60.0f, 2.0f, 3,
+              glm::vec2(900.0f, 325.0f));
+
+check(approximatelyEqual(initial.getTimeSinceLastAttack(),
+                         initial.getAttackInterval()),
+      "Attack timer starts at the cooldown threshold");
+
+check(approximatelyEqual(initial.getAttackInterval(), 2.0f),
+      "Base enemy preserves its attack interval");
+
+check(initial.canAttack(),
+      "Fresh enemy can attack immediately");
+
+float timerBefore = initial.getTimeSinceLastAttack();
+
+initial.update(0.0f);
+
+check(approximatelyEqual(initial.getPosition().x, 900.0f),
+      "Zero deltaTime does not move enemy");
+
+check(approximatelyEqual(initial.getTimeSinceLastAttack(), timerBefore),
+      "Zero deltaTime does not advance cooldown");
 
     std::cout << "\n--- Cooldown Thresholds ---\n";
-    Enemy cooldown(5, 1, 60.0f, 2.0f, 0, glm::vec2(900.0f, 100.0f));
-    cooldown.update(1.5f);
+    Enemy cooldown(5, 1, 60.0f, 2.0f, 0,
+               glm::vec2(900.0f, 100.0f));
+
+// Simulate the first attack, starting the next cooldown
+cooldown.resetAttackTimer();
+
+cooldown.update(1.5f);
     check(!cooldown.canAttack(), "Cannot attack strictly before cooldown ends");
     cooldown.update(0.5f);
     check(cooldown.canAttack(), "Can attack exactly at cooldown threshold");
@@ -527,14 +545,80 @@ int main() {
     check(derivedDestructorCalled,
           "Virtual destructor calls derived destructor through Enemy pointer");
 
-    std::cout << "\n--- Negative deltaTime Regression ---\n";
-    Enemy negativeTime(5, 1, 60.0f, 2.0f, 0,
-                       glm::vec2(900.0f, 100.0f));
-    negativeTime.update(-1.0f);
-    check(approximatelyEqual(negativeTime.getPosition().x, 900.0f),
-          "Negative deltaTime must not move enemy backwards");
-    check(approximatelyEqual(negativeTime.getTimeSinceLastAttack(), 0.0f),
-          "Negative deltaTime must not reduce attack timer");
+   
+std::cout << "\n--- Negative deltaTime Regression ---\n";
+
+Enemy negativeTime(5, 1, 60.0f, 2.0f, 0,
+                   glm::vec2(900.0f, 100.0f));
+
+float timerBeforeNegative = negativeTime.getTimeSinceLastAttack();
+
+negativeTime.update(-1.0f);
+
+check(approximatelyEqual(negativeTime.getPosition().x, 900.0f),
+      "Negative deltaTime must not move enemy backwards");
+
+check(approximatelyEqual(negativeTime.getTimeSinceLastAttack(),
+                         timerBeforeNegative),
+      "Negative deltaTime must not reduce attack timer");
+
+    // -----------------------------------------
+    // TEST: Virtual Attack Types
+    // -----------------------------------------
+
+    std::cout << "\n--- Enemy Attack Type Tests ---\n";
+
+    EasyEnemy attackEasy(0, glm::vec2(900.0f, 100.0f), 2.0f);
+    MediumEnemy attackMedium(1, glm::vec2(900.0f, 175.0f), 2.0f);
+    HardEnemy attackHard(2, glm::vec2(900.0f, 250.0f), 2.0f);
+
+    // Test direct subclass calls
+    check(attackEasy.getAttackType() == AttackType::High,
+          "EasyEnemy uses high projectile attacks");
+
+    check(attackMedium.getAttackType() == AttackType::Low,
+          "MediumEnemy uses low projectile attacks");
+
+    check(attackHard.getAttackType() == AttackType::Melee,
+          "HardEnemy uses melee attacks");
+
+    // Test virtual dispatch through parent pointers
+    const Enemy* easyPtr = &attackEasy;
+    const Enemy* mediumPtr = &attackMedium;
+    const Enemy* hardPtr = &attackHard;
+
+    check(easyPtr->getAttackType() == AttackType::High,
+          "EasyEnemy virtual dispatch works");
+
+    check(mediumPtr->getAttackType() == AttackType::Low,
+          "MediumEnemy virtual dispatch works");
+
+    check(hardPtr->getAttackType() == AttackType::Melee,
+          "HardEnemy virtual dispatch works");
+      
+    std::cout << "\n--- Immediate First Attack Tests ---\n";
+
+    EasyEnemy firstAttackEnemy(
+        0, glm::vec2(900.0f, 100.0f), 2.0f
+    );
+
+    check(firstAttackEnemy.canAttack(),
+          "Enemy can attack immediately after spawning");
+
+    firstAttackEnemy.resetAttackTimer();
+
+    check(!firstAttackEnemy.canAttack(),
+          "Enemy cannot attack immediately after reset");
+
+    firstAttackEnemy.update(1.0f);
+
+    check(!firstAttackEnemy.canAttack(),
+          "Enemy must wait during cooldown");
+
+    firstAttackEnemy.update(1.0f);
+
+    check(firstAttackEnemy.canAttack(),
+          "Enemy can attack again after cooldown");
 
     // -----------------------------------------
     // FINAL RESULTS

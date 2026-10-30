@@ -1,6 +1,6 @@
 #define Entity_H
-
-#include "Types.h"
+#pragma once
+#include "../utils/Types.h"
 
 class Entity{
     public :
