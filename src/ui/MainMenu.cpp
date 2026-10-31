@@ -7,7 +7,7 @@
 #ifdef __APPLE__
 #include <cstdlib>
 #endif
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
 #endif
@@ -22,8 +22,6 @@ const char* vertexShaderSource = R"(
         gl_Position = vec4(aPos, 0.0, 1.0);
         TexCoord = aTex;
     }
-
-    layout (location = 3) in vec2 atex ;
 )";
 
 const char* fragmentShaderSource = R"(
@@ -134,10 +132,29 @@ glCompileShader(vertexShader);
 GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 glCompileShader(fragmentShader);
+GLint compileOK = GL_FALSE;
+char shaderLog[1024] = {};
+glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileOK);
+if (!compileOK) {
+    glGetShaderInfoLog(vertexShader, sizeof(shaderLog), nullptr, shaderLog);
+    std::cerr << "MainMenu vertex shader failed: " << shaderLog << '\n';
+}
+glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileOK);
+if (!compileOK) {
+    glGetShaderInfoLog(fragmentShader, sizeof(shaderLog), nullptr, shaderLog);
+    std::cerr << "MainMenu fragment shader failed: " << shaderLog << '\n';
+}
 shaderProgram = glCreateProgram();
 glAttachShader(shaderProgram, vertexShader);
 glAttachShader(shaderProgram, fragmentShader);
 glLinkProgram(shaderProgram);
+glGetProgramiv(shaderProgram, GL_LINK_STATUS, &compileOK);
+if (!compileOK) {
+    glGetProgramInfoLog(shaderProgram, sizeof(shaderLog), nullptr, shaderLog);
+    std::cerr << "MainMenu shader link failed: " << shaderLog << '\n';
+}
+glDeleteShader(vertexShader);
+glDeleteShader(fragmentShader);
 
 #ifdef _WIN32
     PlaySound(
@@ -152,7 +169,11 @@ glLinkProgram(shaderProgram);
 #endif
 int width, height, nrChannels;
 stbi_set_flip_vertically_on_load(true);
-unsigned char* data = stbi_load("assets/background.png", &width, &height, &nrChannels, 0); // 3shan a import el background bas
+unsigned char* data = stbi_load("assets/background.png", &width, &height, &nrChannels, 3); // Keep the original menu artwork.
+if (!data) {
+    std::cerr << "Menu background load failed: " << stbi_failure_reason() << '\n';
+    return;
+}
 glGenTextures(1, &texture);
 glActiveTexture(GL_TEXTURE0);
 

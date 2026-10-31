@@ -1,46 +1,54 @@
-// this class has is the parent class for both the players and the enemies 
-#include <Types.h>
-#include <Entity.h>
+#include "Entity.h"
 
-class Entity {
-float x ; // x position of the entity
-float y ; // y position of the entity
-float width ; // width of the entity
-float height ; // height of the entity
-int laneIndex ; // index of the lane the entity is in
-bool active;
-
-Entity (float x, float y, float width, float height, int laneIndex) {
-    this->x = x;
-    this->y = y;
-    this->width = width;
-    this->height = height;
-    this->laneIndex = laneIndex;
-    this->active = true; // initially player / enemy is active 
+// Constructor
+Entity::Entity(float x, float y, float width, float height, int laneIndex)
+    : x(x),
+      y(y),
+      width(width),
+      height(height),
+      laneIndex(laneIndex),
+      active(true) {
 }
 
-    virtual ~Entity() {
-        // destroyes the object
-    }
+// Virtual destructor
+Entity::~Entity() = default;
 
-    float getX()  { return x; }
-    float getY()  { return y; }
-    float getWidth()  { return width; }
-    float getHeight()  { return height; }
-    int getLaneIndex()  { return laneIndex; }
-    bool isActive()  { return active; }
+// Getters
+float Entity::getX() {
+    return x;
+}
 
-    void setPosition(float newX, float newY) {
-        x = newX;
-        y = newY;
-    }
-    void setActive(bool isActive) {
-        active = isActive;
-    }
-    Rect getBounds()  {
-        Rect R = {x,y,width,height};
-        return R;
-    }
+float Entity::getY() {
+    return y;
+}
 
-    virtual void update(float deltaTime) = 0;
-};
+float Entity::getWidth() {
+    return width;
+}
+
+float Entity::getHeight() {
+    return height;
+}
+
+int Entity::getLaneIndex() {
+    return laneIndex;
+}
+
+bool Entity::isActive() {
+    return active;
+}
+
+// Setters
+void Entity::setPosition(float newX, float newY) {
+    x = newX;
+    y = newY;
+}
+
+void Entity::setActive(bool isActive) {
+    active = isActive;
+}
+
+// Collision bounds
+Rect Entity::getBounds() {
+    return {x, y, width, height};
+}

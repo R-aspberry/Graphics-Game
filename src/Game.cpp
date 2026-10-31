@@ -84,8 +84,28 @@ void Game::init()
 
 void Game::update(float deltaTime)
 {
-    // We'll add animation and enemy movement here next.
-    (void)deltaTime;
+    // Actual Enemy/WaveManager logic from Member 3; do not duplicate enemy ownership.
+    if (!initialized) {
+        return;
+    }
+
+    const int previousWave = waves.getCurrentWave();
+    const int previouslySpawned = waves.getEnemiesSpawnedInWave();
+    waves.update(deltaTime);
+
+    // Temporary console diagnostics until enemy artwork and HUD are integrated.
+    if (waves.getCurrentWave() != previousWave) {
+        std::cout << "Starting Wave " << waves.getCurrentWave() << '\n';
+    }
+    else if (waves.getEnemiesSpawnedInWave() != previouslySpawned) {
+        std::cout << "Wave " << waves.getCurrentWave()
+                  << ": spawned " << waves.getEnemiesSpawnedInWave()
+                  << " enemies so far\n";
+    }
+    if (waves.hasWon() && !victoryReported) {
+        std::cout << "All three waves cleared!\n";
+        victoryReported = true;
+    }
 }
 
 
