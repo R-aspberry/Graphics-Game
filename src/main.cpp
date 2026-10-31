@@ -9,6 +9,7 @@
 
 #ifdef _WIN32
 #include <GLFW/glfw3native.h>
+
 #include <dwmapi.h>
 #endif
 
@@ -21,12 +22,14 @@
 #include "systems/Economy.h"
 #include "utils/ResourceManager.h"
 
+#include "ui/PlayerCard.h"
 // =====================================
 // SHADERS
 // =====================================
 
 static const char* vertexShaderSource = R"(
 #version 330 core
+
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 aTexCoord;
 
@@ -115,7 +118,9 @@ static GLuint compileShader(GLenum type, const char* source) {
 enum class AppScreen {
     MENU,
     CUTSCENE,
-    PLAYING
+    PLAYING,
+    WON,
+    LOST
 };
 
 static AppScreen currentScreen = AppScreen::MENU;
@@ -242,6 +247,7 @@ int main() {
         reinterpret_cast<GLADloadfunc>(glfwGetProcAddress)
     )) {
         std::cerr << "Failed to initialize GLAD\n";
+
         glfwDestroyWindow(window);
         glfwTerminate();
         return 1;
