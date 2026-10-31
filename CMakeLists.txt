@@ -26,6 +26,7 @@ add_executable(TowerDefense
     src/utils/ResourceManager.cpp
     src/Game.cpp
     src/ui/PlayerCard.cpp
+    src/ui/HUD.cpp
 )
 
 # =====================================
@@ -50,6 +51,7 @@ if(WIN32)
         opengl32
         winmm
         dwmapi
+        gdi32
     )
 endif()
 

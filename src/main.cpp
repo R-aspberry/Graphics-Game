@@ -8,6 +8,7 @@
 
 #include <dwmapi.h>
 #include <iostream>
+#include <array>
 
 #include "../external/stb/stb_image.h"
 #include "world/Grid.h"
@@ -15,11 +16,12 @@
 #include "Game.h"
 #include "systems/Economy.h"
 #include "ui/PlayerCard.h"
+#include "ui/HUD.h"
 // =====================================
 // SHADERS
 // =====================================
 
-static const char* vertexShaderSource = R"(
+static const char *vertexShaderSource = R"(
 #version 330 core
 
 layout(location = 0) in vec3 aPos;
@@ -33,7 +35,7 @@ void main() {
 }
 )";
 
-static const char* fragmentShaderSource = R"(
+static const char *fragmentShaderSource = R"(
 #version 330 core
 
 in vec2 TexCoord;
@@ -83,7 +85,8 @@ void main() {
 // COMPILE SHADER
 // =====================================
 
-static GLuint compileShader(GLenum kind, const char* source) {
+static GLuint compileShader(GLenum kind, const char *source)
+{
     GLuint shader = glCreateShader(kind);
 
     glShaderSource(shader, 1, &source, nullptr);
@@ -92,15 +95,15 @@ static GLuint compileShader(GLenum kind, const char* source) {
     GLint success = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-    if (!success) {
+    if (!success)
+    {
         char log[1024] = {};
 
         glGetShaderInfoLog(
             shader,
             sizeof(log),
             nullptr,
-            log
-        );
+            log);
 
         std::cerr << "Shader error: " << log << '\n';
 
@@ -115,7 +118,8 @@ static GLuint compileShader(GLenum kind, const char* source) {
 // SCREEN STATE
 // =====================================
 
-enum class AppScreen {
+enum class AppScreen
+{
     MENU,
     CUTSCENE,
     PLAYING,
@@ -135,19 +139,21 @@ static bool suppressGameplayClick = false;
 // =====================================
 
 void mouseButtonCallback(
-    GLFWwindow* window,
+    GLFWwindow *window,
     int button,
     int action,
-    int mods
-) {
+    int mods)
+{
     (void)mods;
 
     if (button != GLFW_MOUSE_BUTTON_LEFT ||
-        action != GLFW_PRESS) {
+        action != GLFW_PRESS)
+    {
         return;
     }
 
-    if (currentScreen != AppScreen::MENU) {
+    if (currentScreen != AppScreen::MENU)
+    {
         return;
     }
 
@@ -161,7 +167,8 @@ void mouseButtonCallback(
 
     glfwGetWindowSize(window, &width, &height);
 
-    if (width <= 0 || height <= 0) {
+    if (width <= 0 || height <= 0)
+    {
         return;
     }
 
@@ -171,7 +178,8 @@ void mouseButtonCallback(
     // START BUTTON
 
     if (x >= -0.46 && x <= -0.10 &&
-        y >= 0.00 && y <= 0.20) {
+        y >= 0.00 && y <= 0.20)
+    {
 
         // Go directly to gameplay for now.
         // CUTSCENE can be connected later.
@@ -185,7 +193,8 @@ void mouseButtonCallback(
     // EXIT BUTTON
 
     else if (x >= 0.10 && x <= 0.46 &&
-             y >= 0.00 && y <= 0.20) {
+             y >= 0.00 && y <= 0.20)
+    {
 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
@@ -195,7 +204,8 @@ void mouseButtonCallback(
 // WINDOWS TITLE BAR
 // =====================================
 
-void customizeTitleBar(GLFWwindow* window) {
+void customizeTitleBar(GLFWwindow *window)
+{
     HWND hwnd = glfwGetWin32Window(window);
 
     COLORREF background = RGB(229, 231, 235);
@@ -207,33 +217,32 @@ void customizeTitleBar(GLFWwindow* window) {
         hwnd,
         20,
         &darkMode,
-        sizeof(darkMode)
-    );
+        sizeof(darkMode));
 
     DwmSetWindowAttribute(
         hwnd,
         35,
         &background,
-        sizeof(background)
-    );
+        sizeof(background));
 
     DwmSetWindowAttribute(
         hwnd,
         36,
         &textColor,
-        sizeof(textColor)
-    );
+        sizeof(textColor));
 }
 
 // =====================================
 // MAIN
 // =====================================
 
-int main() {
+int main()
+{
 
     // INITIALIZE GLFW
 
-    if (!glfwInit()) {
+    if (!glfwInit())
+    {
         std::cerr << "Failed to initialize GLFW\n";
         return 1;
     }
@@ -242,22 +251,21 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(
         GLFW_OPENGL_PROFILE,
-        GLFW_OPENGL_CORE_PROFILE
-    );
+        GLFW_OPENGL_CORE_PROFILE);
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     // CREATE WINDOW
 
-    GLFWwindow* window = glfwCreateWindow(
+    GLFWwindow *window = glfwCreateWindow(
         1000,
         700,
         "Tower Defense Game",
         nullptr,
-        nullptr
-    );
+        nullptr);
 
-    if (!window) {
+    if (!window)
+    {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
         return 1;
@@ -270,7 +278,8 @@ int main() {
 
     // INITIALIZE GLAD
 
-    if (!gladLoadGL(glfwGetProcAddress)) {
+    if (!gladLoadGL(glfwGetProcAddress))
+    {
         std::cerr << "Failed to initialize GLAD\n";
 
         glfwDestroyWindow(window);
@@ -294,14 +303,14 @@ int main() {
     mainMenu.init();
     PlayerCard playerCard;
     playerCard.init();
-
+    HUD hud;
+    hud.init();
     Game game;
     bool gameInitialized = false;
 
     glfwSetMouseButtonCallback(
         window,
-        mouseButtonCallback
-    );
+        mouseButtonCallback);
 
     // =====================================
     // CREATE SHADER PROGRAM
@@ -309,17 +318,18 @@ int main() {
 
     GLuint vert = compileShader(
         GL_VERTEX_SHADER,
-        vertexShaderSource
-    );
+        vertexShaderSource);
 
     GLuint frag = compileShader(
         GL_FRAGMENT_SHADER,
-        fragmentShaderSource
-    );
+        fragmentShaderSource);
 
-    if (!vert || !frag) {
-        if (vert) glDeleteShader(vert);
-        if (frag) glDeleteShader(frag);
+    if (!vert || !frag)
+    {
+        if (vert)
+            glDeleteShader(vert);
+        if (frag)
+            glDeleteShader(frag);
 
         glfwDestroyWindow(window);
         glfwTerminate();
@@ -338,21 +348,20 @@ int main() {
     glGetProgramiv(
         program,
         GL_LINK_STATUS,
-        &linked
-    );
+        &linked);
 
     glDeleteShader(vert);
     glDeleteShader(frag);
 
-    if (!linked) {
+    if (!linked)
+    {
         char log[1024] = {};
 
         glGetProgramInfoLog(
             program,
             sizeof(log),
             nullptr,
-            log
-        );
+            log);
 
         std::cerr << "Shader program link error: "
                   << log << '\n';
@@ -371,13 +380,12 @@ int main() {
         // X       Y      Z      U      V
 
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
 
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
-    };
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f};
 
     GLuint vao = 0;
     GLuint vbo = 0;
@@ -392,8 +400,7 @@ int main() {
         GL_ARRAY_BUFFER,
         sizeof(vertices),
         vertices,
-        GL_STATIC_DRAW
-    );
+        GL_STATIC_DRAW);
 
     glVertexAttribPointer(
         0,
@@ -401,8 +408,7 @@ int main() {
         GL_FLOAT,
         GL_FALSE,
         5 * sizeof(float),
-        (void*)0
-    );
+        (void *)0);
 
     glEnableVertexAttribArray(0);
 
@@ -412,8 +418,7 @@ int main() {
         GL_FLOAT,
         GL_FALSE,
         5 * sizeof(float),
-        (void*)(3 * sizeof(float))
-    );
+        (void *)(3 * sizeof(float)));
 
     glEnableVertexAttribArray(1);
 
@@ -429,15 +434,15 @@ int main() {
 
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* pixels = stbi_load(
+    unsigned char *pixels = stbi_load(
         "assets/backgrounds/cyberpunk.png",
         &imageWidth,
         &imageHeight,
         &channels,
-        4
-    );
+        4);
 
-    if (!pixels) {
+    if (!pixels)
+    {
         std::cerr << "Failed to load background: "
                   << stbi_failure_reason()
                   << '\n';
@@ -465,26 +470,22 @@ int main() {
     glTexParameteri(
         GL_TEXTURE_2D,
         GL_TEXTURE_WRAP_S,
-        GL_CLAMP_TO_EDGE
-    );
+        GL_CLAMP_TO_EDGE);
 
     glTexParameteri(
         GL_TEXTURE_2D,
         GL_TEXTURE_WRAP_T,
-        GL_CLAMP_TO_EDGE
-    );
+        GL_CLAMP_TO_EDGE);
 
     glTexParameteri(
         GL_TEXTURE_2D,
         GL_TEXTURE_MIN_FILTER,
-        GL_LINEAR_MIPMAP_LINEAR
-    );
+        GL_LINEAR_MIPMAP_LINEAR);
 
     glTexParameteri(
         GL_TEXTURE_2D,
         GL_TEXTURE_MAG_FILTER,
-        GL_LINEAR
-    );
+        GL_LINEAR);
 
     glTexImage2D(
         GL_TEXTURE_2D,
@@ -495,8 +496,7 @@ int main() {
         0,
         GL_RGBA,
         GL_UNSIGNED_BYTE,
-        pixels
-    );
+        pixels);
 
     glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -507,8 +507,41 @@ int main() {
     // =====================================
 
     Grid grid;
-    int playerLaneId = 0; // Initial lane; changes when the player is assigned
+    int playerLaneId = 0;     // Initial lane; changes when the player is assigned
+    int placementLaneId = -1; // No lane chosen for purchasing yet
+    std::array<bool, 4> meleePlaced = {false, false, false, false};
     Economy economy;
+
+    auto purchaseMelee = [&]()
+    {
+        const int meleeCost = 10;
+
+        if (placementLaneId < 0 || placementLaneId >= 4)
+        {
+            std::cout << "Select a lane first!\n";
+            return;
+        }
+
+        if (meleePlaced[placementLaneId])
+        {
+            std::cout << "This lane already has a Melee player!\n";
+            return;
+        }
+
+        if (!economy.spendCoins(meleeCost))
+        {
+            std::cout << "Not enough coins!\n";
+            return;
+        }
+
+        meleePlaced[placementLaneId] = true;
+
+        std::cout << "Melee placed in Lane "
+                  << placementLaneId << std::endl;
+
+        std::cout << "Remaining coins: "
+                  << economy.getCoins() << std::endl;
+    };
 
     std::cout << "Starting coins: "
               << economy.getCoins() << std::endl;
@@ -517,7 +550,8 @@ int main() {
               << (economy.canAfford(10) ? "Yes" : "No")
               << std::endl;
 
-    for (const Lane& lane : grid.getLanes()) {
+    for (const Lane &lane : grid.getLanes())
+    {
         std::cout << "Lane "
                   << lane.id
                   << " Top: "
@@ -537,11 +571,12 @@ int main() {
     // ONE MAIN GAME LOOP
     // =====================================
 
-    // i will implemnt the pause list/esc 
+    // i will implemnt the pause list/esc
     bool isPaused = false;
     int previousEscapeState = GLFW_RELEASE;
 
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window))
+    {
 
         glfwPollEvents();
         // TEMPORARY: test the Win/Lose menu.
@@ -563,9 +598,9 @@ int main() {
                 glfwSetWindowTitle(window, "Tower Defense Game - YOU LOST!");
             }
         }
-    // till here remove till this line only dont go below it so remove from 544 - 563
+        // till here remove till this line only dont go below it so remove from 544 - 563
 
-        int escapeState = glfwGetKey(window, GLFW_KEY_ESCAPE); //if the user pressed esc 
+        int escapeState = glfwGetKey(window, GLFW_KEY_ESCAPE); // if the user pressed esc
 
         if (currentScreen == AppScreen::PLAYING && escapeState == GLFW_PRESS && previousEscapeState == GLFW_RELEASE)
         {
@@ -588,8 +623,7 @@ int main() {
         double currentTime = glfwGetTime();
 
         float deltaTime = static_cast<float>(
-            currentTime - lastFrameTime
-        );
+            currentTime - lastFrameTime);
 
         lastFrameTime = currentTime;
 
@@ -599,11 +633,11 @@ int main() {
         glfwGetFramebufferSize(
             window,
             &framebufferWidth,
-            &framebufferHeight
-        );
+            &framebufferHeight);
 
         if (framebufferWidth <= 0 ||
-            framebufferHeight <= 0) {
+            framebufferHeight <= 0)
+        {
             continue;
         }
 
@@ -611,15 +645,13 @@ int main() {
             0,
             0,
             framebufferWidth,
-            framebufferHeight
-        );
+            framebufferHeight);
 
         glClearColor(
             0.1f,
             0.1f,
             0.15f,
-            1.0f
-        );
+            1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -627,7 +659,8 @@ int main() {
         // MAIN MENU
         // =====================================
 
-        if (currentScreen == AppScreen::MENU) {
+        if (currentScreen == AppScreen::MENU)
+        {
 
             mainMenu.draw();
         }
@@ -636,42 +669,31 @@ int main() {
         // GAMEPLAY
         // =====================================
 
-        else if (currentScreen == AppScreen::PLAYING) {
+        else if (currentScreen == AppScreen::PLAYING)
+        {
 
             // Initialize game ONCE
 
-            if (!gameInitialized) {
+            if (!gameInitialized)
+            {
                 game.init();
                 gameInitialized = true;
             }
 
-            
-    // =====================================
-    // TEST MELEE PURCHASE
-    // =====================================
+            // =====================================
+            // TEST MELEE PURCHASE
+            // =====================================
 
-    int buyKeyState = glfwGetKey(window, GLFW_KEY_M);
+            int buyKeyState = glfwGetKey(window, GLFW_KEY_M);
 
-    if (!isPaused && buyKeyState == GLFW_PRESS && previousBuyKeyState == GLFW_RELEASE) {
-        const int meleeCost = 10;
-        if (economy.spendCoins(meleeCost)) {
-            std::cout << "Purchase test successful!\n";
-            std::cout << "Remaining coins: "
-                      << economy.getCoins()
-                      << std::endl;
-        }
-        else {
+            if (!isPaused &&
+                buyKeyState == GLFW_PRESS &&
+                previousBuyKeyState == GLFW_RELEASE)
+            {
+                purchaseMelee();
+            }
 
-            std::cout << "Not enough coins!\n";
-
-            std::cout << "Current balance: "
-                      << economy.getCoins()
-                      << std::endl;
-        }
-    }
-
-    previousBuyKeyState = buyKeyState;
-
+            previousBuyKeyState = buyKeyState;
 
             // -----------------------------
             // MOUSE POSITION
@@ -683,8 +705,7 @@ int main() {
             glfwGetCursorPos(
                 window,
                 &mouseX,
-                &mouseY
-            );
+                &mouseY);
 
             int windowWidth = 0;
             int windowHeight = 0;
@@ -692,12 +713,12 @@ int main() {
             glfwGetWindowSize(
                 window,
                 &windowWidth,
-                &windowHeight
-            );
+                &windowHeight);
 
             int hoveredLane = -1;
 
-            if (!isPaused && windowWidth > 0 && windowHeight > 0) {
+            if (!isPaused && windowWidth > 0 && windowHeight > 0)
+            {
 
                 float normalizedX =
                     static_cast<float>(mouseX / windowWidth);
@@ -707,8 +728,36 @@ int main() {
 
                 hoveredLane = grid.getLaneAtPosition(
                     normalizedX,
-                    normalizedY
-                );
+                    normalizedY);
+            }
+
+            int hoveredCard = -1;
+
+            if (!isPaused && windowWidth > 0 && windowHeight > 0)
+            {
+                // Convert mouse position to OpenGL coordinates
+                float cardMouseX =
+                    (2.0f * static_cast<float>(mouseX) / windowWidth) - 1.0f;
+
+                float cardMouseY =
+                    1.0f - (2.0f * static_cast<float>(mouseY) / windowHeight);
+
+                // Player cards are at the top of the screen
+                if (cardMouseY >= 0.55f && cardMouseY <= 0.95f)
+                {
+                    if (cardMouseX >= -0.90f && cardMouseX <= -0.68f)
+                    {
+                        hoveredCard = 0; // Defense
+                    }
+                    else if (cardMouseX >= -0.62f && cardMouseX <= -0.40f)
+                    {
+                        hoveredCard = 1; // Melee
+                    }
+                    else if (cardMouseX >= -0.34f && cardMouseX <= -0.12f)
+                    {
+                        hoveredCard = 2; // Ranged
+                    }
+                }
             }
 
             // -----------------------------
@@ -717,21 +766,45 @@ int main() {
 
             int leftMouseState = glfwGetMouseButton(
                 window,
-                GLFW_MOUSE_BUTTON_LEFT
-            );
+                GLFW_MOUSE_BUTTON_LEFT);
 
-            if (leftMouseState == GLFW_RELEASE) {
+            if (leftMouseState == GLFW_RELEASE)
+            {
                 suppressGameplayClick = false;
             }
 
-            if (!isPaused && !suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && hoveredLane != -1) {
+            if (!isPaused &&
+                !suppressGameplayClick &&
+                leftMouseState == GLFW_PRESS &&
+                previousLeftMouseState == GLFW_RELEASE &&
+                hoveredLane != -1)
+            {
                 grid.toggleLaneSelection(hoveredLane);
-                std::cout << "Lane "
-                          << hoveredLane
-                          << " selection toggled!\n";
-            }
 
-            
+                if (grid.getLanes()[hoveredLane].selected)
+                {
+                    placementLaneId = hoveredLane;
+
+                    std::cout << "Placement lane selected: "
+                              << placementLaneId << std::endl;
+                }
+                else if (placementLaneId == hoveredLane)
+                {
+                    placementLaneId = -1;
+
+                    std::cout << "Placement lane cleared"
+                              << std::endl;
+                }
+            }
+            // Purchase Melee by clicking its card
+            if (!isPaused &&
+                !suppressGameplayClick &&
+                leftMouseState == GLFW_PRESS &&
+                previousLeftMouseState == GLFW_RELEASE &&
+                hoveredCard == 1)
+            {
+                purchaseMelee();
+            }
 
             if (isPaused && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && windowWidth > 0 && windowHeight > 0)
             {
@@ -759,7 +832,6 @@ int main() {
                 {
                     // Member 1: implement reset() b3deen uncomment el lines dol .
 
-
                     // game.reset();
 
                     isPaused = false;
@@ -776,15 +848,17 @@ int main() {
             // HOVER DETECTION
             // -----------------------------
 
-            if (hoveredLane != previousHoveredLane) {
-
-                if (hoveredLane != -1) {
+            if (hoveredLane != previousHoveredLane)
+            {
+                if (hoveredLane != -1)
+                {
                     std::cout
                         << "Hovering over Lane "
                         << hoveredLane
                         << '\n';
                 }
-                else {
+                else
+                {
                     std::cout
                         << "Mouse outside lanes\n";
                 }
@@ -798,12 +872,13 @@ int main() {
 
             glUseProgram(program);
 
-            const auto& lanes = grid.getLanes();
+            const auto &lanes = grid.getLanes();
 
             float bounds[16];
 
-            for (int i = 0; i < 4; i++) {
-                const Lane& lane = lanes[i];
+            for (int i = 0; i < 4; i++)
+            {
+                const Lane &lane = lanes[i];
 
                 bounds[i * 4 + 0] = lane.left;
                 bounds[i * 4 + 1] = lane.right;
@@ -814,38 +889,30 @@ int main() {
             glUniform4fv(
                 glGetUniformLocation(
                     program,
-                    "laneBounds[0]"
-                ),
+                    "laneBounds[0]"),
                 4,
-                bounds
-            );
+                bounds);
 
             glUniform4f(
                 glGetUniformLocation(
                     program,
-                    "selectedFlags"
-                ),
+                    "selectedFlags"),
                 lanes[0].selected ? 1.0f : 0.0f,
                 lanes[1].selected ? 1.0f : 0.0f,
                 lanes[2].selected ? 1.0f : 0.0f,
-                lanes[3].selected ? 1.0f : 0.0f
-            );
+                lanes[3].selected ? 1.0f : 0.0f);
 
             glUniform1i(
                 glGetUniformLocation(
                     program,
-                    "hoveredLane"
-                ),
-                hoveredLane
-            );
+                    "hoveredLane"),
+                hoveredLane);
 
             glUniform1i(
                 glGetUniformLocation(
                     program,
-                    "backgroundTexture"
-                ),
-                0
-            );
+                    "backgroundTexture"),
+                0);
 
             // -----------------------------
             // DRAW BACKGROUND
@@ -855,16 +922,14 @@ int main() {
 
             glBindTexture(
                 GL_TEXTURE_2D,
-                backgroundTexture
-            );
+                backgroundTexture);
 
             glBindVertexArray(vao);
 
             glDrawArrays(
                 GL_TRIANGLES,
                 0,
-                6
-            );
+                6);
 
             glBindVertexArray(0);
 
@@ -876,8 +941,20 @@ int main() {
             {
                 game.update(deltaTime);
             }
-            game.render(grid.getLanes()[playerLaneId]);
-            playerCard.draw(-1);
+
+            for (int laneId = 0; laneId < 4; laneId++)
+            {
+                if (meleePlaced[laneId])
+                {
+                    game.render(grid.getLanes()[laneId]);
+                }
+            }
+
+            playerCard.draw(hoveredCard);
+            hud.drawCoins(
+                economy.getCoins(),
+                framebufferWidth,
+                framebufferHeight);
             if (isPaused)
             {
                 glEnable(GL_SCISSOR_TEST);
@@ -886,8 +963,7 @@ int main() {
                     framebufferWidth * 3 / 10,
                     framebufferHeight / 5,
                     framebufferWidth * 4 / 10,
-                    framebufferHeight * 3 / 5
-                );
+                    framebufferHeight * 3 / 5);
 
                 glClearColor(0.08f, 0.04f, 0.15f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
@@ -902,54 +978,52 @@ int main() {
             mainMenu.endMenu(currentScreen == AppScreen::WON);
             int leftMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT); // left mousse is clicked
 
-        if (leftMouseState == GLFW_RELEASE)
-        {
-            suppressGameplayClick = false;
-        }
-
-        if (!suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE) // new press aw new action bgd
-        {
-        double mouseX, mouseY;
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-
-        int windowWidth, windowHeight;
-        glfwGetWindowSize(window, &windowWidth, &windowHeight);
-
-        if (windowWidth > 0 && windowHeight > 0)
-        {
-            double x = (2.0 * mouseX / windowWidth) - 1.0;
-            double y = 1.0 - (2.0 * mouseY / windowHeight);
-
-            // Restart
-            if (x >= -0.24 && x <= 0.24 &&
-                y >= -0.14 && y <= 0.14)
+            if (leftMouseState == GLFW_RELEASE)
             {
-                // TODO Member 1: implement, then uncomment.
-                // game.reset();
-
-                currentScreen = AppScreen::PLAYING;
-                isPaused = false;
-                suppressGameplayClick = true;
-                glfwSetWindowTitle(window, "Tower Defense Game");
+                suppressGameplayClick = false;
             }
-            // Main Menu
-            else if (x >= -0.24 && x <= 0.24 &&
-                     y >= -0.48 && y <= -0.20)
+
+            if (!suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE) // new press aw new action bgd
             {
-                currentScreen = AppScreen::MENU;
-                isPaused = false;
-                suppressGameplayClick = true;
-                glfwSetWindowTitle(window, "Tower Defense Game");
+                double mouseX, mouseY;
+                glfwGetCursorPos(window, &mouseX, &mouseY);
+
+                int windowWidth, windowHeight;
+                glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+                if (windowWidth > 0 && windowHeight > 0)
+                {
+                    double x = (2.0 * mouseX / windowWidth) - 1.0;
+                    double y = 1.0 - (2.0 * mouseY / windowHeight);
+
+                    // Restart
+                    if (x >= -0.24 && x <= 0.24 &&
+                        y >= -0.14 && y <= 0.14)
+                    {
+                        // TODO Member 1: implement, then uncomment.
+                        // game.reset();
+
+                        currentScreen = AppScreen::PLAYING;
+                        isPaused = false;
+                        suppressGameplayClick = true;
+                        glfwSetWindowTitle(window, "Tower Defense Game");
+                    }
+                    // Main Menu
+                    else if (x >= -0.24 && x <= 0.24 &&
+                             y >= -0.48 && y <= -0.20)
+                    {
+                        currentScreen = AppScreen::MENU;
+                        isPaused = false;
+                        suppressGameplayClick = true;
+                        glfwSetWindowTitle(window, "Tower Defense Game");
+                    }
+                }
             }
-        }
-    }
 
-    previousLeftMouseState = leftMouseState;
-
+            previousLeftMouseState = leftMouseState;
         }
 
         glfwSwapBuffers(window);
-
     }
 
     // =====================================
@@ -961,6 +1035,7 @@ int main() {
     glDeleteProgram(program);
     glDeleteTextures(1, &backgroundTexture);
 
+    hud.cleanup();
     glfwDestroyWindow(window);
     glfwTerminate();
 
