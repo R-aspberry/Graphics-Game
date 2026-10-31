@@ -1,19 +1,20 @@
 #include "Grid.h"
 
+
 Grid::Grid() {
+    lanes = {{
+        // id, left, right, top, bottom, selected, hovered
 
-    // Lane 0 - Top
-    lanes[0] = {0, 0.21f, 0.98f, 0.40f, 0.51f, false, false};
+        {0, 0.24f, 0.94f, 0.47f, 0.56f, false, false},
 
-    // Lane 1 - Upper Middle
-    lanes[1] = {1, 0.21f, 0.98f, 0.51f, 0.63f, false, false};
+        {1, 0.23f, 0.95f, 0.56f, 0.67f, false, false},
 
-    // Lane 2 - Lower Middle
-    lanes[2] = {2, 0.21f, 0.98f, 0.63f, 0.78f, false, false};
+        {2, 0.22f, 0.97f, 0.67f, 0.80f, false, false},
 
-    // Lane 3 - Bottom
-    lanes[3] = {3, 0.21f, 0.98f, 0.78f, 0.93f, false, false};
+        {3, 0.21f, 0.98f, 0.80f, 0.92f, false, false}
+    }};
 }
+
 
 const std::array<Lane, 4>& Grid::getLanes() const {
     return lanes;

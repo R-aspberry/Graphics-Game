@@ -1,6 +1,7 @@
 
 #include "Game.h"
 #include "utils/ResourceManager.h"
+#include "world/Lane.h"
 
 #include <iostream>
 
@@ -87,19 +88,34 @@ void Game::update(float deltaTime)
     (void)deltaTime;
 }
 
-void Game::render()
+
+
+
+void Game::render(const Lane& lane)
 {
     if (!initialized || renderer == nullptr)
     {
         return;
     }
 
-    // Draw Melee near the bottom-left of the screen.
+    // MEDIUM-SIZED PLAYER
+    float playerWidth = 0.05f;
+    float playerHeight = 0.10f;
+
+    // Position player on the LEFT of its lane
+    float playerX = lane.left + 0.025f;
+
+    // Find the vertical CENTER of the lane
+    float laneCenterY = (lane.top + lane.bottom) / 2.0f;
+
+    // Center the entire player vertically
+    float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
+
     renderer->drawSprite(
         meleeTexture,
-        0.08f,  // x
-        0.08f,  // y
-        0.22f,  // width
-        0.35f   // height
+        playerX,
+        playerY,
+        playerWidth,
+        playerHeight
     );
 }

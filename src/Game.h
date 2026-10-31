@@ -3,7 +3,7 @@
 
 #include "Shader.h"
 #include "Renderer.h"
-
+struct Lane;
 class Game
 {
 public:
@@ -12,7 +12,7 @@ public:
 
     void init();
     void update(float deltaTime);
-    void render();
+    void render(const Lane& lane);
 
 private:
     Shader* spriteShader = nullptr;
