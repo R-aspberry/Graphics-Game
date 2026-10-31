@@ -29,6 +29,17 @@ public:
     // Accessors
     const std::vector<std::unique_ptr<Player>>& getPlayers() const;
     Grid* getGrid() const { return grid; }
+
+    void removeInactiveProjectiles();
+    std::vector<Player*> getPlayersInLane(int laneIndex) const;
+    std::vector<Player*> getActivePlayers() const;
+    std::vector<Projectile*> getActiveProjectiles() const;
+    Player* getPlayerAtIndex(std::size_t index) const;
+    void clear();
+    void updatePlayerPositions(float deltaTime);
+    void updateProjectiles(float deltaTime);
+    void cleanupInactiveEntities();
+   
 };
 
 #endif // GAMEMANAGER_H

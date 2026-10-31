@@ -1,0 +1,428 @@
+
+========== src/systems/WaveManager.h ==========
+#pragma once
+#include "../entities/Enemy.h"
+#include <memory>
+#include  <vector>
+#include <cstddef>
+struct EnemyDrop {
+    glm::vec2 position;
+    int lane;
+}; 
+class WaveManager {
+
+    private : 
+        int currentWave;
+        int enemiesSpawnedInWave;
+        int totalEnemiesInWave;
+        float spawnTimer;
+        std::vector<std::unique_ptr<Enemy>> activeEnemies;
+        std::vector<bool> dropGenerated;
+        std::vector<EnemyDrop> enemyDrops;
+        bool spawnEnemy();
+        bool isWaveComplete() const;
+        void startNextWave() ;
+        void processEnemyDeaths();
+        bool gameWon;
+
+    public:
+        WaveManager();
+        void update(float deltaTime);
+        int getEnemiesSpawnedInWave() const {
+            return enemiesSpawnedInWave;
+        }
+        std::size_t getActiveEnemyCount() const{
+            return activeEnemies.size();
+        }
+       const Enemy* getEnemyAt(std::size_t index) const{
+        if (index >= activeEnemies.size()) {
+            return nullptr;
+        }
+        return activeEnemies[index].get();
+       }
+       int getCurrentWave() const{
+        return currentWave;
+       }
+       Enemy* getEnemyAt(std::size_t index);
+       bool hasWon() const {
+            return gameWon;
+        }
+        std::size_t getDropCount() const {
+            return enemyDrops.size();
+        }
+        const EnemyDrop* getDropAt(std::size_t index) const {
+            if (index >= enemyDrops.size()) {
+                return nullptr;
+            }
+
+            return &enemyDrops[index];
+        }
+        bool removeDropAt(std::size_t index);
+        bool hasEnemyReachedBase(float homeBaseX) const;
+};
+========== src/systems/WaveManager.cpp ==========
+# include "WaveManager.h"
+# include "../utils/Constants.h" 
+# include "../entities/EasyEnemy.h"
+#include "../entities/MediumEnemy.h"
+#include "../entities/HardEnemy.h"
+# include <random>
+# include <utility>
+
+WaveManager::WaveManager() : currentWave(1), enemiesSpawnedInWave(0), 
+                totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f),gameWon(false) {}
+
+
+void WaveManager::processEnemyDeaths() {
+    for (std::size_t i = 0; i < activeEnemies.size(); ++i) {
+        if(activeEnemies[i]->getState() == EnemyState::DEAD && !dropGenerated[i]){
+            enemyDrops.push_back({
+                activeEnemies[i]->getPosition(),
+                activeEnemies[i]->getLane()
+            });
+            dropGenerated[i] = true;
+        }
+    }
+}
+
+
+void WaveManager::startNextWave() {
+    if (currentWave >= 3 || !isWaveComplete()) {
+        return;
+    }
+
+    currentWave++;
+
+    enemiesSpawnedInWave = 0;
+    spawnTimer = 0.0f;
+
+    if (currentWave == 2) {
+        totalEnemiesInWave = GameConfig::WAVE_2_COUNT;
+    }
+    else if (currentWave == 3) {
+        totalEnemiesInWave = GameConfig::WAVE_3_COUNT;
+    }
+
+    activeEnemies.clear();
+    dropGenerated.clear();
+}
+
+
+bool WaveManager::isWaveComplete() const {
+    if(enemiesSpawnedInWave < totalEnemiesInWave) {
+        return false;
+    }
+    for (const auto& enemy : activeEnemies) {
+        if (enemy->getState() != EnemyState::DEAD) {
+            return false;
+        }
+    }
+    return true;
+}
+
+Enemy* WaveManager::getEnemyAt(std::size_t index) {
+    if (index >= activeEnemies.size()) {
+        return nullptr;
+    }
+    return activeEnemies[index].get();
+}
+
+bool WaveManager::spawnEnemy() {
+    static std::mt19937 generator{std::random_device{}()}; //random number generator
+
+    std::uniform_int_distribution<int> laneDistribution(
+        0, GameConfig::LANE_COUNT - 1
+    ); //random lane selection 
+
+    int lane = laneDistribution(generator); //select a random lane
+
+     
+    std::unique_ptr<Enemy> enemy;
+    EnemyType enemyType = EnemyType::EASY;
+
+   if (currentWave == 2) {
+        if (enemiesSpawnedInWave == 0) {
+            enemyType = EnemyType::EASY;
+        }
+        else if (enemiesSpawnedInWave == 1) {
+            enemyType = EnemyType::MEDIUM;
+        }
+        else {
+            std::uniform_int_distribution<int> enemyDistribution(0, 1);
+            enemyType = static_cast<EnemyType>(enemyDistribution(generator));
+        }
+    }
+    if (currentWave == 3){
+        if (enemiesSpawnedInWave == 0) {
+            enemyType = EnemyType::EASY;
+        }
+        else if (enemiesSpawnedInWave == 1) {
+            enemyType = EnemyType::MEDIUM;
+        }
+        else if (enemiesSpawnedInWave == 2) {
+            enemyType = EnemyType::HARD;
+        }
+        else {
+            std::uniform_int_distribution<int> enemyDistribution(0, 2);
+            enemyType = static_cast<EnemyType>(enemyDistribution(generator));
+        }
+    }
+
+    glm::vec2 spawnPosition(900.0f, 100.0f + lane * 75.0f); //calculate spawn position based on lane
+    
+       if (enemyType == EnemyType::EASY) {
+    enemy = std::make_unique<EasyEnemy>(lane, spawnPosition, 2.0f);
+    }
+    else if (enemyType == EnemyType::MEDIUM){
+        enemy = std::make_unique<MediumEnemy>(lane, spawnPosition, 2.0f);
+    }
+    else {
+        enemy = std::make_unique<HardEnemy>(lane, spawnPosition, 2.0f);
+    }
+
+    activeEnemies.push_back(std::move(enemy));
+    dropGenerated.push_back(false);
+    return true;
+  
+}
+
+bool WaveManager::removeDropAt(std::size_t index) {
+    if (index >= enemyDrops.size()) {
+        return false;
+    }
+    enemyDrops.erase(enemyDrops.begin() + index);
+    return true;
+}
+
+bool WaveManager::hasEnemyReachedBase(float homeBaseX) const {
+
+    for (const auto& enemy : activeEnemies) {
+        if (enemy->getPosition().x <= homeBaseX && enemy->getState() != EnemyState::DEAD) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void WaveManager::update(float deltaTime) {
+    if (deltaTime < 0.0f || gameWon) {
+        return;
+    }
+
+    // Update existing enemies
+    for (auto& enemy : activeEnemies) {
+        enemy->update(deltaTime);
+    }
+
+    // Update spawning timer
+    spawnTimer += deltaTime;
+
+    // Spawn enemies
+    while (spawnTimer >= GameConfig::ENEMY_SPAWN_INTERVAL &&
+           enemiesSpawnedInWave < totalEnemiesInWave) {
+
+        if (!spawnEnemy()) {
+            break;
+        }
+
+        enemiesSpawnedInWave++;
+        spawnTimer -= GameConfig::ENEMY_SPAWN_INTERVAL;
+    }
+    processEnemyDeaths();
+    // Check whether the wave is complete
+    if (isWaveComplete()) {
+        if (currentWave == 3) {
+            gameWon = true;
+        }
+        else {
+            startNextWave();
+        }
+    }
+    
+}
+
+========== src/systems/CombatSystem.h ==========
+
+========== src/systems/CombatSystem.cpp ==========
+
+========== src/entities/Enemy.h ==========
+#pragma once
+#include <glm/glm.hpp>
+#include "../utils/Types.h"
+
+class Enemy{
+    private : 
+        int health;
+        int damage;
+        float speed;
+        float attackInterval;
+        float timeSinceLastAttack;
+        int lane;
+        int maxHealth;
+        glm::vec2 position;
+        EnemyState state;
+        void moveTowardsBase(float deltaTime);
+        void updateAttackTimer(float deltaTime);
+    
+    public:
+        Enemy(int health, int damage, float speed, float attackInterval, int lane, glm::vec2 position);
+        virtual ~Enemy() = default;
+        int getHealth() const { return health; }
+        int getDamage() const { return damage; }
+        virtual AttackType getAttackType() const { return AttackType::Melee; };
+        float getSpeed() const { return speed; }
+        float getAttackInterval() const { return attackInterval; }
+        float getTimeSinceLastAttack() const { return timeSinceLastAttack; }
+        int getLane() const { return lane; }
+        int getMaxHealth() const { return maxHealth; }
+        glm::vec2 getPosition() const { return position; }
+        EnemyState getState() const { return state; }
+        void update(float deltaTime);
+        void takeDamage(int incomingDamage);
+        bool canAttack() const;
+        void resetAttackTimer();
+        void setState(EnemyState newState); 
+};
+========== src/entities/EasyEnemy.h ==========
+
+#pragma once
+
+#include "Enemy.h"
+
+class EasyEnemy : public Enemy {
+public:
+    EasyEnemy(int lane, glm::vec2 position, float attackInterval);
+
+    AttackType getAttackType() const override {
+        return AttackType::High;
+    }
+};
+
+========== src/entities/RangedPlayer.cpp ==========
+#include "../utils/Types.h"
+#include "../utils/Animation.h"
+#include "../entities/Entity.h"
+#include "../entities/Projectile.h"
+#include <Constants.h>
+#include "RangedPlayer.h"
+#include "GameManager.h"
+
+
+
+    RangedPlayer::RangedPlayer(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
+        
+
+    }
+
+    RangedPlayer::~RangedPlayer() = default;
+
+    PlayerType RangedPlayer::getPlayerType() const {
+        return PlayerType::Ranged;
+    }
+
+    bool RangedPlayer::canAttack() const {
+        if (!(attackCoolDownTimer<=0.0f)){
+            return false;
+        }
+        return actionState == ActionState::Moving;
+    }
+
+    void RangedPlayer::startAttack(GameManager& gameManager) {
+        if(!canAttack()){
+            return;
+        }
+        actionState = ActionState::Attacking;
+        attackTimer = 0.0f;
+        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
+        gameManager.addProjectile(std::move(projectile));
+    }
+
+    void RangedPlayer::finishAttack(){
+        if(actionState == ActionState::Attacking){
+            actionState = ActionState::Moving;
+            attackTimer = 0.0f;
+            attackCoolDownTimer = Constants::attackIntervals;
+        }
+    }
+
+    int RangedPlayer::getAttackDamage() const{
+        return attackDamage;
+    }
+
+    float RangedPlayer::getAttackRange() const{
+        return attackRange;
+    }
+
+    bool RangedPlayer::isAttacking () const{
+        return ActionState::Attacking == actionState;
+    }
+
+    void RangedPlayer::updateAttack(float deltaTime){
+        if(actionState != ActionState::Attacking){
+            return;
+        }
+        attackTimer +=deltaTime;
+        if (attackTimer >= Constants::attackDuration){
+            finishAttack();
+        }
+        
+    }
+
+    void RangedPlayer::update(float deltaTime){
+        this->updateAttack(deltaTime);
+        Player::update(deltaTime);
+        attackCoolDownTimer-= deltaTime;
+    }
+
+========== src/entities/DefensePlayer.cpp ==========
+#include "../utils/Types.h"
+#include "../utils/Animation.h"
+#include "../entities/Entity.h"
+#include <Constants.h>
+#include "DefensePlayer.h"
+
+    DefensePlayer::DefensePlayer(float x, float y, float width, float height, int laneIndex,  int maxHealth,float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed), protectionEnabled(true){
+
+    }
+
+    DefensePlayer::~DefensePlayer() = default;
+ 
+    void DefensePlayer::update(float deltaTime) {
+        updateDamageFeedback(deltaTime);
+    }
+
+    PlayerType DefensePlayer::getPlayerType() const {
+        return PlayerType::Defense;
+    }
+    void DefensePlayer::startAttack(GameManager &gameManager ) {
+        //nothing
+    }
+
+    bool DefensePlayer::canAttack() const {
+        return false;
+    }
+
+    void DefensePlayer::jump() {
+
+    }
+    void DefensePlayer::duck() {
+
+    }
+    bool DefensePlayer::canProvideProtection() const{
+        return ActionState::Defeated != actionState && protectionEnabled;
+    }
+
+    void DefensePlayer::disableProtection(){
+        protectionEnabled = false;
+    }
+
+    bool DefensePlayer::protects(const Player& player) const{
+        if (!canProvideProtection() || !(player.isAlive())){
+            return false;
+        }
+        bool cond1 = this->laneIndex == player.laneIndex;
+        bool cond2 = this -> x > player.x;
+        return cond1&&cond2;
+
+    }
+

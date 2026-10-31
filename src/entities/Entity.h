@@ -1,5 +1,6 @@
-#define Entity_H
-#pragma once
+#ifndef ENTITY_H
+#define ENTITY_H
+
 #include "../utils/Types.h"
 
 class Entity{
@@ -31,3 +32,5 @@ class Entity{
 
 
 };
+
+#endif

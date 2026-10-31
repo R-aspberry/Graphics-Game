@@ -13,28 +13,29 @@ add_subdirectory(external/glfw)
 add_subdirectory(external/glm)
 find_package(OpenGL REQUIRED)
 
-# Main menu and gameplay use GLAD 2 header-only.  Its implementation is
+# Main menu and gameplay use GLAD 2 header-only. Its implementation is
 # compiled in src/main.cpp (GLAD_GL_IMPLEMENTATION), not src/glad.c (GLAD 1).
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
+
+list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/glad\.c$")
+
 add_executable(TowerDefense
-    src/main.cpp
+    ${PROJECT_SOURCES}
     src/glad2.cpp
-    src/world/Grid.cpp
-    src/ui/MainMenu.cpp
-    src/Shader.cpp
-    src/Renderer.cpp
-    src/utils/ResourceManager.cpp
-    src/Game.cpp
-    src/systems/WaveManager.cpp
-    src/entities/Enemy.cpp
-    src/entities/EasyEnemy.cpp
-    src/entities/MediumEnemy.cpp
-    src/entities/HardEnemy.cpp
 )
 
 target_include_directories(TowerDefense PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/entities"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/systems"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ui"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/world"
     "${CMAKE_CURRENT_SOURCE_DIR}/external/stb"
     "${CMAKE_CURRENT_SOURCE_DIR}/external/glad/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/glm"
 )
 target_link_libraries(TowerDefense PRIVATE glfw OpenGL::GL glm::glm)
 if(WIN32)

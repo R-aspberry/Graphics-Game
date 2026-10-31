@@ -2,104 +2,115 @@
 #include "../utils/Animation.h"
 #include "../entities/Entity.h"
 #include <Constants.h>
+#include "Player.h"
 
-class Player : public Entity{
-    int health;
-    int maxHealth;
-    float moveSpeed;
-    ActionState actionState;
-    bool movementBlocked;
-    float jumpTimer;
-    float duckTimer;
-    float damageFlashTimer;
-    float attackRange;
-    Animation animation; // error will go away once we define animation class
 
-    Player(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed) : Entity(x, y, width, height, laneIndex){
-        this->maxHealth = maxHealth;
-        this-> moveSpeed = moveSpeed;
+    Player::Player(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed) : Entity(x, y, width, height, laneIndex) , health(maxHealth),
+      maxHealth(maxHealth),
+      moveSpeed(moveSpeed),
+      actionState(ActionState::Idle),
+      movementBlocked(false),
+      jumpTimer(0.0f),
+      duckTimer(0.0f),
+      damageFlashTimer(0.0f),
+      attackRange(0.0f){
     }
 
-    ~Player() override {
+    Player::~Player()  {
 
     }
 
-    virtual void takeDamage(int damage){
+     void Player::takeDamage(int damage){
+        if (actionState == ActionState::Defeated){
+            return;
+        }
+        if (damage<=0){
+            return ;
+        }
+        health-= damage;
+        damageFlashTimer = 0.2f;
 
+        if(health <=0){
+            health =0;
+            setActive(false);
+            actionState = ActionState::Defeated;
+        }
+        else{
+            actionState = ActionState::Damaged;
+        }
     }
 
-    bool isAlive() {
-        return actionState != ActionState::Defeated;
+    bool Player::isAlive() const {
+        return actionState != ActionState::Defeated /*|| health!=0*/;
     }
-    int getHealth() const {
+    int Player::getHealth() const {
         return health;
     }
-    int getMaxHealth() const{
+    int Player::getMaxHealth() const{
         return maxHealth;
     }
-    float getMoveSpeed() const	{
+    float Player::getMoveSpeed() const	{
         return moveSpeed;
     }
-    ActionState getActionState() const	{
+    ActionState Player::getActionState() const	{
         return actionState;
     }
-    void setMovementBlocked(bool blocked)	{
-        movementBlocked = true;
+    void Player::setMovementBlocked(bool blocked)	{
+        movementBlocked = blocked;
     }
-    bool isMovementBlocked() const	{
+    bool Player::isMovementBlocked() const	{
         return movementBlocked;
     }
-    virtual void jump()	{
-        
+     void Player::jump()	{
+        if (actionState == ActionState::Idle || actionState == ActionState::Moving){
+            setActionState(ActionState::Jumping);
+            jumpTimer = 0.0f;
+        }
+        else {
+            return;
+        }
     }
-    virtual void duck()	{
-        
+     void Player::duck()	{
+        if (actionState == ActionState::Idle || actionState == ActionState::Moving){
+            setActionState(ActionState::Ducking);
+            duckTimer = 0.0f;
+        }
+        else {
+            return;
+        }
     }
-    bool isJumping() const	{
+    bool Player::isJumping() const	{
         return actionState == ActionState::Jumping;
     }
-    bool isDucking() const	{
+    bool Player::isDucking() const	{
             return actionState == ActionState::Ducking;
     }
-    virtual PlayerType getPlayerType() const = 0 ;	
-    virtual void startAttack() = 0	;
-    virtual bool canAttack() const = 0 ;
 
-    void updateMovement(float deltaTime) {
+    void Player::updateMovement(float deltaTime) {
         if(ActionState::Moving == actionState && movementBlocked== false){
             x+= moveSpeed * deltaTime;
         }
     }
 
-    void updateJump (float deltaTime){
+    void Player::updateJump (float deltaTime){
         if (actionState != ActionState::Jumping){
             return;
         }
         jumpTimer += deltaTime;
-        if(jumpTimer > Constants::JUMP_DURATION){
+        if(jumpTimer >= Constants::JUMP_DURATION){
             jumpTimer = 0.0f;
-            if(movementBlocked){
-                actionState = ActionState::Idle;
-            }   
-            else {
-                actionState = ActionState::Moving;
-            }
+            actionState = ActionState::Idle;
         }
     }
 
-    void updateDuck (float deltaTime){
+    void Player::updateDuck (float deltaTime){
         if (actionState != ActionState::Ducking){
             return;
         }
         duckTimer += deltaTime;
-        if(duckTimer > Constants::DUCK_DURATION){
+        if(duckTimer >=Constants::DUCK_DURATION){
             duckTimer = 0.0f;
-            if(movementBlocked){
-                actionState = ActionState::Idle;
-            }   
-            else {
-                actionState = ActionState::Moving;
-            }
+            actionState = ActionState::Idle;
         }
     }
 
@@ -115,17 +126,16 @@ class Player : public Entity{
         { damageFlashTimer = 0.0f;
         }
     }
-    void update(float deltaTime) override {
+    void Player::update(float deltaTime)  {
         updateMovement(deltaTime);
         updateJump(deltaTime);
         updateDuck(deltaTime);
         updateDamageFeedback(deltaTime);
     }
 
-    void setActionState(ActionState newState){
+    void Player::setActionState(ActionState newState){
         actionState = newState;
     }
-    virtual bool canMove(){
+     bool Player::canMove() const{
         return !movementBlocked;
     }
-};

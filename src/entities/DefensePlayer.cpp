@@ -2,52 +2,50 @@
 #include "../utils/Animation.h"
 #include "../entities/Entity.h"
 #include <Constants.h>
-#include "Player.h"
+#include "DefensePlayer.h"
 
-class DefensePlayer : public Player{
-    bool protectionEnabled;
-
-    DefensePlayer(float x, float y, float width, float height, int laneIndex, float moveSpeed, int maxHealth) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
+    DefensePlayer::DefensePlayer(float x, float y, float width, float height, int laneIndex,  int maxHealth,float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed), protectionEnabled(true){
 
     }
 
-    void update(float deltaTime) override{
+    DefensePlayer::~DefensePlayer() = default;
+ 
+    void DefensePlayer::update(float deltaTime) {
         updateDamageFeedback(deltaTime);
     }
 
-    PlayerType getPlayerType() const override{
+    PlayerType DefensePlayer::getPlayerType() const {
         return PlayerType::Defense;
     }
-    void startAttack() override{
+    void DefensePlayer::startAttack(GameManager &gameManager ) {
         //nothing
     }
 
-    bool canAttack() const override{
+    bool DefensePlayer::canAttack() const {
         return false;
     }
 
-    void jump() override{
+    void DefensePlayer::jump() {
 
     }
-    void duck() override{
+    void DefensePlayer::duck() {
 
     }
-    bool canProvideProtection() const{
+    bool DefensePlayer::canProvideProtection() const{
         return ActionState::Defeated != actionState && protectionEnabled;
     }
 
-    void disableProtection(){
+    void DefensePlayer::disableProtection(){
         protectionEnabled = false;
     }
 
-    bool protects(const Player& player) const{
-        if (!canProvideProtection || !(player.isAlive())){
-            return ;
+    bool DefensePlayer::protects(const Player& player) const{
+        if (!canProvideProtection() || !(player.isAlive())){
+            return false;
         }
         bool cond1 = this->laneIndex == player.laneIndex;
         bool cond2 = this -> x > player.x;
-        return cond1&cond2;
+        return cond1&&cond2;
 
     }
-};
 
