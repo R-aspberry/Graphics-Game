@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/user/Desktop/Graphics-Game/build-enemy-nmake/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-enemy-nmake/external/glfw/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-enemy-nmake/external/glfw/src/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-enemy-nmake/external/glm/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-enemy-nmake/external/glm/glm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

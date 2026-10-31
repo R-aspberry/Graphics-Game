@@ -539,3 +539,4 @@ int main() {
               << failed << " failed\n";
     std::cout << "==============================\n";
     return failed == 0 ? 0 : 1;
+}

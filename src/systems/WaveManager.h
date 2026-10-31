@@ -56,4 +56,5 @@ class WaveManager {
             return &enemyDrops[index];
         }
         bool removeDropAt(std::size_t index);
+        bool hasEnemyReachedBase(float homeBaseX) const;
 };

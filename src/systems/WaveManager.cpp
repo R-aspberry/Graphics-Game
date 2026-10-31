@@ -131,6 +131,16 @@ bool WaveManager::removeDropAt(std::size_t index) {
     return true;
 }
 
+bool WaveManager::hasEnemyReachedBase(float homeBaseX) const {
+
+    for (const auto& enemy : activeEnemies) {
+        if (enemy->getPosition().x <= homeBaseX && enemy->getState() != EnemyState::DEAD) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void WaveManager::update(float deltaTime) {
     if (deltaTime < 0.0f || gameWon) {
         return;
