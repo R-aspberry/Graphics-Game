@@ -69,6 +69,39 @@ float buttonVertices[] = {
      0.46f,  0.20f,   1.0f, 1.0f,
      0.10f,  0.20f,   0.0f, 1.0f
 };
+
+float escVertices[] = {
+    // x      y       u     v
+
+    // CONTINUE — vertices 0–5
+    -0.24f,  0.20f,   0.0f, 0.0f,
+     0.24f,  0.20f,   1.0f, 0.0f,
+     0.24f,  0.48f,   1.0f, 1.0f,
+
+    -0.24f,  0.20f,   0.0f, 0.0f,
+     0.24f,  0.48f,   1.0f, 1.0f,
+    -0.24f,  0.48f,   0.0f, 1.0f,
+
+    // RESTART — vertices 6–11
+    -0.24f, -0.14f,   0.0f, 0.0f,
+     0.24f, -0.14f,   1.0f, 0.0f,
+     0.24f,  0.14f,   1.0f, 1.0f,
+
+    -0.24f, -0.14f,   0.0f, 0.0f,
+     0.24f,  0.14f,   1.0f, 1.0f,
+    -0.24f,  0.14f,   0.0f, 1.0f,
+
+    // MAIN MENU — vertices 12–17
+    -0.24f, -0.48f,   0.0f, 0.0f,
+     0.24f, -0.48f,   1.0f, 0.0f,
+     0.24f, -0.20f,   1.0f, 1.0f,
+
+    -0.24f, -0.48f,   0.0f, 0.0f,
+     0.24f, -0.20f,   1.0f, 1.0f,
+    -0.24f, -0.20f,   0.0f, 1.0f
+};
+
+
 glGenVertexArrays(1, &buttonVAO);
 glGenBuffers(1, &buttonVBO);
 glBindVertexArray(buttonVAO);
@@ -192,8 +225,166 @@ stbi_image_free(exitImage);
 
 glBindTexture(GL_TEXTURE_2D, 0);
 
+// esc menu images
+glGenVertexArrays(1, &escVAO);
+glGenBuffers(1, &escVBO);
+glBindVertexArray(escVAO);
+glBindBuffer(GL_ARRAY_BUFFER, escVBO);
+glBufferData(GL_ARRAY_BUFFER, sizeof(escVertices),escVertices, GL_STATIC_DRAW);
+glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),  (void*)(2 * sizeof(float)));
+glEnableVertexAttribArray(1);
+glBindBuffer(GL_ARRAY_BUFFER, 0);
+glBindVertexArray(0);
+
+int continueWidth, continueHeight, continueChannels;
+
+stbi_set_flip_vertically_on_load(true);
+
+unsigned char* continueImage = stbi_load("assets/continue.png",&continueWidth,&continueHeight,&continueChannels,4);
+glGenTextures(1, &continueButton);
+glBindTexture(GL_TEXTURE_2D, continueButton);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,continueWidth, continueHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, continueImage);
+
+stbi_image_free(continueImage);
+
+glBindTexture(GL_TEXTURE_2D, 0);
+
+// RESTART IMAGE
+int restartWidth, restartHeight, restartChannels;
+
+unsigned char* restartImage = stbi_load("assets/restart.png",&restartWidth, &restartHeight, &restartChannels, 4);
 
 
+glGenTextures(1, &restartButton);
+glBindTexture(GL_TEXTURE_2D, restartButton);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, restartWidth, restartHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, restartImage);
+
+stbi_image_free(restartImage);
+glBindTexture(GL_TEXTURE_2D, 0);
+
+
+// MAIN MENU IMAGE
+int menuWidth, menuHeight, menuChannels;
+
+unsigned char* menuImage = stbi_load("assets/mainmenu.png",&menuWidth, &menuHeight, &menuChannels, 4);
+
+
+glGenTextures(1, &mainMenuButton);
+glBindTexture(GL_TEXTURE_2D, mainMenuButton);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,menuWidth, menuHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, menuImage);
+
+stbi_image_free(menuImage);
+glBindTexture(GL_TEXTURE_2D, 0);
+// YOU WON IMAGE
+int winWidth, winHeight, winChannels;
+
+unsigned char* winImage = stbi_load("assets/won.png",&winWidth, &winHeight, &winChannels, 4);
+
+glGenTextures(1, &winTexture);
+glBindTexture(GL_TEXTURE_2D, winTexture);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,winWidth, winHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, winImage);
+
+stbi_image_free(winImage);
+glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
+// YOU LOST IMAGE
+int loseWidth, loseHeight, loseChannels;
+unsigned char* loseImage = stbi_load("assets/lost.png", &loseWidth, &loseHeight, &loseChannels, 4);
+
+glGenTextures(1, &loseTexture);
+glBindTexture(GL_TEXTURE_2D, loseTexture);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,loseWidth, loseHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, loseImage);
+
+stbi_image_free(loseImage);
+glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
+
+void MainMenu::escTab()
+{
+    glUseProgram(shaderProgram);
+    glActiveTexture(GL_TEXTURE0);
+
+    // Allow transparent parts of the images
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Select the rectangles for our three pause buttons
+    glBindVertexArray(escVAO);
+
+    // Continue
+    glBindTexture(GL_TEXTURE_2D, continueButton);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    // Restart
+    glBindTexture(GL_TEXTURE_2D, restartButton);
+    glDrawArrays(GL_TRIANGLES, 6, 6);
+
+    // Main Menu
+    glBindTexture(GL_TEXTURE_2D, mainMenuButton);
+    glDrawArrays(GL_TRIANGLES, 12, 6);
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_BLEND);
+}
+
+
+
+void MainMenu::endMenu(bool won)
+{
+    glUseProgram(shaderProgram);
+    glActiveTexture(GL_TEXTURE0);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBindVertexArray(escVAO);
+    // Choose the result image
+    if (won)
+        glBindTexture(GL_TEXTURE_2D, winTexture);
+    else
+        glBindTexture(GL_TEXTURE_2D, loseTexture);
+
+    // Draw it in the top rectangle
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    // Restart: vertices 6–11
+    glBindTexture(GL_TEXTURE_2D, restartButton);
+    glDrawArrays(GL_TRIANGLES, 6, 6);
+
+    // Main Menu: vertices 12–17
+    glBindTexture(GL_TEXTURE_2D, mainMenuButton);
+    glDrawArrays(GL_TRIANGLES, 12, 6);
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_BLEND);
 }
 
 void MainMenu::draw()

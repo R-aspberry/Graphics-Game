@@ -25,6 +25,7 @@ add_executable(TowerDefense
     src/Renderer.cpp
     src/utils/ResourceManager.cpp
     src/Game.cpp
+    src/ui/PlayerCard.cpp
 )
 
 # =====================================

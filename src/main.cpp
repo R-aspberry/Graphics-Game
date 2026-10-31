@@ -14,6 +14,7 @@
 #include "ui/MainMenu.h"
 #include "Game.h"
 #include "systems/Economy.h"
+#include "ui/PlayerCard.h"
 // =====================================
 // SHADERS
 // =====================================
@@ -117,7 +118,9 @@ static GLuint compileShader(GLenum kind, const char* source) {
 enum class AppScreen {
     MENU,
     CUTSCENE,
-    PLAYING
+    PLAYING,
+    WON,
+    LOST
 };
 
 static AppScreen currentScreen = AppScreen::MENU;
@@ -289,6 +292,8 @@ int main() {
 
     MainMenu mainMenu;
     mainMenu.init();
+    PlayerCard playerCard;
+    playerCard.init();
 
     Game game;
     bool gameInitialized = false;
@@ -532,9 +537,53 @@ int main() {
     // ONE MAIN GAME LOOP
     // =====================================
 
+    // i will implemnt the pause list/esc 
+    bool isPaused = false;
+    int previousEscapeState = GLFW_RELEASE;
+
     while (!glfwWindowShouldClose(window)) {
 
         glfwPollEvents();
+        // TEMPORARY: test the Win/Lose menu.
+        // Remove when Member 1 connects the actual win/lose conditions.
+        if (currentScreen == AppScreen::PLAYING)
+        {
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            {
+                currentScreen = AppScreen::WON;
+                isPaused = false;
+                suppressGameplayClick = true;
+                glfwSetWindowTitle(window, "Tower Defense Game - YOU WON!");
+            }
+            else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+            {
+                currentScreen = AppScreen::LOST;
+                isPaused = false;
+                suppressGameplayClick = true;
+                glfwSetWindowTitle(window, "Tower Defense Game - YOU LOST!");
+            }
+        }
+    // till here remove till this line only dont go below it so remove from 544 - 563
+
+        int escapeState = glfwGetKey(window, GLFW_KEY_ESCAPE); //if the user pressed esc 
+
+        if (currentScreen == AppScreen::PLAYING && escapeState == GLFW_PRESS && previousEscapeState == GLFW_RELEASE)
+        {
+            isPaused = !isPaused;
+
+            suppressGameplayClick = true;
+
+            if (isPaused)
+            {
+                glfwSetWindowTitle(window, "Tower Defense Game - PAUSED");
+            }
+            else
+            {
+                glfwSetWindowTitle(window, "Tower Defense Game");
+            }
+        }
+
+        previousEscapeState = escapeState;
 
         double currentTime = glfwGetTime();
 
@@ -603,15 +652,10 @@ int main() {
 
     int buyKeyState = glfwGetKey(window, GLFW_KEY_M);
 
-    if (buyKeyState == GLFW_PRESS &&
-        previousBuyKeyState == GLFW_RELEASE) {
-
+    if (!isPaused && buyKeyState == GLFW_PRESS && previousBuyKeyState == GLFW_RELEASE) {
         const int meleeCost = 10;
-
         if (economy.spendCoins(meleeCost)) {
-
             std::cout << "Purchase test successful!\n";
-
             std::cout << "Remaining coins: "
                       << economy.getCoins()
                       << std::endl;
@@ -653,8 +697,7 @@ int main() {
 
             int hoveredLane = -1;
 
-            if (windowWidth > 0 &&
-                windowHeight > 0) {
+            if (!isPaused && windowWidth > 0 && windowHeight > 0) {
 
                 float normalizedX =
                     static_cast<float>(mouseX / windowWidth);
@@ -681,16 +724,50 @@ int main() {
                 suppressGameplayClick = false;
             }
 
-            if (!suppressGameplayClick &&
-                leftMouseState == GLFW_PRESS &&
-                previousLeftMouseState == GLFW_RELEASE &&
-                hoveredLane != -1) {
-
+            if (!isPaused && !suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && hoveredLane != -1) {
                 grid.toggleLaneSelection(hoveredLane);
-
                 std::cout << "Lane "
                           << hoveredLane
                           << " selection toggled!\n";
+            }
+
+            
+
+            if (isPaused && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && windowWidth > 0 && windowHeight > 0)
+            {
+                // Convert the cursor position to OpenGL coordinates
+                double x = (2.0 * mouseX / windowWidth) - 1.0;
+                double y = 1.0 - (2.0 * mouseY / windowHeight);
+
+                // Continue
+                if (x >= -0.24 && x <= 0.24 && y >= 0.20 && y <= 0.48)
+                {
+                    isPaused = false;
+                    suppressGameplayClick = true;
+                    glfwSetWindowTitle(window, "Tower Defense Game");
+                }
+                // Main Menu
+                else if (x >= -0.24 && x <= 0.24 && y >= -0.48 && y <= -0.20)
+                {
+                    currentScreen = AppScreen::MENU;
+                    isPaused = false;
+                    suppressGameplayClick = true;
+                    glfwSetWindowTitle(window, "Tower Defense Game");
+                }
+                // Restart
+                else if (x >= -0.24 && x <= 0.24 && y >= -0.14 && y <= 0.14)
+                {
+                    // Member 1: implement reset() b3deen uncomment el lines dol .
+
+
+                    // game.reset();
+
+                    isPaused = false;
+                    suppressGameplayClick = true;
+                    glfwSetWindowTitle(window, "Tower Defense Game");
+
+                    std::cout << "Restart clicked — reset not connected yet.\n";
+                }
             }
 
             previousLeftMouseState = leftMouseState;
@@ -795,13 +872,84 @@ int main() {
             // TEAMMATE'S GAME LOGIC
             // -----------------------------
 
-            game.update(deltaTime);
+            if (!isPaused)
+            {
+                game.update(deltaTime);
+            }
             game.render(grid.getLanes()[playerLaneId]);
+            playerCard.draw(-1);
+            if (isPaused)
+            {
+                glEnable(GL_SCISSOR_TEST);
+
+                glScissor(
+                    framebufferWidth * 3 / 10,
+                    framebufferHeight / 5,
+                    framebufferWidth * 4 / 10,
+                    framebufferHeight * 3 / 5
+                );
+
+                glClearColor(0.08f, 0.04f, 0.15f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                glDisable(GL_SCISSOR_TEST);
+                mainMenu.escTab();
+            }
         }
 
-        // Future: render cutscene here when available.
+        if (currentScreen == AppScreen::WON || currentScreen == AppScreen::LOST)
+        {
+            mainMenu.endMenu(currentScreen == AppScreen::WON);
+            int leftMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT); // left mousse is clicked
+
+        if (leftMouseState == GLFW_RELEASE)
+        {
+            suppressGameplayClick = false;
+        }
+
+        if (!suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE) // new press aw new action bgd
+        {
+        double mouseX, mouseY;
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+
+        int windowWidth, windowHeight;
+        glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+        if (windowWidth > 0 && windowHeight > 0)
+        {
+            double x = (2.0 * mouseX / windowWidth) - 1.0;
+            double y = 1.0 - (2.0 * mouseY / windowHeight);
+
+            // Restart
+            if (x >= -0.24 && x <= 0.24 &&
+                y >= -0.14 && y <= 0.14)
+            {
+                // TODO Member 1: implement, then uncomment.
+                // game.reset();
+
+                currentScreen = AppScreen::PLAYING;
+                isPaused = false;
+                suppressGameplayClick = true;
+                glfwSetWindowTitle(window, "Tower Defense Game");
+            }
+            // Main Menu
+            else if (x >= -0.24 && x <= 0.24 &&
+                     y >= -0.48 && y <= -0.20)
+            {
+                currentScreen = AppScreen::MENU;
+                isPaused = false;
+                suppressGameplayClick = true;
+                glfwSetWindowTitle(window, "Tower Defense Game");
+            }
+        }
+    }
+
+    previousLeftMouseState = leftMouseState;
+
+        }
 
         glfwSwapBuffers(window);
+
     }
 
     // =====================================
