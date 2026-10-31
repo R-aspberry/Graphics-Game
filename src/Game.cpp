@@ -1,4 +1,3 @@
-
 #include "Game.h"
 #include "utils/ResourceManager.h"
 #include "world/Lane.h"
@@ -70,7 +69,12 @@ void Game::init()
 
     meleeTexture = ResourceManager::loadTexture(
         "assets/sprites/Melee_M1.png"
+        
+        
     );
+
+    rangedTexture =  ResourceManager::loadTexture("assets/sprites/Ranged_M1.png");
+    defenseTexture =  ResourceManager::loadTexture("assets/sprites/Defense.png");
 
     if (meleeTexture == 0)
     {
@@ -111,31 +115,31 @@ void Game::update(float deltaTime)
 
 
 
-void Game::render(const Lane& lane)
+void Game::render(const std::array<Lane, 4>& lane)
 {
-    if (!initialized || renderer == nullptr)
-    {
-        return;
-    }
+    // if (!initialized || renderer == nullptr)
+    // {
+    //     return;
+    // }
 
-    // MEDIUM-SIZED PLAYER
-    float playerWidth = 0.05f;
-    float playerHeight = 0.10f;
+    // // MEDIUM-SIZED PLAYER
+    // float playerWidth = 0.05f;
+    // float playerHeight = 0.10f;
 
-    // Position player on the LEFT of its lane
-    float playerX = lane.left + 0.025f;
+    // // Position player on the LEFT of its lane
+    // float playerX = Lane.left + 0.025f;
 
-    // Find the vertical CENTER of the lane
-    float laneCenterY = (lane.top + lane.bottom) / 2.0f;
+    // // Find the vertical CENTER of the lane
+    // float laneCenterY = (lane.top + lane.bottom) / 2.0f;
 
-    // Center the entire player vertically
-    float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
+    // // Center the entire player vertically
+    // float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
 
-    renderer->drawSprite(
-        meleeTexture,
-        playerX,
-        playerY,
-        playerWidth,
-        playerHeight
-    );
+    // renderer->drawSprite(
+    //     meleeTexture,
+    //     playerX,
+    //     playerY,
+    //     playerWidth,
+    //     playerHeight
+    // );
 }

@@ -1,6 +1,3 @@
-#include <windows.h>
-#include <mmsystem.h>
-
 #include "MainMenu.h"
 #include <glad/gl.h>
 #include <iostream>

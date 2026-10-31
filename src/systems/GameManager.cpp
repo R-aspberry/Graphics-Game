@@ -10,13 +10,13 @@
 #include "../world/Grid.h"
 #include <vector>
 #include <memory>
+#include <utility>
 
-class GameManager {
-    std::vector<std::unique_ptr<Player>> players;
-    std::vector<std::unique_ptr<Projectile>> projectiles;
-    Grid* grid;
+#include "GameManager.h"
 
-    Player* placePlayer(PlayerType type, int laneIndex) {
+
+
+    Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
         if (type == PlayerType::Defense) {
             return new DefensePlayer(Constants::homebasex, Constants::homebasey, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
         }
@@ -29,7 +29,7 @@ class GameManager {
         return nullptr;
     }
 
-    void update(float deltaTime){
+    void GameManager::update(float deltaTime){
         for (const auto& player : players) {
             player->update(deltaTime);
         }
@@ -38,11 +38,11 @@ class GameManager {
         }
     }
 
-    void addProjectile(std::unique_ptr<Projectile> projectile){
-        projectiles.push_back(projectile);
+    void GameManager::addProjectile(std::unique_ptr<Projectile> projectile){
+        projectiles.push_back(std::move(projectile));
     }
 
-    void removeDefeatedPlayers(){
+    void GameManager::removeDefeatedPlayers(){
         players.erase(
         std::remove_if(
             players.begin(),
@@ -55,7 +55,7 @@ class GameManager {
         );
     }
 
-    void removeInactiveProjectiles(){
+    void GameManager::removeInactiveProjectiles(){
         projectiles.erase(
             std::remove_if(
                 projectiles.begin(),
@@ -68,7 +68,7 @@ class GameManager {
         );
     }
 
-    std::vector<Player*> getPlayersInLane(int laneIndex) const{
+    std::vector<Player*> GameManager::getPlayersInLane(int laneIndex) const{
         std::vector<Player*> lanePlayers;
         for (const auto& player : players) {
             if (player->getLaneIndex() == laneIndex) {
@@ -78,7 +78,7 @@ class GameManager {
         return lanePlayers;
     }
 
-    std::vector<Player*> getActivePlayers() const{
+    std::vector<Player*> GameManager::getActivePlayers() const{
         std::vector<Player*> activePlayers;
         for (const auto& player : players) {
             if (player->isAlive()) {
@@ -88,7 +88,7 @@ class GameManager {
         return activePlayers;
     }
 
-    std::vector<Projectile*> getActiveProjectiles() const
+    std::vector<Projectile*> GameManager::getActiveProjectiles() const
     {
         std::vector<Projectile*> activeProjectiles;
         for (const auto& projectile : projectiles) {
@@ -99,35 +99,34 @@ class GameManager {
         return activeProjectiles;
     }
 
-    Player* getPlayerAtIndex(std::size_t index) const{
+    Player* GameManager::getPlayerAtIndex(std::size_t index) const{
         if (index < players.size()) {
             return players[index].get();
         }
         return nullptr;
     }
 
-    void clear(){
+    void GameManager::clear(){
         players.clear();
         projectiles.clear();
     }
 
-    void updatePlayerPositions(float deltaTime){
+    void GameManager::updatePlayerPositions(float deltaTime){
         for (const auto& player : players) {
             player->updateMovement(deltaTime);
         }
     }
 
-    void updateProjectiles(float deltaTime){
+    void GameManager::updateProjectiles(float deltaTime){
         for (const auto& projectile : projectiles) {
             projectile->update(deltaTime);
         }
     }
 
-    void cleanupInactiveEntities(){
+    void GameManager::cleanupInactiveEntities(){
         removeDefeatedPlayers();
         removeInactiveProjectiles();
     }
-    // void CreateProjectile (Projectile* projectile){
-    //     addProjectile(std::unique_ptr<Projectile>(projectile));
-    // }
-};
+
+
+    

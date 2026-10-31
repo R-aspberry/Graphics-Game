@@ -663,7 +663,7 @@ int main() {
             // =====================================
 
             game.update(deltaTime);
-            game.render(grid.getLanes()[playerLaneId]);
+            game.render(grid.getLanes());
         }
 
         glfwSwapBuffers(window);

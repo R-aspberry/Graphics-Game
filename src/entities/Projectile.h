@@ -4,31 +4,26 @@
 #include "Entity.h"
 #include "Player.h"
 
-/**
- * Projectile represents a fired object in the game world.
- * Handles movement and tracks the origin player for scoring/collision.
- */
+
 class Projectile : public Entity {
 private:
     float speed;
-    float x;
-    float y;
+    // float x;
+    // float y;
     Player* player;
     bool hasHit;
 
 public:
-    Projectile(float speed, float x, float y, Player* player, int laneIndex);
-    virtual ~Projectile() override;
+    Projectile(float x , float y , float width , float height, int laneIndex ,  float speed,  Player* player);
+    ~Projectile() override;
 
     void update(float deltaTime) override;
 
     Player* getOwner() const;
     bool hasAlreadyHit() const;
-    void markHit();
+    void markHit() ;
 
     float getSpeed() const;
-    float getX() const;
-    float getY() const;
 };
 
 #endif // PROJECTILE_H

@@ -1,37 +1,27 @@
 #include "Player.h"
-class Projectile : public Entity {
-    float speed;
-    float x ;
-    float y;
-    Player* player;
-    bool hasHit;
+#include "Projectile.h"
 
-    Projectile(float speed, float x ,float y, Player* player, int laneIndex): Entity(x,y,0,0,laneIndex){
-        this->speed = speed;
-        this-> player = player;
-        hasHit = false;
+    Projectile::Projectile(float x , float y ,  float width , float height, int laneIndex, float speed,Player* player): Entity(x,y,width,height,laneIndex) , speed(speed) , player(player), hasHit(false) {
+        
     }
-    void update(float deltaTime) override{
+
+    Projectile::~Projectile() = default;
+
+    void Projectile::update(float deltaTime) {
         x += speed*deltaTime;
     }
 
-    Player* getOwner() const{
+    Player* Projectile::getOwner() const{
         return this->player;
     }
-    bool hasAlreadyHit() const{
+    bool Projectile::hasAlreadyHit() const{
         return hasHit;
     }
-    void markHit(){
+    void Projectile::markHit() {
         hasHit = true;
+        setActive(false);
     }
-    float getSpeed(){
+    float Projectile::getSpeed() const{
         return speed;
     }
 
-    float getX(){
-        return x;
-    }
-    float getY(){
-        return y;
-    }
-};
