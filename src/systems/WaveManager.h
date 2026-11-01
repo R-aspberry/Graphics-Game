@@ -3,11 +3,7 @@
 #include "../entities/Collectible.h"
 #include <memory>
 #include  <vector>
-#include <cstddef>
-struct EnemyDrop {
-    glm::vec2 position;
-    int lane;
-}; 
+#include <cstddef> 
 class WaveManager {
 
     private : 
@@ -47,14 +43,21 @@ class WaveManager {
             return gameWon;
         }
         std::size_t getDropCount() const {
-            return enemyDrops.size();
+            return collectibles.size();
         }
-        const EnemyDrop* getDropAt(std::size_t index) const {
-            if (index >= enemyDrops.size()) {
+        const Collectible* getDropAt(std::size_t index) const {
+            if (index >= collectibles.size()) {
                 return nullptr;
             }
 
-            return &enemyDrops[index];
+            return &collectibles[index];
+        }
+        Collectible* getDropAt(std::size_t index) {
+            if (index >= collectibles.size()) {
+                return nullptr;
+            }
+
+            return &collectibles[index];
         }
         bool removeDropAt(std::size_t index);
         bool hasEnemyReachedBase(float homeBaseX) const;

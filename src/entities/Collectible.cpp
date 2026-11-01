@@ -1,7 +1,9 @@
 #include "Collectible.h"
 
 Collectible::Collectible(int lane , glm::vec2 position, int reward)
-    : lane(lane), position(position), widthofcollisionbox(20.0f), heightofcollisionbox(20.0f), valueofcoins(reward), collected(false) {}
+                : Entity(position.x, position.y, 20.0f, 20.0f,lane),
+                valueofcoins(reward), 
+                collected(false) {}
 
 bool Collectible::collect(){
     if (collected) {
@@ -11,3 +13,6 @@ bool Collectible::collect(){
     return true;
 }
 
+void Collectible::update(float deltaTime) {
+    (void)deltaTime;
+}

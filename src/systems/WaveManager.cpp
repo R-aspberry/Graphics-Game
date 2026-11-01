@@ -13,9 +13,20 @@ WaveManager::WaveManager() : currentWave(1), enemiesSpawnedInWave(0),
 void WaveManager::processEnemyDeaths() {
     for (std::size_t i = 0; i < activeEnemies.size(); ++i) {
         if(activeEnemies[i]->getState() == EnemyState::DEAD && !dropGenerated[i]){
-            enemyDrops.push_back({
+            int reward = GameConfig::EASY_ENEMY_REWARD;  
+            if(activeEnemies[i]->getEnemyType() == EnemyType::EASY){
+                reward = GameConfig::EASY_ENEMY_REWARD;
+            }
+            else if(activeEnemies[i]->getEnemyType() == EnemyType::MEDIUM){
+                reward = GameConfig::MEDIUM_ENEMY_REWARD;
+            }
+            else if(activeEnemies[i]->getEnemyType() == EnemyType::HARD){
+                reward = GameConfig::HARD_ENEMY_REWARD;
+            }
+            collectibles.push_back({
+                activeEnemies[i]->getLane(),
                 activeEnemies[i]->getPosition(),
-                activeEnemies[i]->getLane()
+                reward
             });
             dropGenerated[i] = true;
         }
@@ -124,10 +135,13 @@ bool WaveManager::spawnEnemy() {
 }
 
 bool WaveManager::removeDropAt(std::size_t index) {
-    if (index >= enemyDrops.size()) {
+    if (index >= collectibles.size()) {
         return false;
     }
-    enemyDrops.erase(enemyDrops.begin() + index);
+    else if (!collectibles[index].isCollected()) {
+        return false;
+    }
+    collectibles.erase(collectibles.begin() + index);
     return true;
 }
 

@@ -1,21 +1,30 @@
 #pragma once 
 #include <glm/glm.hpp>
+#include "../entities/Entity.h"
 
-class Collectible {
-    private:
-        int lane; 
-        glm::vec2 position;
-        float widthofcollisionbox;
-        float heightofcollisionbox;
+class Collectible: public Entity {
+    private: 
         int valueofcoins;
-        bool collected; 
+        bool collected;
     
     public:
-        Collectible(int lane , glm::vec2 position, int reward);
-        glm::vec2 getPosition() const { return position;};
-        float getWidthOfCollisionBox() const { return widthofcollisionbox;};
-        float getHeightOfCollisionBox() const { return heightofcollisionbox;};
+        Collectible(int lane , glm::vec2 position, int reward)
+
+        glm::vec2 getPosition() const {
+        return glm::vec2(x, y);
+        }
+
+        float getWidthOfCollisionBox() const {
+            return width;
+        }
+
+        float getHeightOfCollisionBox() const {
+            return height;
+        }
+
         int getValueOfCoins() const { return valueofcoins;};
         bool isCollected() const { return collected;};
-        int getLane() const { return lane;};
+        int getLane() const { return laneindex;};
+        bool collect();
+        void update(float deltaTime) override;
 };

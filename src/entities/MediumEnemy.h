@@ -9,4 +9,7 @@ public:
     AttackType getAttackType() const override {
         return AttackType::Low;
     }
+    EnemyType getEnemyType() const override {
+        return EnemyType::MEDIUM;
+    }
 };
