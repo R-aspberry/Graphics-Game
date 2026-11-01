@@ -7,7 +7,7 @@ void Enemy:: update(float deltaTime) {
     if (deltaTime < 0.0f) {
         return;
     }
-    if (state == EnemyState::MOVING)
+    if (state == EnemyState::MOVING && !MovementBlocked)
         moveTowardsBase(deltaTime);
     if (state != EnemyState::DEAD)
         updateAttackTimer(deltaTime);
