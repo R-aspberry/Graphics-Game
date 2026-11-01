@@ -71,6 +71,14 @@ void Game::init()
     meleeTexture = ResourceManager::loadTexture(
         "assets/sprites/Melee_M1.png"
     );
+    
+    rangedTexture = ResourceManager::loadTexture(
+        "assets/sprites/Ranged_M1.png"
+    );
+
+    defenseTexture = ResourceManager::loadTexture(
+        "assets/sprites/Defense.png"
+    );
 
     if (meleeTexture == 0)
     {
@@ -91,7 +99,7 @@ void Game::update(float deltaTime)
 
 
 
-void Game::render(const Lane& lane)
+void Game::render(const Lane& lane, player type)
 {
     if (!initialized || renderer == nullptr)
     {
@@ -111,6 +119,7 @@ void Game::render(const Lane& lane)
     // Center the entire player vertically
     float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
 
+if (type == player::MELEE) {
     renderer->drawSprite(
         meleeTexture,
         playerX,
@@ -118,4 +127,24 @@ void Game::render(const Lane& lane)
         playerWidth,
         playerHeight
     );
+    
+}
+if (type == player::RANGED) {
+    renderer->drawSprite(
+        rangedTexture,
+        playerX,
+        playerY,
+        playerWidth,
+        playerHeight
+    );
+}
+if (type == player::DEFENSE) {
+    renderer->drawSprite(
+        defenseTexture,
+        playerX,
+        playerY,
+        playerWidth,
+        playerHeight
+    );
+}
 }

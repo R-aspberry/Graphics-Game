@@ -27,6 +27,7 @@ add_executable(TowerDefense
     src/Game.cpp
     src/ui/PlayerCard.cpp
     src/ui/HUD.cpp
+    src/systems/Economy.cpp
 )
 
 # =====================================
