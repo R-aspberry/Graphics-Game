@@ -1,12 +1,3 @@
-
-# CMake build folders
-build/
-build-*/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
-compile_commands.json
-
 # Visual Studio and VS Code local settings
 .vs/
 .vscode/

@@ -3,25 +3,24 @@
 
 #include "Player.h"
 #include "Projectile.h"
+#include "GameManager.h"
 
-/**
- * RangedPlayer specializes in long-distance combat using Projectiles.
- * Manages attack cooldowns and projectile spawning logic.
- */
 class RangedPlayer : public Player {
 private:
-    int attackDamage;
-    float attackRange;
-    float attackCoolDownTimer;
-    float attackTimer;
+    int attackDamage = 1 ; // not mentioned 
+    //float attackRange = 0.6f; //i still dk ??
+    float attackCoolDownTimer = 0.0f;
+    float attackTimer = 0.0f;
+    //float attackSpeed = 0.3f;
+    //bool attacking;
 
 public:
-    RangedPlayer(float x, float y, float width, float height, int laneIndex, float moveSpeed, int maxHealth);
+    RangedPlayer(float x, float y, float width, float height, int laneIndex,  int maxHealth, float moveSpeed);
     virtual ~RangedPlayer() override;
 
     // Player Interface Implementations
     virtual PlayerType getPlayerType() const override;
-    virtual void startAttack() override;
+    virtual void startAttack(GameManager& gameManager) override;
     virtual bool canAttack() const override;
 
     // Ranged-specific mechanics

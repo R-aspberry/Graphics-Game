@@ -7,19 +7,17 @@
 class Renderer
 {
 public:
-    explicit Renderer(Shader& shader);
-
-    void drawSprite(
-        unsigned int texture,
-        float x,
-        float y,
-        float width,
-        float height
-    );
-
-private:
     Shader& shader;
+    GLuint VAO;
+    GLuint VBO;
+    GLuint EBO;
 
-    unsigned int VAO = 0;
-    unsigned int VBO = 0;
+    float width;
+    float height;
+
+    Renderer(Shader& shader, float width, float height);
+    ~ Renderer();
+    void drawSprite(unsigned int texture, float x,float y, float width, float height);
+    void updateWindow(float width, float height);
+    void initRender();
 };

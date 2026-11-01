@@ -15,12 +15,14 @@ class Enemy{
         EnemyState state;
         void moveTowardsBase(float deltaTime);
         void updateAttackTimer(float deltaTime);
+        bool MovementBlocked ;
     
     public:
         Enemy(int health, int damage, float speed, float attackInterval, int lane, glm::vec2 position);
         virtual ~Enemy() = default;
         int getHealth() const { return health; }
         int getDamage() const { return damage; }
+        virtual AttackType getAttackType() const { return AttackType::Melee; };
         float getSpeed() const { return speed; }
         float getAttackInterval() const { return attackInterval; }
         float getTimeSinceLastAttack() const { return timeSinceLastAttack; }
@@ -33,4 +35,7 @@ class Enemy{
         bool canAttack() const;
         void resetAttackTimer();
         void setState(EnemyState newState); 
+
+        void setMovementBlocked(bool blocked);
+        bool isMovementBlocked() const;
 };

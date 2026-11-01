@@ -9,6 +9,20 @@
 WaveManager::WaveManager() : currentWave(1), enemiesSpawnedInWave(0), 
                 totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f),gameWon(false) {}
 
+
+void WaveManager::processEnemyDeaths() {
+    for (std::size_t i = 0; i < activeEnemies.size(); ++i) {
+        if(activeEnemies[i]->getState() == EnemyState::DEAD && !dropGenerated[i]){
+            enemyDrops.push_back({
+                activeEnemies[i]->getPosition(),
+                activeEnemies[i]->getLane()
+            });
+            dropGenerated[i] = true;
+        }
+    }
+}
+
+
 void WaveManager::startNextWave() {
     if (currentWave >= 3 || !isWaveComplete()) {
         return;
@@ -27,7 +41,9 @@ void WaveManager::startNextWave() {
     }
 
     activeEnemies.clear();
+    dropGenerated.clear();
 }
+
 
 bool WaveManager::isWaveComplete() const {
     if(enemiesSpawnedInWave < totalEnemiesInWave) {
@@ -102,10 +118,28 @@ bool WaveManager::spawnEnemy() {
     }
 
     activeEnemies.push_back(std::move(enemy));
+    dropGenerated.push_back(false);
     return true;
   
 }
 
+bool WaveManager::removeDropAt(std::size_t index) {
+    if (index >= enemyDrops.size()) {
+        return false;
+    }
+    enemyDrops.erase(enemyDrops.begin() + index);
+    return true;
+}
+
+bool WaveManager::hasEnemyReachedBase(float homeBaseX) const {
+
+    for (const auto& enemy : activeEnemies) {
+        if (enemy->getPosition().x <= homeBaseX && enemy->getState() != EnemyState::DEAD) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void WaveManager::update(float deltaTime) {
     if (deltaTime < 0.0f || gameWon) {
@@ -131,7 +165,7 @@ void WaveManager::update(float deltaTime) {
         enemiesSpawnedInWave++;
         spawnTimer -= GameConfig::ENEMY_SPAWN_INTERVAL;
     }
-
+    processEnemyDeaths();
     // Check whether the wave is complete
     if (isWaveComplete()) {
         if (currentWave == 3) {
@@ -141,4 +175,5 @@ void WaveManager::update(float deltaTime) {
             startNextWave();
         }
     }
+    
 }

@@ -1,9 +1,11 @@
-# pragma once
-# include "Enemy.h"
+#pragma once
+#include "Enemy.h"
 
 class HardEnemy : public Enemy {
+public:
+    HardEnemy(int lane, glm::vec2 position, float attackInterval);
 
-    public:
-        HardEnemy(int lane, glm::vec2 position, float attackInterval);
-
+    AttackType getAttackType() const override {
+        return AttackType::Melee;
+    }
 };

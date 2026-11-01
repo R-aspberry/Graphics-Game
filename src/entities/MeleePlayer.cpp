@@ -2,76 +2,73 @@
 #include "../utils/Animation.h"
 #include "../entities/Entity.h"
 #include <Constants.h>
-#include "Player.h"
+#include "MeleePlayer.h"
 
 
-class MeleePlayer :public Player{
-    int attackDamage = 2 ; // not mentioned 
-    //float attackRange = 0.3f; //i still dk ??
-    float attackCoolDownTimer;
-    float attackTimer;
-    //bool attacking;
-
-    MeleePlayer(float x, float y, float width, float height, int laneIndex, float moveSpeed, int maxHealth) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
-        attackRange = 0.3f;
-    }
-
-    PlayerType getPlayerType() const override{
-        return PlayerType::Melee;
-    }
-
-    bool canAttack() const override{
-        if (!(attackCoolDownTimer<=0.0f)){
-            return false;
+        MeleePlayer::MeleePlayer(float x, float y, float width, float height, int laneIndex,  int maxHealth, float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
         }
-        return actionState == ActionState::Moving;
-    }
 
-    void startAttack() override{
-        if(!canAttack()){
-            return;
+        MeleePlayer::~MeleePlayer() = default;
+
+        PlayerType MeleePlayer::getPlayerType() const {
+            return PlayerType::Melee;
         }
-        actionState = ActionState::Attacking;
-        attackTimer = 0.0f;
-        
 
-    }
+        bool MeleePlayer::canAttack() const {
+            if (!(attackCoolDownTimer<=0.0f)){
+                return false;
+            }
+            return actionState == ActionState::Moving;
+        }
 
-    void finishAttack(){
-        if(actionState == ActionState::Attacking){
-            actionState = ActionState::Moving;
+        void MeleePlayer::startAttack(GameManager &gameManager ) {
+            if(!canAttack()){
+                return;
+            }
+            actionState = ActionState::Attacking;
             attackTimer = 0.0f;
-            attackCoolDownTimer = Constants::attackIntervals;
+            
+
         }
-    }
 
-    int getAttackDamage() {
-        return attackDamage;
-    }
-
-    float getAttackRange() const{
-        return attackRange;
-    }
-
-    bool isAttacking (){
-        return ActionState::Attacking == actionState;
-    }
-
-    void updateAttack(float deltaTime){
-        if(actionState != ActionState::Attacking){
-            return;
+        void MeleePlayer::finishAttack(){
+            if(actionState == ActionState::Attacking){
+                actionState = ActionState::Idle;
+                attackTimer = 0.0f;
+                attackCoolDownTimer = GameConfig::MELEE_ATTACK_INTERVAL;
+            }
         }
-        attackTimer +=deltaTime;
-        if (attackTimer >= Constants::attackDuration){
-            finishAttack();
+
+        int MeleePlayer::getAttackDamage () const{
+            return attackDamage;
         }
-        
-    }
 
-    void update(float deltaTime){
-        this->update(deltaTime);
-        this->updateAttack(deltaTime);
-        attackCoolDownTimer-= deltaTime;
-    }
+        float MeleePlayer::getAttackRange() const{
+            return attackRange;
+        }
 
-};
+        bool MeleePlayer::isAttacking () const{
+            return ActionState::Attacking == actionState;
+        }
+
+        void MeleePlayer::updateAttack(float deltaTime){
+            if(actionState != ActionState::Attacking){
+                return;
+            }
+            attackTimer +=deltaTime;
+            if (attackTimer >= Constants::attackDuration){
+                finishAttack();
+            }
+            
+        }
+
+        void MeleePlayer::update(float deltaTime){
+            Player::update(deltaTime);
+            this->updateAttack(deltaTime);
+            if (attackCoolDownTimer > 0){
+                attackCoolDownTimer-= deltaTime;
+            }
+            if (attackCoolDownTimer < 0){
+                attackCoolDownTimer = 0;
+            }
+        }

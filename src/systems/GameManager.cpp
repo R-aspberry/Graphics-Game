@@ -10,26 +10,29 @@
 #include "../world/Grid.h"
 #include <vector>
 #include <memory>
+#include <utility>
 
-class GameManager {
-    std::vector<std::unique_ptr<Player>> players;
-    std::vector<std::unique_ptr<Projectile>> projectiles;
-    Grid* grid;
+#include "GameManager.h"
 
-    Player* placePlayer(PlayerType type, int laneIndex) {
+
+
+    Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
+        std::unique_ptr<Player> player = nullptr;
         if (type == PlayerType::Defense) {
-            return new DefensePlayer(Constants::homebasex, Constants::homebasey, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
+            player =  std::make_unique<DefensePlayer>(Constants::homebasex, Constants::homebasey, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
         }
         if (type == PlayerType::Melee) {
-            return new MeleePlayer(Constants::homebasex, Constants::homebasey, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
+            player =  std::make_unique<MeleePlayer>(Constants::homebasex, Constants::homebasey, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
         }
         if (type == PlayerType::Ranged) {
-            return new RangedPlayer(Constants::homebasex, Constants::homebasey, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
+            player =  std::make_unique<RangedPlayer>(Constants::homebasex, Constants::homebasey, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
         }
-        return nullptr;
+        Player* out = player.get();
+        players.push_back(std::move(player));
+        return out;
     }
 
-    void update(float deltaTime){
+    void GameManager::update(float deltaTime){
         for (const auto& player : players) {
             player->update(deltaTime);
         }
@@ -38,11 +41,11 @@ class GameManager {
         }
     }
 
-    void addProjectile(std::unique_ptr<Projectile> projectile){
-        projectiles.push_back(projectile);
+    void GameManager::addProjectile(std::unique_ptr<Projectile> projectile){
+        projectiles.push_back(std::move(projectile));
     }
 
-    void removeDefeatedPlayers(){
+    void GameManager::removeDefeatedPlayers(){
         players.erase(
         std::remove_if(
             players.begin(),
@@ -55,7 +58,7 @@ class GameManager {
         );
     }
 
-    void removeInactiveProjectiles(){
+    void GameManager::removeInactiveProjectiles(){
         projectiles.erase(
             std::remove_if(
                 projectiles.begin(),
@@ -68,7 +71,7 @@ class GameManager {
         );
     }
 
-    std::vector<Player*> getPlayersInLane(int laneIndex) const{
+    std::vector<Player*> GameManager::getPlayersInLane(int laneIndex) const{
         std::vector<Player*> lanePlayers;
         for (const auto& player : players) {
             if (player->getLaneIndex() == laneIndex) {
@@ -78,7 +81,7 @@ class GameManager {
         return lanePlayers;
     }
 
-    std::vector<Player*> getActivePlayers() const{
+    std::vector<Player*> GameManager::getActivePlayers() const{
         std::vector<Player*> activePlayers;
         for (const auto& player : players) {
             if (player->isAlive()) {
@@ -88,7 +91,7 @@ class GameManager {
         return activePlayers;
     }
 
-    std::vector<Projectile*> getActiveProjectiles() const
+    std::vector<Projectile*> GameManager::getActiveProjectiles() const
     {
         std::vector<Projectile*> activeProjectiles;
         for (const auto& projectile : projectiles) {
@@ -99,35 +102,34 @@ class GameManager {
         return activeProjectiles;
     }
 
-    Player* getPlayerAtIndex(std::size_t index) const{
+    Player* GameManager::getPlayerAtIndex(std::size_t index) const{
         if (index < players.size()) {
             return players[index].get();
         }
         return nullptr;
     }
 
-    void clear(){
+    void GameManager::clear(){
         players.clear();
         projectiles.clear();
     }
 
-    void updatePlayerPositions(float deltaTime){
+    void GameManager::updatePlayerPositions(float deltaTime){
         for (const auto& player : players) {
             player->updateMovement(deltaTime);
         }
     }
 
-    void updateProjectiles(float deltaTime){
+    void GameManager::updateProjectiles(float deltaTime){
         for (const auto& projectile : projectiles) {
             projectile->update(deltaTime);
         }
     }
 
-    void cleanupInactiveEntities(){
+    void GameManager::cleanupInactiveEntities(){
         removeDefeatedPlayers();
         removeInactiveProjectiles();
     }
-    // void CreateProjectile (Projectile* projectile){
-    //     addProjectile(std::unique_ptr<Projectile>(projectile));
-    // }
-};
+
+
+    

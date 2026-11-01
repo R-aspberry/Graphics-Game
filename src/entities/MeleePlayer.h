@@ -3,27 +3,21 @@
 
 #include "Player.h"
 
-/**
- * MeleePlayer specializes in close-range engagement.
- * Implements high-damage, short-range attacks with a specific cooldown cycle.
- */
 class MeleePlayer : public Player {
 private:
-    int attackDamage;
-    float attackRange;
-    float attackCoolDownTimer;
-    float attackTimer;
+     int attackDamage = 1 ;
+    //float attackRange = 0.3f; //i still dk ??
+    float attackCoolDownTimer = 0.0f;
+    float attackTimer = 0.0f;
+    //bool attacking;
 
 public:
-    MeleePlayer(float x, float y, float width, float height, int laneIndex, float moveSpeed, int maxHealth);
+    MeleePlayer(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed);
     virtual ~MeleePlayer() override;
 
-    // Player Interface Overrides
-    virtual PlayerType getPlayerType() const override;
-    virtual void startAttack() override;
-    virtual bool canAttack() const override;
-
-    // Combat mechanics
+    PlayerType getPlayerType() const override;
+    void startAttack(GameManager &gameManager ) override;
+    bool canAttack() const override;
     void updateAttack(float deltaTime);
     void finishAttack();
 
@@ -31,7 +25,7 @@ public:
     float getAttackRange() const;
     bool isAttacking() const;
 
-    void update(float deltaTime);
+    void update(float deltaTime) override;
 };
 
-#endif // MELEE_PLAYER_H
+#endif
