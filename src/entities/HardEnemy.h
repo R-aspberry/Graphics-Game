@@ -8,4 +8,7 @@ public:
     AttackType getAttackType() const override {
         return AttackType::Melee;
     }
+    EnemyType getEnemyType() const override {
+        return EnemyType::HARD;
+    }
 };

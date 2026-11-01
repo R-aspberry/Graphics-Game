@@ -10,4 +10,7 @@ public:
     AttackType getAttackType() const override {
         return AttackType::High;
     }
+    EnemyType getEnemyType() const override {
+        return EnemyType::EASY;
+    }
 };
