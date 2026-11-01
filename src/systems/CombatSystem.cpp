@@ -45,3 +45,53 @@ void CombatSystem::resolveEnemyAttack(Enemy& enemy, Player& player)
         enemy.resetAttackTimer();
     }
 }
+
+void CombatSystem::resolveEnemyAttacks(const std::vector<Enemy*>& activeEnemies){
+    std::vector<Player*> activePlayers = (*playerManager).getActivePlayers();
+    for (int i=0;i<activeEnemies.size();i++){
+        Enemy* enemy = activeEnemies[i];
+        if (enemy !=nullptr && (*enemy).getHealth() > 0){
+            AttackType type = (*enemy).getAttackType();
+            for(int j=0;j<activePlayers.size();j++){
+                Player* player = activePlayers[j];
+                if (player!=nullptr && (*player).isAlive()&& (*player).getLaneIndex() == (*enemy).getLane()){
+                    float distance= (*enemy).getPosition().x - (*player).getX();
+                    if (type == AttackType::Melee)
+                    {
+                        if (distance >= 0 && distance <= (*player).getWidth())
+                        {
+                            (*enemy).setMovementBlocked(true);
+                            (*player).setMovementBlocked(true);
+
+                            if ((*enemy).canAttack())
+                            {
+                                resolveEnemyAttack(*enemy, *player);
+                            }
+
+                            break;
+                        }
+                    }
+                    
+                    else if (type == AttackType::High)
+                    {
+                        if (!(*player).isDucking())
+                        {
+                            resolveEnemyAttack(*enemy, *player);
+                            break;
+                        }
+                    }
+
+                    else if (type== AttackType::Low){
+                        if(!(*player).isJumping()){
+                            resolveEnemyAttack(*enemy, *player);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    
+}
+
