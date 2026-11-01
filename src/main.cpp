@@ -236,52 +236,52 @@
     // MAIN
     // =====================================
 
-    void purchaseMelee(int laneSelected, std::array<bool, 4>& meleePlaced, Economy& economy)
+    void purchaseMelee(int laneSelected, std::array<bool, 4>* meleePlaced, Economy* economy)
 {
     const int meleeCost = 10;
 
     if (laneSelected < 0 || laneSelected >= 4)
         return;
 
-    if (meleePlaced[laneSelected])
+    if ((*meleePlaced)[laneSelected])
         return;
 
-    if (!economy.spendCoins(meleeCost))
+    if (!(*economy).spendCoins(meleeCost))
         return;
 
-    meleePlaced[laneSelected] = true;
+    (*meleePlaced)[laneSelected] = true;
 }
 
-void purchaseRanged(int laneSelected, std::array<bool, 4>& rangedPlaced, Economy& economy)
+void purchaseRanged(int laneSelected, std::array<bool, 4>* rangedPlaced, Economy* economy)
 {
     const int rangedCost = 20;
 
     if (laneSelected < 0 || laneSelected >= 4)
         return;
 
-    if (rangedPlaced[laneSelected])
+    if ((*rangedPlaced)[laneSelected])
         return;
 
-    if (!economy.spendCoins(rangedCost))
+    if (!(*economy).spendCoins(rangedCost))
         return;
 
-    rangedPlaced[laneSelected] = true;
+    (*rangedPlaced)[laneSelected] = true;
 }
 
-void purchaseDefense(int laneSelected, std::array<bool, 4>& defensePlaced, Economy& economy)
+void purchaseDefense(int laneSelected, std::array<bool, 4>* defensePlaced, Economy* economy)
 {
     const int defenseCost = 30;
 
     if (laneSelected < 0 || laneSelected >= 4)
         return;
 
-    if (defensePlaced[laneSelected])
+    if ((*defensePlaced)[laneSelected])
         return;
 
-    if (!economy.spendCoins(defenseCost))
+    if (!(*economy).spendCoins(defenseCost))
         return;
 
-    defensePlaced[laneSelected] = true;
+    (*defensePlaced)[laneSelected] = true;
 }
     int main()
     {
@@ -693,7 +693,7 @@ void purchaseDefense(int laneSelected, std::array<bool, 4>& defensePlaced, Econo
                     buyKeyState == GLFW_PRESS &&
                     previousBuyKeyState == GLFW_RELEASE)
                 {
-                    purchaseMelee(laneSelected, meleePlaced, economy);
+                    purchaseMelee(laneSelected, &meleePlaced, &economy);
                 }
 
                 previousBuyKeyState = buyKeyState;
@@ -801,14 +801,14 @@ void purchaseDefense(int laneSelected, std::array<bool, 4>& defensePlaced, Econo
                 }
                 // Purchase Melee by clicking its card
                 if (!isPaused &&!suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && hoveredCard == 1){
-                    purchaseMelee(laneSelected, meleePlaced, economy); }
+                    purchaseMelee(laneSelected, &meleePlaced, &economy); }
                 
 
                 if (!isPaused && !suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && hoveredCard == 2){
-                        purchaseRanged(laneSelected, rangedPlaced, economy); }
+                        purchaseRanged(laneSelected, &rangedPlaced, &economy); }
 
                 if (!isPaused && !suppressGameplayClick && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && hoveredCard == 0){
-                        purchaseDefense(laneSelected, defensePlaced, economy); }
+                        purchaseDefense(laneSelected, &defensePlaced, &economy); }
 
                 if (isPaused && leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE && windowWidth > 0 && windowHeight > 0)
                 {
