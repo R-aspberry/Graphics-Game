@@ -3,7 +3,9 @@
 
 #include "Shader.h"
 #include "Renderer.h"
+#include <array>
 struct Lane;
+class Enemy;
 class Game
 {
 public:
@@ -17,6 +19,7 @@ public:
     void init();
     void update(float deltaTime);
     void render(const Lane& lane, player type);
+    void renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime);
     
 
 private:
@@ -27,5 +30,6 @@ private:
     unsigned int meleeTexture = 0;
     unsigned int rangedTexture = 0;
     unsigned int defenseTexture = 0;
+    std::array<std::array<unsigned int, 4>, 3> enemyMoveTextures{};
     bool initialized = false;
 };

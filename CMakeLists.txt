@@ -19,6 +19,7 @@ add_subdirectory(external/glfw)
 add_executable(TowerDefense
     src/main.cpp
     src/world/Grid.cpp
+    src/world/HomeBase.cpp
     src/ui/MainMenu.cpp
     src/glad.c
     src/Shader.cpp
@@ -28,6 +29,11 @@ add_executable(TowerDefense
     src/ui/PlayerCard.cpp
     src/ui/HUD.cpp
     src/systems/Economy.cpp
+    src/systems/WaveManager.cpp
+    src/entities/Enemy.cpp
+    src/entities/EasyEnemy.cpp
+    src/entities/MediumEnemy.cpp
+    src/entities/HardEnemy.cpp
 )
 
 # =====================================
@@ -37,6 +43,7 @@ add_executable(TowerDefense
 target_include_directories(TowerDefense PRIVATE
     "${CMAKE_SOURCE_DIR}/external/glad/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_SOURCE_DIR}/external/glm"
 )
 
 # =====================================

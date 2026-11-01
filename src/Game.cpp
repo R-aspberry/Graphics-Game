@@ -4,9 +4,14 @@
 #include "world/Lane.h"
 
 #include <iostream>
+#include "entities/Enemy.h"
+#include "entities/EasyEnemy.h"
+#include "entities/MediumEnemy.h"
+#include "entities/HardEnemy.h"
+#include <string>
 
 // Vertex shader: positions and sizes the sprite.
-const char* spriteVertexShader = R"(
+const char *spriteVertexShader = R"(
     #version 330 core
 
     layout (location = 0) in vec2 aPos;
@@ -24,7 +29,7 @@ const char* spriteVertexShader = R"(
 )";
 
 // Fragment shader: samples the PNG, including its alpha channel.
-const char* spriteFragmentShader = R"(
+const char *spriteFragmentShader = R"(
     #version 330 core
 
     in vec2 TexCoord;
@@ -57,8 +62,7 @@ void Game::init()
 
     spriteShader = new Shader(
         spriteVertexShader,
-        spriteFragmentShader
-    );
+        spriteFragmentShader);
 
     if (spriteShader->ID == 0)
     {
@@ -69,21 +73,38 @@ void Game::init()
     renderer = new Renderer(*spriteShader);
 
     meleeTexture = ResourceManager::loadTexture(
-        "assets/sprites/Melee_M1.png"
-    );
-    
+        "assets/sprites/Melee_M1.png");
+
     rangedTexture = ResourceManager::loadTexture(
-        "assets/sprites/Ranged_M1.png"
-    );
+        "assets/sprites/Ranged_M1.png");
 
     defenseTexture = ResourceManager::loadTexture(
-        "assets/sprites/Defense.png"
-    );
+        "assets/sprites/Defense.png");
 
     if (meleeTexture == 0)
     {
         std::cerr << "Failed to load Melee sprite.\n";
         return;
+    }
+
+    const char *enemyFolders[3] = {
+        "EASYENEMY",
+        "MEDIUMENEMY",
+        "HARDENEMY"};
+
+    for (int type = 0; type < 3; type++)
+    {
+        for (int frame = 0; frame < 4; frame++)
+        {
+            std::string folder = enemyFolders[type];
+
+            std::string path =
+                "assets/sprites/enemies/" + folder + "/" +
+                folder + "_M" + std::to_string(frame + 1) + ".png";
+
+            enemyMoveTextures[type][frame] =
+                ResourceManager::loadTexture(path);
+        }
     }
 
     initialized = true;
@@ -96,10 +117,7 @@ void Game::update(float deltaTime)
     (void)deltaTime;
 }
 
-
-
-
-void Game::render(const Lane& lane, player type)
+void Game::render(const Lane &lane, player type)
 {
     if (!initialized || renderer == nullptr)
     {
@@ -119,32 +137,77 @@ void Game::render(const Lane& lane, player type)
     // Center the entire player vertically
     float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
 
-if (type == player::MELEE) {
-    renderer->drawSprite(
-        meleeTexture,
-        playerX,
-        playerY,
-        playerWidth,
-        playerHeight
-    );
-    
+    if (type == player::MELEE)
+    {
+        renderer->drawSprite(
+            meleeTexture,
+            playerX,
+            playerY,
+            playerWidth,
+            playerHeight);
+    }
+    if (type == player::RANGED)
+    {
+        renderer->drawSprite(
+            rangedTexture,
+            playerX,
+            playerY,
+            playerWidth,
+            playerHeight);
+    }
+    if (type == player::DEFENSE)
+    {
+        renderer->drawSprite(
+            defenseTexture,
+            playerX,
+            playerY,
+            playerWidth,
+            playerHeight);
+    }
 }
-if (type == player::RANGED) {
-    renderer->drawSprite(
-        rangedTexture,
-        playerX,
-        playerY,
-        playerWidth,
-        playerHeight
-    );
-}
-if (type == player::DEFENSE) {
-    renderer->drawSprite(
-        defenseTexture,
-        playerX,
-        playerY,
-        playerWidth,
-        playerHeight
-    );
-}
+
+void Game::renderEnemy(
+    const Enemy &enemy,
+    const Lane &lane,
+    float animationTime)
+{
+    if (!initialized || renderer == nullptr)
+    {
+        return;
+    }
+
+    if (enemy.getState() == EnemyState::DEAD)
+    {
+        return;
+    }
+
+    int type = 0;
+
+    if (dynamic_cast<const MediumEnemy *>(&enemy))
+    {
+        type = 1;
+    }
+    else if (dynamic_cast<const HardEnemy *>(&enemy))
+    {
+        type = 2;
+    }
+
+    int frame = static_cast<int>(animationTime * 6.0f) % 4;
+
+    unsigned int texture = enemyMoveTextures[type][frame];
+
+    if (texture == 0)
+    {
+        return;
+    }
+
+    float width = 0.075f;
+    float height = 0.11f;
+
+    float x = enemy.getPosition().x / 1000.0f - width / 2.0f;
+
+    float laneCenterY = (lane.top + lane.bottom) / 2.0f;
+    float y = 1.0f - laneCenterY - height / 2.0f;
+
+    renderer->drawSprite(texture, x, y, width, height);
 }
