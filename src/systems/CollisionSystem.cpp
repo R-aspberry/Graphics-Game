@@ -22,6 +22,7 @@
     bool CollisionSystem::playerEnemyEncounter( Player& player,  Enemy& enemy) const{ //waiting for enemy to be created to fix this syntax error
         if ((enemy.getPosition().x - player.getX()) <= player.attackRange && player.getLaneIndex() == enemy.getLane()) {
             player.setMovementBlocked(true);
+            enemy.setMovementBlocked(true);
             return true;
         }
         return false; //if they are on the same lane they begin fighting 

@@ -17,16 +17,19 @@
 
 
     Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
+        std::unique_ptr<Player> player = nullptr;
         if (type == PlayerType::Defense) {
-            return new DefensePlayer(Constants::homebasex, Constants::homebasey, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
+            player =  std::make_unique<DefensePlayer>(Constants::homebasex, Constants::homebasey, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
         }
         if (type == PlayerType::Melee) {
-            return new MeleePlayer(Constants::homebasex, Constants::homebasey, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
+            player =  std::make_unique<MeleePlayer>(Constants::homebasex, Constants::homebasey, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
         }
         if (type == PlayerType::Ranged) {
-            return new RangedPlayer(Constants::homebasex, Constants::homebasey, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
+            player =  std::make_unique<RangedPlayer>(Constants::homebasex, Constants::homebasey, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
         }
-        return nullptr;
+        Player* out = player.get();
+        players.push_back(std::move(player));
+        return out;
     }
 
     void GameManager::update(float deltaTime){

@@ -5,47 +5,38 @@
 #include "Shader.h"
 #include "Renderer.h"
 #include "systems/WaveManager.h"
+#include "systems/GameManager.h"
 #include <vector>
 #include "world/Lane.h"
 
 #include <array>
 #include "world/Lane.h"
 
-struct Lane;
+
 class Game
 
 {
-
-public:
-    enum class player{
-    MELEE,
-    RANGED,
-    DEFENSE};
-    Game() = default;
-    ~Game();
-
-    void init();
-    void update(float deltaTime);
-    void render(const Lane& lane, player type);
+private :
+    GameManager gameManager;
+    Shader shader;
+    std::unique_ptr<Renderer> rendere;
+    GLuint meleeTexture = 0;
+    GLuint rangedTexture = 0;
+    GLuint defenseTexture = 0;
     
-//     void render(const std::array<Lane,4>& lane);
+    bool initialized ;
 
-//     // WaveManager owns the enemies; the game updates it once per gameplay frame.
-//     WaveManager& getWaveManager() { return waves; }
-//     const WaveManager& getWaveManager() const { return waves; }
+public :
+    Game();
+    ~Game();
+    bool init();
+    void update(float deltaTime);
+    void render();
+    void renderPlayers();
+    void renderProjectiles();
+    Player* placePlayer(PlayerType player, int lane);
+    GLuint loadTexture(char* path);
 
-private:
-
-    Shader* spriteShader = nullptr;
-    Renderer* renderer = nullptr;
-
-    unsigned int meleeTexture = 0;
-    unsigned int rangedTexture = 0;
-    unsigned int defenseTexture = 0;
-
-    bool initialized = false;
-    WaveManager waves;
-    bool victoryReported = false;
 };
 
 #endif

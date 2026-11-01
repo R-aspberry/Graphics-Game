@@ -27,5 +27,5 @@ class CombatSystem {
         void setPlayerManager(GameManager* playerManager);
 
 
-}
+};
 
