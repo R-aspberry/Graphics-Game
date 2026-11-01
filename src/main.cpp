@@ -946,11 +946,19 @@ void purchaseDefense(int laneSelected, std::array<bool, 4>* defensePlaced, Econo
                     game.update(deltaTime);
                 }
 
-                for (int laneId = 0; laneId < 4; laneId++)
-                {
+                for (int laneId = 0; laneId < 4; laneId++)  //all these lines are taken from player position calculation 
+                {   const Lane* lane = &grid.getLanes()[laneId]; //get the lane
+                    float playerX = (*lane).left + 0.025f;      // the player from diffrent class starts at left+0.025
+                    int xpixels=((int)(playerX*framebufferWidth))+50; //hn convert it to pixels the 50 we kept increasing and trying till is aligned 
+                    float laneCenterY = ((*lane).top + (*lane).bottom) / 2.0f; // calculate the center of the lane 
+                    float playerY = 1.0f - laneCenterY - 0.10f / 2.0f; // hn convert it from lane to sprite coordinates 1- 3shan howa from 0-1 w ana 3atzah 1-0
+                    float healthBarY = playerY + 0.12f; //health bar fo2 el player
+                    int healthpixelsY=(int)(healthBarY*framebufferHeight); // ne7awlha le pixels
+
                     if (meleePlaced[laneId])
                     {
                         game.render(grid.getLanes()[laneId],Game::player::MELEE);
+                        hud.drawhealth(xpixels, healthpixelsY, 80, 10, 100, 100);
                     }
                     if( rangedPlaced[laneId])
                     {
@@ -968,6 +976,7 @@ void purchaseDefense(int laneSelected, std::array<bool, 4>* defensePlaced, Econo
                     economy.getCoins(),
                     framebufferWidth,
                     framebufferHeight);
+                
                 if (isPaused)
                 {
                     glEnable(GL_SCISSOR_TEST);

@@ -9,11 +9,10 @@ public:
         return true;
     }
 
-    void drawCoins(
-        int coins,
-        int framebufferWidth,
-        int framebufferHeight
-    );
+    void drawCoins(int coins,int framebufferWidth,int framebufferHeight);
+
+    void drawhealth(int x,int y,int w,int h,int health,int maxHealth);
+
 
     void cleanup()
     {
