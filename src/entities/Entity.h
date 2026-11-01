@@ -1,6 +1,7 @@
-#define Entity_H
+#ifndef ENTITY_H
+#define ENTITY_H
 
-#include "Types.h"
+#include "../utils/Types.h"
 
 class Entity{
     public :
@@ -31,3 +32,5 @@ class Entity{
 
 
 };
+
+#endif

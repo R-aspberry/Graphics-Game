@@ -62,5 +62,7 @@ namespace Constants
     constexpr float speedMelee = 5;
     constexpr float speedDefense = 5;
     constexpr float speedRanged = 5;
+    constexpr float ProjectileWidth = 5;
+    constexpr float ProjectileHeight = 5;
 
 }

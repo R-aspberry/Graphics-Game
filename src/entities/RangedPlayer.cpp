@@ -3,44 +3,40 @@
 #include "../entities/Entity.h"
 #include "../entities/Projectile.h"
 #include <Constants.h>
-#include "Player.h"
+#include "RangedPlayer.h"
+#include "GameManager.h"
 
 
 
-class RangedPlayer :public Player{
-    int attackDamage = 1 ; // not mentioned 
-    //float attackRange = 0.6f; //i still dk ??
-    float attackCoolDownTimer;
-    float attackTimer;
-    //float attackSpeed = 0.3f;
-    //bool attacking;
+    RangedPlayer::RangedPlayer(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
+        
 
-    RangedPlayer(float x, float y, float width, float height, int laneIndex, float moveSpeed, int maxHealth) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
-        attackRange = 0.6f;
     }
 
-    PlayerType getPlayerType() const override{
-        return PlayerType::Melee;
+    RangedPlayer::~RangedPlayer() = default;
+
+    PlayerType RangedPlayer::getPlayerType() const {
+        return PlayerType::Ranged;
     }
 
-    bool canAttack() const override{
+    bool RangedPlayer::canAttack() const {
         if (!(attackCoolDownTimer<=0.0f)){
             return false;
         }
         return actionState == ActionState::Moving;
     }
 
-    void startAttack() override{
+    void RangedPlayer::startAttack(GameManager& gameManager) {
         if(!canAttack()){
             return;
         }
         actionState = ActionState::Attacking;
         attackTimer = 0.0f;
-        Projectile* projectile  = new Projectile(Constants::ProjectileSpeed, x + width, y + height / 2.0f,this, laneIndex);
-        projectiles.push_back(projectile);
+        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
+        gameManager.addProjectile(std::move(projectile));
     }
 
-    void finishAttack(){
+    void RangedPlayer::finishAttack(){
         if(actionState == ActionState::Attacking){
             actionState = ActionState::Moving;
             attackTimer = 0.0f;
@@ -48,19 +44,19 @@ class RangedPlayer :public Player{
         }
     }
 
-    int getAttackDamage() {
+    int RangedPlayer::getAttackDamage() const{
         return attackDamage;
     }
 
-    float getAttackRange() const{
+    float RangedPlayer::getAttackRange() const{
         return attackRange;
     }
 
-    bool isAttacking (){
+    bool RangedPlayer::isAttacking () const{
         return ActionState::Attacking == actionState;
     }
 
-    void updateAttack(float deltaTime){
+    void RangedPlayer::updateAttack(float deltaTime){
         if(actionState != ActionState::Attacking){
             return;
         }
@@ -71,10 +67,8 @@ class RangedPlayer :public Player{
         
     }
 
-    void update(float deltaTime){
+    void RangedPlayer::update(float deltaTime){
         this->updateAttack(deltaTime);
-        this->update(deltaTime);
+        Player::update(deltaTime);
         attackCoolDownTimer-= deltaTime;
     }
-
-};

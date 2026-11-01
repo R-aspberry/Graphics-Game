@@ -21,6 +21,7 @@ class Enemy{
         virtual ~Enemy() = default;
         int getHealth() const { return health; }
         int getDamage() const { return damage; }
+        virtual AttackType getAttackType() const { return AttackType::Melee; };
         float getSpeed() const { return speed; }
         float getAttackInterval() const { return attackInterval; }
         float getTimeSinceLastAttack() const { return timeSinceLastAttack; }
