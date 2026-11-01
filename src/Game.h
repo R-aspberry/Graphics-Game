@@ -17,18 +17,25 @@ class Game
 {
 
 public:
+    enum class player{
+    MELEE,
+    RANGED,
+    DEFENSE};
     Game() = default;
     ~Game();
 
     void init();
     void update(float deltaTime);
-    void render(const std::array<Lane,4>& lane);
+    void render(const Lane& lane, player type);
+    
+//     void render(const std::array<Lane,4>& lane);
 
-    // WaveManager owns the enemies; the game updates it once per gameplay frame.
-    WaveManager& getWaveManager() { return waves; }
-    const WaveManager& getWaveManager() const { return waves; }
+//     // WaveManager owns the enemies; the game updates it once per gameplay frame.
+//     WaveManager& getWaveManager() { return waves; }
+//     const WaveManager& getWaveManager() const { return waves; }
 
 private:
+
     Shader* spriteShader = nullptr;
     Renderer* renderer = nullptr;
 

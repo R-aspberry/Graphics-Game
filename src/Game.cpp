@@ -72,6 +72,14 @@ void Game::init()
         
         
     );
+    
+    rangedTexture = ResourceManager::loadTexture(
+        "assets/sprites/Ranged_M1.png"
+    );
+
+    defenseTexture = ResourceManager::loadTexture(
+        "assets/sprites/Defense.png"
+    );
 
     rangedTexture =  ResourceManager::loadTexture("assets/sprites/Ranged_M1.png");
     defenseTexture =  ResourceManager::loadTexture("assets/sprites/Defense.png");
@@ -88,8 +96,17 @@ void Game::init()
 
 void Game::update(float deltaTime)
 {
-    // Actual Enemy/WaveManager logic from Member 3; do not duplicate enemy ownership.
-    if (!initialized) {
+    // We'll add animation and enemy movement here next.
+    (void)deltaTime;
+}
+
+
+
+
+void Game::render(const Lane& lane, player type)
+{
+    if (!initialized || renderer == nullptr)
+    {
         return;
     }
 
@@ -115,31 +132,32 @@ void Game::update(float deltaTime)
 
 
 
-void Game::render(const std::array<Lane, 4>& lane)
-{
-    // if (!initialized || renderer == nullptr)
-    // {
-    //     return;
-    // }
-
-    // // MEDIUM-SIZED PLAYER
-    // float playerWidth = 0.05f;
-    // float playerHeight = 0.10f;
-
-    // // Position player on the LEFT of its lane
-    // float playerX = Lane.left + 0.025f;
-
-    // // Find the vertical CENTER of the lane
-    // float laneCenterY = (lane.top + lane.bottom) / 2.0f;
-
-    // // Center the entire player vertically
-    // float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
-
-    // renderer->drawSprite(
-    //     meleeTexture,
-    //     playerX,
-    //     playerY,
-    //     playerWidth,
-    //     playerHeight
-    // );
+if (type == player::MELEE) {
+    renderer->drawSprite(
+        meleeTexture,
+        playerX,
+        playerY,
+        playerWidth,
+        playerHeight
+    );
+    
+}
+if (type == player::RANGED) {
+    renderer->drawSprite(
+        rangedTexture,
+        playerX,
+        playerY,
+        playerWidth,
+        playerHeight
+    );
+}
+if (type == player::DEFENSE) {
+    renderer->drawSprite(
+        defenseTexture,
+        playerX,
+        playerY,
+        playerWidth,
+        playerHeight
+    );
+}
 }
