@@ -13,33 +13,15 @@ add_subdirectory(external/glfw)
 add_subdirectory(external/glm)
 find_package(OpenGL REQUIRED)
 
-# =====================================
-# MAIN GAME
-# =====================================
-
-add_executable(TowerDefense
-    src/main.cpp
-    src/world/Grid.cpp
-    src/ui/MainMenu.cpp
-    src/glad.c
-    src/Shader.cpp
-    src/Renderer.cpp
-    src/utils/ResourceManager.cpp
-    src/Game.cpp
-    src/ui/PlayerCard.cpp
-    src/ui/HUD.cpp
-    src/systems/Economy.cpp
-# Main menu and gameplay use GLAD 2 header-only. Its implementation is
-# compiled in src/main.cpp (GLAD_GL_IMPLEMENTATION), not src/glad.c (GLAD 1).
+# The project uses GLAD 2 from glad2.cpp; exclude the older GLAD 1 source.
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
-list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/glad\.c$")
+list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/glad[.]c$")
 
 add_executable(TowerDefense
     ${PROJECT_SOURCES}
-    src/glad2.cpp
 )
 
 target_include_directories(TowerDefense PRIVATE

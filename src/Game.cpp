@@ -69,8 +69,6 @@ void Game::init()
 
     meleeTexture = ResourceManager::loadTexture(
         "assets/sprites/Melee_M1.png"
-        
-        
     );
     
     rangedTexture = ResourceManager::loadTexture(
@@ -80,9 +78,6 @@ void Game::init()
     defenseTexture = ResourceManager::loadTexture(
         "assets/sprites/Defense.png"
     );
-
-    rangedTexture =  ResourceManager::loadTexture("assets/sprites/Ranged_M1.png");
-    defenseTexture =  ResourceManager::loadTexture("assets/sprites/Defense.png");
 
     if (meleeTexture == 0)
     {
@@ -110,27 +105,18 @@ void Game::render(const Lane& lane, player type)
         return;
     }
 
-    const int previousWave = waves.getCurrentWave();
-    const int previouslySpawned = waves.getEnemiesSpawnedInWave();
-    waves.update(deltaTime);
+    // MEDIUM-SIZED PLAYER
+    float playerWidth = 0.05f;
+    float playerHeight = 0.10f;
 
-    // Temporary console diagnostics until enemy artwork and HUD are integrated.
-    if (waves.getCurrentWave() != previousWave) {
-        std::cout << "Starting Wave " << waves.getCurrentWave() << '\n';
-    }
-    else if (waves.getEnemiesSpawnedInWave() != previouslySpawned) {
-        std::cout << "Wave " << waves.getCurrentWave()
-                  << ": spawned " << waves.getEnemiesSpawnedInWave()
-                  << " enemies so far\n";
-    }
-    if (waves.hasWon() && !victoryReported) {
-        std::cout << "All three waves cleared!\n";
-        victoryReported = true;
-    }
-}
+    // Position player on the LEFT of its lane
+    float playerX = lane.left + 0.025f;
 
+    // Find the vertical CENTER of the lane
+    float laneCenterY = (lane.top + lane.bottom) / 2.0f;
 
-
+    // Center the entire player vertically
+    float playerY = 1.0f - laneCenterY - playerHeight / 2.0f;
 
 if (type == player::MELEE) {
     renderer->drawSprite(

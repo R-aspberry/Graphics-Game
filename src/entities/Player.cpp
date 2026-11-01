@@ -57,6 +57,7 @@
     }
     void Player::setMovementBlocked(bool blocked)	{
         movementBlocked = blocked;
+        //actionState = ActionState::
     }
     bool Player::isMovementBlocked() const	{
         return movementBlocked;

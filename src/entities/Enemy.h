@@ -15,6 +15,7 @@ class Enemy{
         EnemyState state;
         void moveTowardsBase(float deltaTime);
         void updateAttackTimer(float deltaTime);
+        bool MovementBlocked ;
     
     public:
         Enemy(int health, int damage, float speed, float attackInterval, int lane, glm::vec2 position);
@@ -34,4 +35,7 @@ class Enemy{
         bool canAttack() const;
         void resetAttackTimer();
         void setState(EnemyState newState); 
+
+        void setMovementBlocked(bool blocked);
+        bool isMovementBlocked() const;
 };

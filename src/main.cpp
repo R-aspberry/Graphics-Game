@@ -1,12 +1,15 @@
 
     #define GLFW_INCLUDE_NONE
+#ifdef _WIN32
     #define GLFW_EXPOSE_NATIVE_WIN32
+#endif
 
     #include <glad/gl.h>
     #include <GLFW/glfw3.h>
+#ifdef _WIN32
     #include <GLFW/glfw3native.h>
-
     #include <dwmapi.h>
+#endif
     #include <iostream>
     #include <array>
 
@@ -204,6 +207,7 @@
     // WINDOWS TITLE BAR
     // =====================================
 
+#ifdef _WIN32
     void customizeTitleBar(GLFWwindow *window)
     {
         HWND hwnd = glfwGetWin32Window(window);
@@ -231,6 +235,12 @@
             &textColor,
             sizeof(textColor));
     }
+#else
+    void customizeTitleBar(GLFWwindow *window)
+    {
+        (void)window;
+    }
+#endif
 
     // =====================================
     // MAIN
