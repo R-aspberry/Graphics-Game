@@ -1,5 +1,6 @@
 #pragma once
 #include "../entities/Enemy.h"
+#include "../entities/Collectible.h"
 #include <memory>
 #include  <vector>
 #include <cstddef>
@@ -16,7 +17,7 @@ class WaveManager {
         float spawnTimer;
         std::vector<std::unique_ptr<Enemy>> activeEnemies;
         std::vector<bool> dropGenerated;
-        std::vector<EnemyDrop> enemyDrops;
+        std::vector<Collectible> collectibles;
         bool spawnEnemy();
         bool isWaveComplete() const;
         void startNextWave() ;

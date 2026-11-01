@@ -23,7 +23,10 @@ namespace GameConfig {
     inline constexpr float ENEMY_SPAWN_INTERVAL = 3.0f;
 
     // Economy
-    inline constexpr int INITIAL_COINS = 50;
+    inline constexpr int INITIAL_COINS = 30;
+    inline constexpr int EASY_ENEMY_REWARD = 3;
+    inline constexpr int MEDIUM_ENEMY_REWARD = 5;
+    inline constexpr int HARD_ENEMY_REWARD = 8;
 
     // Required enemy health
     inline constexpr int EASY_ENEMY_HP = 5;
@@ -39,6 +42,8 @@ namespace GameConfig {
     inline constexpr int WAVE_1_COUNT = 3;
     inline constexpr int WAVE_2_COUNT = 5;
     inline constexpr int WAVE_3_COUNT = 10;
+
+    // 
 }
 namespace Constants
 {
