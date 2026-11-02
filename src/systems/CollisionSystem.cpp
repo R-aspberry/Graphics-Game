@@ -1,6 +1,7 @@
 #include "CollisionSystem.h"
 #include "../entities/Enemy.h"
 #include "../entities/Player.h"
+#include "../utils/WorldLayout.h"
 
     bool CollisionSystem::intersects(const Rect& a, const Rect& b) const{
         return (a.x < b.x + b.width) && (a.x + a.width > b.x) &&
@@ -23,13 +24,19 @@
        if(player.getLaneIndex()!= enemy.getLane()){
         return false;
        }
-       float playerx = player.getX()+ player.getWidth();
-       float enemyx = enemy.getPosition().x - 37.5f; //why the heck 37.5f we have no clue 
+       Rect enemyBounds = {
+            enemy.getPosition().x,
+            enemy.getPosition().y,
+            WorldLayout::ENEMY_WIDTH,
+            WorldLayout::ENEMY_HEIGHT
+        };
 
-       if(playerx>=enemyx){
-        player.setMovementBlocked(true);
-        enemy.setMovementBlocked(true);
-        return true;
+        Rect playerBounds = player.getBounds();
+
+       if(intersects(playerBounds, enemyBounds)){
+            player.setMovementBlocked(true);
+            enemy.setMovementBlocked(true);
+            return true;
        }
        return false;
     }

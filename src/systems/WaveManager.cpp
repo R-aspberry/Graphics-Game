@@ -4,6 +4,8 @@
 #include "../entities/EasyEnemy.h"
 #include "../entities/MediumEnemy.h"
 #include "../entities/HardEnemy.h"
+#include "../utils/WorldLayout.h"
+#include "../world/Grid.h"
 #include <random>
 #include <utility>
 
@@ -24,9 +26,17 @@ void WaveManager::processEnemyDeaths() {
             else if(activeEnemies[i]->getEnemyType() == EnemyType::HARD){
                 reward = GameConfig::HARD_ENEMY_REWARD;
             }
+            glm::vec2 enemyPosition = activeEnemies[i]->getPosition();
+
+            glm::vec2 dropPosition(
+                enemyPosition.x + (WorldLayout::ENEMY_WIDTH - WorldLayout::COLLECTIBLE_WIDTH) / 2.0f,
+
+                enemyPosition.y + (WorldLayout::ENEMY_HEIGHT - WorldLayout::COLLECTIBLE_HEIGHT) / 2.0f
+            );
+
             collectibles.push_back({
                 activeEnemies[i]->getLane(),
-                activeEnemies[i]->getPosition(),
+                dropPosition,
                 reward
             });
             dropGenerated[i] = true;
@@ -124,8 +134,8 @@ bool WaveManager::spawnEnemy() {
     const Lane& selectedLane = lanes[lane];
 
     glm::vec2 spawnPosition(
-        selectedLane.right - 0.03f,
-        (selectedLane.top + selectedLane.bottom) / 2.0f
+        WorldLayout::enemySpawnX(selectedLane),
+        WorldLayout::standingY(selectedLane, WorldLayout::ENEMY_HEIGHT)
     );
     
     if (enemyType == EnemyType::EASY) {
@@ -186,15 +196,21 @@ bool WaveManager::spawnEnemyProjectile(Enemy *enemy) {
     }
     
     const Lane& enemyLane = lane[laneIndex];
-    float laneheight = enemyLane.bottom - enemyLane.top;
+    float playerTopY = WorldLayout::standingY(enemyLane, WorldLayout::PLAYER_HEIGHT);
     float projectileCenterY;
 
     if (type == AttackType::Low){
-        projectileCenterY = enemyLane.top + laneheight * 0.75f;
+        projectileCenterY = playerTopY + 
+        WorldLayout::PLAYER_HEIGHT * WorldLayout::LOW_ATTACK_OFFSET;
     }
     else if (type == AttackType::High){
-        projectileCenterY = enemyLane.top + laneheight * 0.25f;
+        projectileCenterY = playerTopY +
+        WorldLayout::PLAYER_HEIGHT * WorldLayout::HIGH_ATTACK_OFFSET;
     }
+    else {
+        return false;
+    }
+
     float projectileY = projectileCenterY - EnemyProjectile::HEIGHT / 2.0f;
 
     glm::vec2 position = enemy->getPosition();

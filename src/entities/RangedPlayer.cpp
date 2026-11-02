@@ -32,7 +32,7 @@
         }
         actionState = ActionState::Attacking;
         attackTimer = 0.0f;
-        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
+        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f - Constants::ProjectileHeight / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
         gameManager.addProjectile(std::move(projectile));
     }
 

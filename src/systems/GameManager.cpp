@@ -8,6 +8,7 @@
 #include "../entities/Projectile.h"
 #include "../utils/Constants.h"
 #include "../world/Grid.h"
+#include "../utils/WorldLayout.h"
 #include <vector>
 #include <memory>
 #include <utility>
@@ -25,9 +26,10 @@ void GameManager::setGrid(Grid* gameGrid) {
     Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
         const Lane& lane = grid->getLanes()[laneIndex];
 
-        float playerX = (lane.left + 0.025f) * 1000.0f;
+        float playerX = WorldLayout::playerSpawnX(lane);
         float laneCenterY = (lane.top + lane.bottom) / 2.0f;
-        float playerY = (1.0f - laneCenterY - 0.05f) * 1000.0f;
+        float playerY = WorldLayout::standingY(lane, WorldLayout::PLAYER_HEIGHT);
+        
         std::unique_ptr<Player> player = nullptr;
         if (type == PlayerType::Defense) {
             player =  std::make_unique<DefensePlayer>(playerX, playerY, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);

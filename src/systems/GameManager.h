@@ -13,6 +13,7 @@ public:
     std::vector<std::unique_ptr<Player>> players;
     std::vector<std::unique_ptr<Projectile>> projectiles;
     Grid* grid;
+    void setGrid(Grid* gameGrid);
 
 public:
     GameManager();
