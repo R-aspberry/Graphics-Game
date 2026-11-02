@@ -1,5 +1,6 @@
 
 #pragma once
+#include "../utils/WorldLayout.h"
 
 namespace GameConfig {
 
@@ -7,8 +8,8 @@ namespace GameConfig {
     inline constexpr int LANE_COUNT = 4;
 
     // Player movement speeds
-    inline constexpr float MELEE_SPEED = 100.0f;
-    inline constexpr float RANGED_SPEED = 90.0f;
+    inline constexpr float MELEE_SPEED = 0.10f;
+    inline constexpr float RANGED_SPEED = 0.09f;
 
     // Enemy movement speeds
     inline constexpr float EASY_ENEMY_SPEED = 0.06f;
@@ -67,7 +68,7 @@ namespace Constants
     constexpr float speedMelee = GameConfig::MELEE_SPEED;
     constexpr float speedDefense = 0.0f;
     constexpr float speedRanged = GameConfig::RANGED_SPEED;
-    constexpr float ProjectileWidth = 5;
-    constexpr float ProjectileHeight = 5;
+    constexpr float ProjectileWidth = WorldLayout::PROJECTILE_WIDTH;
+    constexpr float ProjectileHeight = WorldLayout::PROJECTILE_HEIGHT;
 
 }

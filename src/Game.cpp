@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "utils/ResourceManager.h"
 #include "world/Lane.h"
-
+#include "utils/WorldLayout.h"
 #include <iostream>
 #include "entities/Enemy.h"
 #include "entities/EasyEnemy.h"
@@ -111,7 +111,7 @@ void Game::renderPlayers()
             texture = rangedTexture;
         }
 
-        rendere->drawSprite(texture, player->getX(), player->getY(), player->getWidth(), player->getHeight());
+        rendere->drawSprite(texture, player->getX(), WorldLayout::toRenderY(player.getY(),player.getHeight()), player->getWidth(), player->getHeight());
     }
 
 }
@@ -283,13 +283,13 @@ void Game::update(float deltaTime){
 //         return;
 //     }
 
-//     float width = 0.075f;
-//     float height = 0.11f;
+//     float width = WorldLayout::ENEMY_WIDTH;
+//     float height = WorldLayout::ENEMY_HEIGHT;
 
-//     float x = enemy.getPosition().x / 1000.0f - width / 2.0f;
+//     float x = enemy.getPosition().x ;
+//     float y = WorldLayout::toRenderY(enemy.getPosition().y,height);
 
 //     float laneCenterY = (lane.top + lane.bottom) / 2.0f;
-//     float y = 1.0f - laneCenterY - height / 2.0f;
 
 //     renderer->drawSprite(texture, x, y, width, height);
 // }

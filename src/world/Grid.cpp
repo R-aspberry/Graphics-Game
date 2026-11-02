@@ -1,6 +1,5 @@
 #include "Grid.h"
 
-
 Grid::Grid() {
     lanes = {{
         // id, left, right, top, bottom, selected, hovered
