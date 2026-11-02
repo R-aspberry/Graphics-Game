@@ -9,6 +9,7 @@
       maxHealth(maxHealth),
       moveSpeed(moveSpeed),
       actionState(ActionState::Idle),
+      PrevactionState(ActionState::Moving),
       movementBlocked(false),
       jumpTimer(0.0f),
       duckTimer(0.0f),
@@ -27,6 +28,7 @@
         if (damage<=0){
             return ;
         }
+        PrevactionState = actionState;
         health-= damage;
         damageFlashTimer = 0.2f;
 
@@ -100,7 +102,7 @@
         jumpTimer += deltaTime;
         if(jumpTimer >= Constants::JUMP_DURATION){
             jumpTimer = 0.0f;
-            actionState = ActionState::Idle;
+            actionState = ActionState::Moving;
         }
     }
 
@@ -111,7 +113,7 @@
         duckTimer += deltaTime;
         if(duckTimer >=Constants::DUCK_DURATION){
             duckTimer = 0.0f;
-            actionState = ActionState::Idle;
+            actionState = ActionState::Moving;
         }
     }
 
@@ -123,9 +125,14 @@
         }
         damageFlashTimer -= deltaTime;
 
-        if (damageFlashTimer < 0.0f)
+        if (damageFlashTimer <= 0.0f)
         { damageFlashTimer = 0.0f;
+            if(actionState!= ActionState::Defeated){
+            actionState = PrevactionState;
         }
+        }
+
+        
     }
     void Player::update(float deltaTime)  {
         updateMovement(deltaTime);

@@ -35,8 +35,6 @@ Shader::Shader (const char* vertex, const char* fragment){
     glGetProgramiv(Program, GL_LINK_STATUS, &success);
 
     if(!success){
-        glDeleteShader(vertexID);
-        glDeleteShader(fragmentID);
         glDeleteProgram(Program);
         Program = 0;
        

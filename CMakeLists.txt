@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.20)
 project(TowerDefense LANGUAGES C CXX)
 
@@ -18,6 +19,8 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
+# Exclude Game.cpp and the older GLAD 1 source.
+list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/Game[.]cpp$")
 list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/glad[.]c$")
 
 add_executable(TowerDefense
@@ -35,7 +38,13 @@ target_include_directories(TowerDefense PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/external/glad/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/external/glm"
 )
-target_link_libraries(TowerDefense PRIVATE glfw OpenGL::GL glm::glm)
+
+target_link_libraries(TowerDefense PRIVATE
+    glfw
+    OpenGL::GL
+    glm::glm
+)
+
 if(WIN32)
     target_link_libraries(TowerDefense PRIVATE
         opengl32
@@ -44,12 +53,15 @@ if(WIN32)
         gdi32
     )
 endif()
+
 set_target_properties(TowerDefense PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-# Regression tests for member 3's work. Do not compile src/glad.c here.
+# Regression tests for member 3's work.
+# Do not compile src/glad.c here.
 option(BUILD_GAME_TESTS "Build Enemy and WaveManager unit tests" ON)
+
 if(BUILD_GAME_TESTS)
     add_executable(EnemyTests
         tests/EnemyTest.cpp
@@ -58,8 +70,12 @@ if(BUILD_GAME_TESTS)
         src/entities/MediumEnemy.cpp
         src/entities/HardEnemy.cpp
     )
+
     target_link_libraries(EnemyTests PRIVATE glm::glm)
-    target_include_directories(EnemyTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/entities")
+
+    target_include_directories(EnemyTests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/entities"
+    )
 
     add_executable(WaveManagerTests
         tests/WaveManagerTest.cpp
@@ -69,6 +85,10 @@ if(BUILD_GAME_TESTS)
         src/entities/MediumEnemy.cpp
         src/entities/HardEnemy.cpp
     )
+
     target_link_libraries(WaveManagerTests PRIVATE glm::glm)
-    target_include_directories(WaveManagerTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/entities")
+
+    target_include_directories(WaveManagerTests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/entities"
+    )
 endif()

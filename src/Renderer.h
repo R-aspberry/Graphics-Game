@@ -8,9 +8,9 @@ class Renderer
 {
 public:
     Shader& shader;
-    GLuint VAO;
-    GLuint VBO;
-    GLuint EBO;
+    GLuint VAO =0 ;
+    GLuint VBO = 0;
+    // GLuint EBO;
 
     float width;
     float height;

@@ -1,0 +1,49 @@
+[  3%] Built target glm
+[ 38%] Built target glfw
+[ 39%] Building CXX object CMakeFiles/TowerDefense.dir/src/main.cpp.o
+[ 42%] Building CXX object CMakeFiles/TowerDefense.dir/src/ui/UIManager.cpp.o
+[ 42%] Building CXX object CMakeFiles/TowerDefense.dir/src/ui/PauseMenu.cpp.o
+[ 44%] Building CXX object CMakeFiles/TowerDefense.dir/src/ui/SoundSettings.cpp.o
+[ 47%] Building CXX object CMakeFiles/TowerDefense.dir/src/utils/Animation.cpp.o
+[ 47%] Building CXX object CMakeFiles/TowerDefense.dir/src/ui/PlayerCard.cpp.o
+[ 49%] Building CXX object CMakeFiles/TowerDefense.dir/src/utils/ResourceManager.cpp.o
+[ 50%] Building CXX object CMakeFiles/TowerDefense.dir/src/world/Environment.cpp.o
+[ 53%] Building CXX object CMakeFiles/TowerDefense.dir/src/world/Grid.cpp.o
+[ 53%] Building CXX object CMakeFiles/TowerDefense.dir/src/world/HomeBase.cpp.o
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1074:22: error: no member named 'renderEnemy' in 'Game'
+ 1074 |                 game.renderEnemy(
+      |                 ~~~~ ^
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1101:58: error: no member named 'player' in 'Game'; did you mean 'Player'?
+ 1101 |                     game.render(grid.getLanes()[laneId], Game::player::MELEE);
+      |                                                          ^~~~~~~~~~~~
+      |                                                          Player
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/systems/../entities/Player.h:10:7: note: 'Player' declared here
+   10 | class Player : public Entity {
+      |       ^
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1101:72: error: no member named 'MELEE' in 'Player'
+ 1101 |                     game.render(grid.getLanes()[laneId], Game::player::MELEE);
+      |                                                                        ^~~~~
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1106:58: error: no member named 'player' in 'Game'; did you mean 'Player'?
+ 1106 |                     game.render(grid.getLanes()[laneId], Game::player::RANGED);
+      |                                                          ^~~~~~~~~~~~
+      |                                                          Player
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/systems/../entities/Player.h:10:7: note: 'Player' declared here
+   10 | class Player : public Entity {
+      |       ^
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1106:72: error: no member named 'RANGED' in 'Player'
+ 1106 |                     game.render(grid.getLanes()[laneId], Game::player::RANGED);
+      |                                                                        ^~~~~~
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1110:58: error: no member named 'player' in 'Game'; did you mean 'Player'?
+ 1110 |                     game.render(grid.getLanes()[laneId], Game::player::DEFENSE);
+      |                                                          ^~~~~~~~~~~~
+      |                                                          Player
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/systems/../entities/Player.h:10:7: note: 'Player' declared here
+   10 | class Player : public Entity {
+      |       ^
+/Users/hebatallahibrahim/Desktop/graphics/Graphics-Game/src/main.cpp:1110:72: error: no member named 'DEFENSE' in 'Player'
+ 1110 |                     game.render(grid.getLanes()[laneId], Game::player::DEFENSE);
+      |                                                                        ^~~~~~~
+7 errors generated.
+make[2]: *** [CMakeFiles/TowerDefense.dir/src/main.cpp.o] Error 1
+make[1]: *** [CMakeFiles/TowerDefense.dir/all] Error 2
+make: *** [all] Error 2

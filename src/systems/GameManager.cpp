@@ -14,18 +14,35 @@
 
 #include "GameManager.h"
 
+GameManager::GameManager() : grid(nullptr) {}
 
+GameManager::~GameManager() = default;
+
+void GameManager::setGrid(Grid* gameGrid) {
+    grid = gameGrid;
+}
 
     Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
+        const Lane& lane = grid->getLanes()[laneIndex];
+
+        float playerX = (lane.left + 0.025f) * 1000.0f;
+        float laneCenterY = (lane.top + lane.bottom) / 2.0f;
+        float playerY = (1.0f - laneCenterY - 0.05f) * 1000.0f;
         std::unique_ptr<Player> player = nullptr;
         if (type == PlayerType::Defense) {
-            player =  std::make_unique<DefensePlayer>(Constants::homebasex, Constants::homebasey, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
+            player =  std::make_unique<DefensePlayer>(playerX, playerY, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
         }
         if (type == PlayerType::Melee) {
-            player =  std::make_unique<MeleePlayer>(Constants::homebasex, Constants::homebasey, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
+            player =  std::make_unique<MeleePlayer>(playerX, playerY, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
+            player->setActionState(ActionState::Moving);
         }
         if (type == PlayerType::Ranged) {
-            player =  std::make_unique<RangedPlayer>(Constants::homebasex, Constants::homebasey, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
+            player =  std::make_unique<RangedPlayer>(playerX, playerY, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
+            player->setActionState(ActionState::Moving);
+        }
+        
+        if(player == nullptr){
+            return nullptr;
         }
         Player* out = player.get();
         players.push_back(std::move(player));
@@ -84,7 +101,7 @@
     std::vector<Player*> GameManager::getActivePlayers() const{
         std::vector<Player*> activePlayers;
         for (const auto& player : players) {
-            if (player->isAlive()) {
+            if (player->isAlive() && player->isActive()) {
                 activePlayers.push_back(player.get());
             }
         }

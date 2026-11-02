@@ -7,8 +7,7 @@
 #include "systems/WaveManager.h"
 #include "systems/GameManager.h"
 #include <vector>
-#include "world/Lane.h"
-
+#include <memory>
 #include <array>
 #include "world/Lane.h"
 
@@ -18,6 +17,7 @@ class Game
 {
 private :
     GameManager gameManager;
+    WaveManager waveManager;
     Shader shader;
     std::unique_ptr<Renderer> rendere;
     GLuint meleeTexture = 0;
@@ -35,7 +35,7 @@ public :
     void renderPlayers();
     void renderProjectiles();
     Player* placePlayer(PlayerType player, int lane);
-    GLuint loadTexture(char* path);
+    GLuint loadTexture(const char* path);
 
 };
 

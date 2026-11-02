@@ -1,12 +1,16 @@
 
 #define GLFW_INCLUDE_NONE
+#ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
+#endif
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#ifdef _WIN32
 #include <GLFW/glfw3native.h>
-
 #include <dwmapi.h>
+#endif
+
 #include <iostream>
 #include <array>
 
@@ -208,6 +212,7 @@ void mouseButtonCallback(
 
 void customizeTitleBar(GLFWwindow *window)
 {
+#ifdef _WIN32
     HWND hwnd = glfwGetWin32Window(window);
 
     COLORREF background = RGB(229, 231, 235);
@@ -232,58 +237,60 @@ void customizeTitleBar(GLFWwindow *window)
         36,
         &textColor,
         sizeof(textColor));
+#else
+    (void)window;
+#endif
 }
 
 // =====================================
 // MAIN
 // =====================================
 
-void purchaseMelee(int laneSelected, std::array<bool, 4> *meleePlaced, Economy *economy)
+void purchaseMelee(int laneSelected, /*std::array<bool, 4> *meleePlaced,*/ Economy *economy, Game* game)
 {
     const int meleeCost = 10;
-
     if (laneSelected < 0 || laneSelected >= 4)
         return;
 
-    if ((*meleePlaced)[laneSelected])
-        return;
+    // if ((*meleePlaced)[laneSelected])
+    //     return;
 
     if (!(*economy).spendCoins(meleeCost))
         return;
 
-    (*meleePlaced)[laneSelected] = true;
+    Player* player = game->placePlayer(PlayerType::Melee, laneSelected);
+
+    // (*meleePlaced)[laneSelected] = true;
 }
 
-void purchaseRanged(int laneSelected, std::array<bool, 4> *rangedPlaced, Economy *economy)
+void purchaseRanged(int laneSelected, /*std::array<bool, 4> *rangedPlaced,*/ Economy *economy, Game* game)
 {
     const int rangedCost = 20;
 
     if (laneSelected < 0 || laneSelected >= 4)
         return;
-
-    if ((*rangedPlaced)[laneSelected])
-        return;
+    // if ((*rangedPlaced)[laneSelected])
+    //     return;
 
     if (!(*economy).spendCoins(rangedCost))
         return;
 
-    (*rangedPlaced)[laneSelected] = true;
+    Player* player = game->placePlayer(PlayerType::Ranged, laneSelected);
+
+    // (*rangedPlaced)[laneSelected] = true;
 }
 
-void purchaseDefense(int laneSelected, std::array<bool, 4> *defensePlaced, Economy *economy)
+void purchaseDefense(int laneSelected, Economy *economy, Game* game)
 {
     const int defenseCost = 30;
 
     if (laneSelected < 0 || laneSelected >= 4)
         return;
 
-    if ((*defensePlaced)[laneSelected])
-        return;
-
     if (!(*economy).spendCoins(defenseCost))
         return;
 
-    (*defensePlaced)[laneSelected] = true;
+    Player* player = game->placePlayer(PlayerType::Melee, laneSelected);
 }
 int main()
 {
@@ -712,8 +719,7 @@ int main()
 
             if (!gameInitialized)
             {
-                game.init();
-                gameInitialized = true;
+                gameInitialized = game.init();
             }
 
             // Temporary test: B means an enemy reached the base

@@ -1,4 +1,7 @@
 #include "CombatSystem.h"
+#include "../entities/DefensePlayer.h"
+
+#include <algorithm>
 
 CombatSystem::CombatSystem(GameManager* playerManager, CollisionSystem* collisionSystem){
     (*this).playerManager = playerManager;
@@ -44,6 +47,23 @@ void CombatSystem::resolveEnemyAttack(Enemy& enemy, Player& player)
         player.takeDamage(enemy.getDamage());
         enemy.resetAttackTimer();
     }
+}
+
+bool CombatSystem::isPlayerProtected(
+    const Player& player,
+    const std::vector<Enemy*>&) const
+{
+    if (playerManager == nullptr) {
+        return false;
+    }
+
+    const std::vector<Player*> activePlayers = playerManager->getActivePlayers();
+    return std::any_of(activePlayers.begin(), activePlayers.end(),
+        [&player](const Player* candidate) {
+            const auto* defensePlayer =
+                dynamic_cast<const DefensePlayer*>(candidate);
+            return defensePlayer != nullptr && defensePlayer->protects(player);
+        });
 }
 
 void CombatSystem::resolveEnemyAttacks(const std::vector<Enemy*>& activeEnemies){
@@ -94,4 +114,3 @@ void CombatSystem::resolveEnemyAttacks(const std::vector<Enemy*>& activeEnemies)
 
     
 }
-

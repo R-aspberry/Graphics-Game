@@ -13,6 +13,7 @@ public:
     int maxHealth;
     float moveSpeed;
     ActionState actionState;
+    ActionState PrevactionState;
     bool movementBlocked;
     float jumpTimer;
     float duckTimer;

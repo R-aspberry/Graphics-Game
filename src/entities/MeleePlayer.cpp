@@ -33,7 +33,7 @@
 
         void MeleePlayer::finishAttack(){
             if(actionState == ActionState::Attacking){
-                actionState = ActionState::Idle;
+                actionState = ActionState::Moving;
                 attackTimer = 0.0f;
                 attackCoolDownTimer = GameConfig::MELEE_ATTACK_INTERVAL;
             }

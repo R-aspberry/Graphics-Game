@@ -20,12 +20,18 @@
     }
 
     bool CollisionSystem::playerEnemyEncounter( Player& player,  Enemy& enemy) const{ 
-        if ((enemy.getPosition().x - player.getX()) <= player.attackRange && player.getLaneIndex() == enemy.getLane()) {
-            player.setMovementBlocked(true);
-            enemy.setMovementBlocked(true);
-            return true;
-        }
-        return false; //if they are on the same lane they begin fighting 
+       if(player.getLaneIndex()!= enemy.getLane()){
+        return false;
+       }
+       float playerx = player.getX()+ player.getWidth();
+       float enemyx = enemy.getPosition().x - 37.5f; //why the heck 37.5f we have no clue 
+
+       if(playerx>=enemyx){
+        player.setMovementBlocked(true);
+        enemy.setMovementBlocked(true);
+        return true;
+       }
+       return false;
     }
 
     

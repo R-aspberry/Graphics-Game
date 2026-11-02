@@ -4,6 +4,8 @@
 Renderer::Renderer(Shader& shader, float width, float height): shader(shader), width(width), height(height){
     shader.use();
     initRender();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::initRender(){
@@ -52,8 +54,7 @@ void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h)
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+ 
     // GLint rectLocation =
     //     glGetUniformLocation(shader.Program, "spriteRect");
 
