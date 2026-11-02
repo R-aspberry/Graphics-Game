@@ -1,6 +1,7 @@
 #pragma once
 #include "../entities/Enemy.h"
 #include "../entities/Collectible.h"
+#include "../entities/EnemyProjectile.h"
 #include <memory>
 #include  <vector>
 #include <cstddef> 
@@ -12,6 +13,7 @@ class WaveManager {
         int totalEnemiesInWave;
         float spawnTimer;
         std::vector<std::unique_ptr<Enemy>> activeEnemies;
+        std::vector<std::unique_ptr<EnemyProjectile>> enemyProjectiles;
         std::vector<bool> dropGenerated;
         std::vector<Collectible> collectibles;
         bool spawnEnemy();
@@ -59,6 +61,16 @@ class WaveManager {
 
             return &collectibles[index];
         }
+        std::size_t getEnemyProjectilesCount() const {
+            return enemyProjectiles.size();
+        }
+        EnemyProjectile* getEnemyProjectileAt(std::size_t index) {
+            if (index >= enemyProjectiles.size()) {
+                return nullptr;
+            }
+            return enemyProjectiles[index].get();
+        }
+        bool spawnEnemyProjectile(Enemy *enemy);
         bool removeDropAt(std::size_t index);
         bool hasEnemyReachedBase(float homeBaseX) const;
 };
