@@ -6,10 +6,11 @@ public:
     void escTab();
     void endMenu(bool won);
     void draw();
+    void cleanup();
   
 private:
-    unsigned int VAO, VBO;
-    unsigned int shaderProgram;
+    unsigned int VAO = 0, VBO = 0;
+    unsigned int shaderProgram = 0;
     unsigned int texture = 0;
     unsigned int buttonVAO = 0;
     unsigned int buttonVBO = 0;

@@ -25,9 +25,11 @@ namespace GameConfig {
 
     // Economy
     inline constexpr int INITIAL_COINS = 30;
-    inline constexpr int EASY_ENEMY_REWARD = 3;
-    inline constexpr int MEDIUM_ENEMY_REWARD = 5;
-    inline constexpr int HARD_ENEMY_REWARD = 8;
+    // Three first-wave kills must fund a defender for an unoccupied fourth lane.
+    // Hard-enemy rewards also fund replacing a melee player lost fighting one.
+    inline constexpr int EASY_ENEMY_REWARD = 5;
+    inline constexpr int MEDIUM_ENEMY_REWARD = 8;
+    inline constexpr int HARD_ENEMY_REWARD = 12;
 
     // Required enemy health
     inline constexpr int EASY_ENEMY_HP = 5;
@@ -56,12 +58,12 @@ namespace Constants
     constexpr float ProjectileSpeed = 0.5f;
     constexpr float homebasex = 0.0f;
     constexpr float homebasey = 0.0f;
-    constexpr float defensewidth = 50.0f;
-    constexpr float defenseheight = 100.0f;
-    constexpr float meleewidth = 50.0f;
-    constexpr float meleeheight = 100.0f;
-    constexpr float rangedwidth = 50.0f;
-    constexpr float rangedheight = 100.0f;
+    constexpr float defensewidth = WorldLayout::PLAYER_WIDTH;
+    constexpr float defenseheight = WorldLayout::PLAYER_HEIGHT;
+    constexpr float meleewidth = WorldLayout::PLAYER_WIDTH;
+    constexpr float meleeheight = WorldLayout::PLAYER_HEIGHT;
+    constexpr float rangedwidth = WorldLayout::PLAYER_WIDTH;
+    constexpr float rangedheight = WorldLayout::PLAYER_HEIGHT;
     constexpr int MaxHealthMelee = 5;
     constexpr int MaxHealthDefense = 7;
     constexpr int MaxHealthRanged = 5;

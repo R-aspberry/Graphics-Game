@@ -12,6 +12,7 @@ private:
     // float y;
     Player* player;
     bool hasHit;
+    int damage;
 
 public:
     Projectile(float x , float y , float width , float height, int laneIndex ,  float speed,  Player* player);
@@ -24,6 +25,7 @@ public:
     void markHit() ;
 
     float getSpeed() const;
+    int getDamage() const { return damage; }
 };
 
 #endif // PROJECTILE_H

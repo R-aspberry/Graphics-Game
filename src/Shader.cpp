@@ -1,8 +1,15 @@
 
 #include "Shader.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 
 Shader::Shader (const char* vertex, const char* fragment){
+    init(vertex, fragment);
+}
+
+bool Shader::init(const char* vertex, const char* fragment) {
+    cleanup();
     GLuint vertexID = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexID ,1,  &vertex, nullptr);
     glCompileShader(vertexID);
@@ -11,7 +18,7 @@ Shader::Shader (const char* vertex, const char* fragment){
 
     if(!success){
         glDeleteShader(vertexID);
-        return ;
+        return false;
     }
 
     GLuint fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -22,7 +29,7 @@ Shader::Shader (const char* vertex, const char* fragment){
     if(!success){
         glDeleteShader(fragmentID);
         glDeleteShader(vertexID);
-        return ;
+        return false;
     }
 
     Program = glCreateProgram();
@@ -42,9 +49,7 @@ Shader::Shader (const char* vertex, const char* fragment){
 
     glDeleteShader(vertexID);
     glDeleteShader(fragmentID);
-
-
-
+    return Program != 0;
 }
 
 void Shader::use(){
@@ -58,6 +63,10 @@ void Shader::use(){
 // }
 
 Shader::~Shader(){
-    if (Program != 0)
-        glDeleteProgram(Program);
+    cleanup();
+}
+
+void Shader::cleanup() {
+    if (Program != 0 && glfwGetCurrentContext()) glDeleteProgram(Program);
+    Program = 0;
 }

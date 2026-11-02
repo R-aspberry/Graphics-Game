@@ -9,6 +9,7 @@ private:
     //float attackRange = 0.3f; //i still dk ??
     float attackCoolDownTimer = 0.0f;
     float attackTimer = 0.0f;
+    bool attacking = false;
     //bool attacking;
 
 public:

@@ -13,6 +13,9 @@ namespace WorldLayout {
     // Projectile sizes
     inline constexpr float PROJECTILE_WIDTH = 0.012f;
     inline constexpr float PROJECTILE_HEIGHT = 0.012f;
+    // Fractions measured down from the top of a standing player hitbox.
+    inline constexpr float HIGH_ATTACK_OFFSET = 0.25f;
+    inline constexpr float LOW_ATTACK_OFFSET = 0.75f;
 
     // Collectible size
     inline constexpr float COLLECTIBLE_WIDTH = 0.025f;

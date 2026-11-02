@@ -5,6 +5,7 @@
 #include "../src/utils/Constants.h"
 
 #include <cmath>
+#include "../src/world/Grid.h"
 #include <cstddef>
 #include <iostream>
 #include <limits>
@@ -35,12 +36,22 @@ bool samePosition(const glm::vec2& a, const glm::vec2& b) {
     return near(a.x, b.x) && near(a.y, b.y);
 }
 
+glm::vec2 dropPosition(const Enemy& enemy) {
+    return enemy.getPosition() + glm::vec2(
+        (WorldLayout::ENEMY_WIDTH - WorldLayout::COLLECTIBLE_WIDTH) / 2,
+        (WorldLayout::ENEMY_HEIGHT - WorldLayout::COLLECTIBLE_HEIGHT) / 2);
+}
+bool collectAndRemove(WaveManager& manager, std::size_t index) {
+    Collectible* drop = manager.getDropAt(index);
+    if (!drop || !drop->collect()) return false;
+    return manager.removeDropAt(index);
+}
 bool validLaneAndSpawn(const Enemy* enemy) {
     if (!enemy) return false;
     const int lane = enemy->getLane();
     return lane >= 0 && lane < GameConfig::LANE_COUNT &&
-           near(enemy->getPosition().x, 900.0f) &&
-           near(enemy->getPosition().y, 100.0f + lane * 75.0f);
+           near(enemy->getPosition().x, WorldLayout::enemySpawnX(Grid().getLanes()[lane])) &&
+           near(enemy->getPosition().y, WorldLayout::standingY(Grid().getLanes()[lane], WorldLayout::ENEMY_HEIGHT));
 }
 
 bool isEasy(const Enemy* e) {
@@ -91,7 +102,7 @@ void checkInitialState() {
     check(manager.getDropCount() == 0, "New game starts with zero collectibles");
     check(manager.getDropAt(0) == nullptr, "Empty drop list rejects index zero");
     check(manager.getDropAt(9999) == nullptr, "Empty drop list rejects large index");
-    check(!manager.removeDropAt(0), "Cannot remove a drop from an empty list");
+    check(!collectAndRemove(manager, 0), "Cannot remove a drop from an empty list");
     check(readOnly.getDropAt(0) == nullptr, "Drop getter works on const WaveManager");
 }
 
@@ -155,8 +166,8 @@ void checkMovementAndStates() {
     enemy->resetAttackTimer();
     const float laneY = enemy->getPosition().y;
     manager.update(0.5f);
-    check(near(enemy->getPosition().x, 870.0f),
-          "EasyEnemy moves left 30 units in 0.5 s");
+    check(near(enemy->getPosition().x, WorldLayout::enemySpawnX(Grid().getLanes()[enemy->getLane()]) - GameConfig::EASY_ENEMY_SPEED * .5f),
+          "EasyEnemy moves left at normalized speed for 0.5 s");
     check(near(enemy->getPosition().y, laneY), "Movement does not change lane Y");
     check(near(enemy->getTimeSinceLastAttack(), 0.5f),
           "WaveManager updates enemy attack timer");
@@ -168,7 +179,7 @@ void checkMovementAndStates() {
           "FIGHTING enemy continues attack timer");
     enemy->setState(EnemyState::MOVING);
     manager.update(0.5f);
-    check(near(enemy->getPosition().x, 840.0f), "MOVING state resumes movement");
+    check(near(enemy->getPosition().x, WorldLayout::enemySpawnX(Grid().getLanes()[enemy->getLane()]) - GameConfig::EASY_ENEMY_SPEED), "MOVING state resumes movement");
 
     const float beforeNegative = enemy->getPosition().x;
     const float attackTimeBeforeNegative = enemy->getTimeSinceLastAttack();
@@ -231,7 +242,7 @@ void checkProgressionAndVictory() {
         wave2TypesAndLanesOK &= validTypeForWave(2, manager.getEnemyAt(i));
         const Enemy* e = manager.getEnemyAt(i);
         if (!e || e->getLane() < 0 || e->getLane() >= GameConfig::LANE_COUNT ||
-            !near(e->getPosition().y, 100.0f + e->getLane() * 75.0f)) {
+            !near(e->getPosition().y, WorldLayout::standingY(Grid().getLanes()[e->getLane()], WorldLayout::ENEMY_HEIGHT))) {
             wave2TypesAndLanesOK = false;
         }
     }
@@ -270,7 +281,7 @@ void checkProgressionAndVictory() {
         const Enemy* e = manager.getEnemyAt(i);
         wave3TypesAndLanesOK &= validTypeForWave(3, e);
         if (!e || e->getLane() < 0 || e->getLane() >= GameConfig::LANE_COUNT ||
-            !near(e->getPosition().y, 100.0f + e->getLane() * 75.0f)) {
+            !near(e->getPosition().y, WorldLayout::standingY(Grid().getLanes()[e->getLane()], WorldLayout::ENEMY_HEIGHT))) {
             wave3TypesAndLanesOK = false;
         }
     }
@@ -372,7 +383,7 @@ void checkSingleDropLifecycle() {
         return;
     }
 
-    const glm::vec2 expectedPosition = enemy->getPosition();
+    const glm::vec2 expectedPosition = dropPosition(*enemy);
     const int expectedLane = enemy->getLane();
     enemy->takeDamage(1000);
     check(manager.getDropCount() == 0,
@@ -380,9 +391,9 @@ void checkSingleDropLifecycle() {
     manager.update(0.0f);
     check(manager.getDropCount() == 1, "Dead enemy generates one collectible");
 
-    const EnemyDrop* drop = manager.getDropAt(0);
-    check(drop && samePosition(drop->position, expectedPosition) &&
-          drop->lane == expectedLane,
+    const Collectible* drop = manager.getDropAt(0);
+    check(drop && samePosition(drop->getPosition(), expectedPosition) &&
+          drop->getLane() == expectedLane,
           "Collectible appears at dead enemy's position and lane");
     check(manager.getDropAt(1) == nullptr,
           "Index equal to drop count returns nullptr");
@@ -398,15 +409,16 @@ void checkSingleDropLifecycle() {
     const std::size_t enormous = std::numeric_limits<std::size_t>::max();
     check(manager.getDropAt(enormous) == nullptr,
           "Very large collectible index returns nullptr");
-    check(!manager.removeDropAt(10), "Cannot remove nonexistent collectible");
-    check(!manager.removeDropAt(enormous), "Very large removal index is rejected");
+    check(!collectAndRemove(manager, 10), "Cannot remove nonexistent collectible");
+    check(!collectAndRemove(manager, enormous), "Very large removal index is rejected");
     check(manager.getDropCount() == 1,
           "Invalid removal does not change drop count");
-    check(manager.removeDropAt(0), "Collectible is removed successfully");
+    check(!manager.removeDropAt(0), "Uncollected drop cannot be removed");
+    check(collectAndRemove(manager, 0), "Collected drop is removed successfully");
     check(manager.getDropCount() == 0, "No collectibles remain after pickup");
     check(manager.getDropAt(0) == nullptr,
           "Collected drop cannot be accessed after removal");
-    check(!manager.removeDropAt(0), "Same collectible cannot be collected twice");
+    check(!collectAndRemove(manager, 0), "Same collectible cannot be collected twice");
     manager.update(0.0f);
     check(manager.getDropCount() == 0,
           "Already-collected drop is not regenerated by a dead enemy");
@@ -427,9 +439,9 @@ void checkMultipleDropsAndRemovalOrder() {
         check(false, "All three enemies accessible for removal-order test");
         return;
     }
-    const glm::vec2 firstPosition = first->getPosition();
-    const glm::vec2 secondPosition = second->getPosition();
-    const glm::vec2 thirdPosition = third->getPosition();
+    const glm::vec2 firstPosition = dropPosition(*first);
+    const glm::vec2 secondPosition = dropPosition(*second);
+    const glm::vec2 thirdPosition = dropPosition(*third);
     const int firstLane = first->getLane();
     const int secondLane = second->getLane();
     const int thirdLane = third->getLane();
@@ -454,28 +466,28 @@ void checkMultipleDropsAndRemovalOrder() {
     check(manager.getDropCount() == 3,
           "Last enemy's drop survives when active enemies are cleared");
 
-    const EnemyDrop* drop0 = manager.getDropAt(0);
-    const EnemyDrop* drop1 = manager.getDropAt(1);
-    const EnemyDrop* drop2 = manager.getDropAt(2);
-    check(drop0 && samePosition(drop0->position, firstPosition) && drop0->lane == firstLane,
+    const Collectible* drop0 = manager.getDropAt(0);
+    const Collectible* drop1 = manager.getDropAt(1);
+    const Collectible* drop2 = manager.getDropAt(2);
+    check(drop0 && samePosition(drop0->getPosition(), firstPosition) && drop0->getLane() == firstLane,
           "First drop preserves first enemy position and lane");
-    check(drop1 && samePosition(drop1->position, secondPosition) && drop1->lane == secondLane,
+    check(drop1 && samePosition(drop1->getPosition(), secondPosition) && drop1->getLane() == secondLane,
           "Second drop preserves second enemy position and lane");
-    check(drop2 && samePosition(drop2->position, thirdPosition) && drop2->lane == thirdLane,
+    check(drop2 && samePosition(drop2->getPosition(), thirdPosition) && drop2->getLane() == thirdLane,
           "Third drop preserves third enemy position and lane");
 
-    check(manager.removeDropAt(1), "Removing middle drop succeeds");
+    check(collectAndRemove(manager, 1), "Removing middle drop succeeds");
     check(manager.getDropCount() == 2, "Middle removal reduces drop count to two");
-    const EnemyDrop* newFirst = manager.getDropAt(0);
-    const EnemyDrop* newSecond = manager.getDropAt(1);
-    check(newFirst && samePosition(newFirst->position, firstPosition) &&
-          newFirst->lane == firstLane,
+    const Collectible* newFirst = manager.getDropAt(0);
+    const Collectible* newSecond = manager.getDropAt(1);
+    check(newFirst && samePosition(newFirst->getPosition(), firstPosition) &&
+          newFirst->getLane() == firstLane,
           "Middle removal preserves the earlier drop");
-    check(newSecond && samePosition(newSecond->position, thirdPosition) &&
-          newSecond->lane == thirdLane,
+    check(newSecond && samePosition(newSecond->getPosition(), thirdPosition) &&
+          newSecond->getLane() == thirdLane,
           "Middle removal shifts the later drop into the removed index");
-    check(manager.removeDropAt(1), "Removing last remaining index succeeds");
-    check(manager.removeDropAt(0), "Removing first remaining index succeeds");
+    check(collectAndRemove(manager, 1), "Removing last remaining index succeeds");
+    check(collectAndRemove(manager, 0), "Removing first remaining index succeeds");
     check(manager.getDropCount() == 0, "Removing all drops leaves an empty list");
     manager.update(0.0f);
     check(manager.getDropCount() == 0,
@@ -515,7 +527,7 @@ void checkDropIndependenceBetweenManagers() {
           "First WaveManager records its enemy's drop");
     check(managerB.getDropCount() == 0,
           "Separate WaveManager has no drops from first manager");
-    check(managerA.removeDropAt(0),
+    check(collectAndRemove(managerA, 0),
           "First WaveManager can remove its own drop");
     check(managerB.getDropCount() == 0,
           "Removing drops in first WaveManager does not affect another");

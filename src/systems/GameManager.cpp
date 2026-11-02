@@ -12,6 +12,8 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <algorithm>
+#include <cmath>
 
 #include "GameManager.h"
 
@@ -24,10 +26,12 @@ void GameManager::setGrid(Grid* gameGrid) {
 }
 
     Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
+        if (!grid || laneIndex < 0 || laneIndex >= static_cast<int>(grid->getLanes().size())) {
+            return nullptr;
+        }
         const Lane& lane = grid->getLanes()[laneIndex];
 
         float playerX = WorldLayout::playerSpawnX(lane);
-        float laneCenterY = (lane.top + lane.bottom) / 2.0f;
         float playerY = WorldLayout::standingY(lane, WorldLayout::PLAYER_HEIGHT);
         
         std::unique_ptr<Player> player = nullptr;
@@ -52,8 +56,13 @@ void GameManager::setGrid(Grid* gameGrid) {
     }
 
     void GameManager::update(float deltaTime){
+        if (!std::isfinite(deltaTime) || deltaTime < 0) return;
         for (const auto& player : players) {
             player->update(deltaTime);
+            if (grid && player->laneIndex >= 0 && player->laneIndex < 4) {
+                const Lane& lane = grid->getLanes()[player->laneIndex];
+                player->x = std::clamp(player->x, lane.left, lane.right - player->width);
+            }
         }
         for (const auto& projectile : projectiles) {
             projectile->update(deltaTime);
@@ -61,6 +70,7 @@ void GameManager::setGrid(Grid* gameGrid) {
     }
 
     void GameManager::addProjectile(std::unique_ptr<Projectile> projectile){
+        if (!projectile) return;
         projectiles.push_back(std::move(projectile));
     }
 
@@ -129,8 +139,8 @@ void GameManager::setGrid(Grid* gameGrid) {
     }
 
     void GameManager::clear(){
-        players.clear();
         projectiles.clear();
+        players.clear();
     }
 
     void GameManager::updatePlayerPositions(float deltaTime){
@@ -149,6 +159,10 @@ void GameManager::setGrid(Grid* gameGrid) {
         removeDefeatedPlayers();
         removeInactiveProjectiles();
     }
+
+const std::vector<std::unique_ptr<Player>>& GameManager::getPlayers() const {
+    return players;
+}
 
 
     

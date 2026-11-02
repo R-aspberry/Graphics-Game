@@ -1,20 +1,17 @@
-
 #pragma once
+#include "../utils/Types.h"
 
 class Economy {
 private:
     int coins;
-
+    int collectedCoins;
 public:
     Economy();
-    // Return current coin balance
-    int getCoins();
-
-    bool canAfford(int cost);
-
-    // Buy an item if the player has enough coins
+    int getCoins() const;
+    bool canAfford(int cost) const;
     bool spendCoins(int cost);
-
-    // Reward player with coins
     void addCoins(int amount);
+    int getPlayerCost(PlayerType type) const;
+    bool isUnlocked(PlayerType type) const;
+    void reset();
 };

@@ -5,6 +5,7 @@
 #include <memory>
 #include  <vector>
 #include <cstddef> 
+#include <random>
 class WaveManager {
 
     private : 
@@ -21,10 +22,15 @@ class WaveManager {
         void startNextWave() ;
         void processEnemyDeaths();
         bool gameWon;
+        std::mt19937 generator;
 
     public:
         WaveManager();
-        void update(float deltaTime);
+        // Game defers cleanup until combat has checked this step's projectiles.
+        void update(float deltaTime, bool deferCombat = false);
+        void finishUpdate();
+        void reset();
+        void setRandomSeed(unsigned int seed) { generator.seed(seed); }
         int getEnemiesSpawnedInWave() const {
             return enemiesSpawnedInWave;
         }

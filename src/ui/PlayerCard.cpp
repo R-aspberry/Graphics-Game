@@ -2,6 +2,9 @@
 #include <glad/gl.h>
 #include "stb_image.h"
 #include <iostream>
+#include "../systems/Economy.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 static const char* cardVertexShaderSource = R"(
     #version 330 core
@@ -21,6 +24,7 @@ static const char* cardVertexShaderSource = R"(
 static const char* cardFragmentShaderSource = R"(
     #version 330 core
     uniform bool hovered;
+    uniform bool locked;
     in vec2 TexCoord;
     out vec4 FragColor;
 
@@ -28,7 +32,11 @@ static const char* cardFragmentShaderSource = R"(
 
     void main(){
     vec4 color = texture(cardTexture, TexCoord);
-    if (hovered)
+    if (locked) {
+        float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+        color.rgb = vec3(gray * 0.35);
+    }
+    if (hovered && !locked)
     {
         color.rgb = min(color.rgb * 1.25, vec3(1.0));
     }
@@ -115,6 +123,7 @@ stbi_set_flip_vertically_on_load(true);
 int meleeWidth, meleeHeight, meleeChannels;
 
 unsigned char* meleeImage = stbi_load("assets/meleeCrad.png",&meleeWidth, &meleeHeight, &meleeChannels,4);
+if (!meleeImage) return;
 
 
 glGenTextures(1, &meleeTexture);
@@ -138,6 +147,7 @@ glBindTexture(GL_TEXTURE_2D, 0);
 int rangedWidth, rangedHeight, rangedChannels;
 
 unsigned char* rangedImage = stbi_load("assets/rangedCard.png",&rangedWidth, &rangedHeight, &rangedChannels, 4);
+if (!rangedImage) return;
 
 
 
@@ -158,6 +168,7 @@ glBindTexture(GL_TEXTURE_2D, 0);
 int defenseWidth, defenseHeight, defenseChannels;
 
 unsigned char* defenseImage = stbi_load("assets/defenceCard.png",&defenseWidth, &defenseHeight, &defenseChannels, 4);
+if (!defenseImage) return;
 
 
 
@@ -178,7 +189,7 @@ glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
-void PlayerCard:: draw(int hoveredCard)
+void PlayerCard:: draw(int hoveredCard, const Economy* economy)
 {
     glUseProgram(shaderProgram);
     glActiveTexture(GL_TEXTURE0);
@@ -189,14 +200,18 @@ void PlayerCard:: draw(int hoveredCard)
     glBindVertexArray(cardVAO);
 
     int hoveredLocation =glGetUniformLocation(shaderProgram, "hovered");
+    int lockedLocation = glGetUniformLocation(shaderProgram, "locked");
+    glUniform1i(lockedLocation, economy && !economy->isUnlocked(PlayerType::Defense));
     glUniform1i(hoveredLocation, hoveredCard == 0);
     glBindTexture(GL_TEXTURE_2D, defenseTexture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
+    glUniform1i(lockedLocation, economy && !economy->isUnlocked(PlayerType::Melee));
     glUniform1i(hoveredLocation, hoveredCard == 1);
     glBindTexture(GL_TEXTURE_2D, meleeTexture);
     glDrawArrays(GL_TRIANGLES, 6, 6);
 
+    glUniform1i(lockedLocation, economy && !economy->isUnlocked(PlayerType::Ranged));
     glUniform1i(hoveredLocation, hoveredCard == 2);
     glBindTexture(GL_TEXTURE_2D, rangedTexture);
     glDrawArrays(GL_TRIANGLES, 12, 6);
@@ -205,5 +220,18 @@ void PlayerCard:: draw(int hoveredCard)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glDisable(GL_BLEND);
+}
+
+void PlayerCard::cleanup() {
+    if (glfwGetCurrentContext()) {
+    glDeleteTextures(1, &meleeTexture);
+    glDeleteTextures(1, &rangedTexture);
+    glDeleteTextures(1, &defenseTexture);
+    glDeleteBuffers(1, &cardVBO);
+    glDeleteVertexArrays(1, &cardVAO);
+    if (shaderProgram) glDeleteProgram(shaderProgram);
+    }
+    meleeTexture = rangedTexture = defenseTexture = 0;
+    cardVAO = cardVBO = shaderProgram = 0;
 }
 

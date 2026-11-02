@@ -2,6 +2,8 @@
 #include "../utils/Animation.h"
 #include "../entities/Entity.h"
 #include <Constants.h>
+#include <algorithm>
+#include <cmath>
 #include "MeleePlayer.h"
 
 
@@ -18,25 +20,26 @@
             if (!(attackCoolDownTimer<=0.0f)){
                 return false;
             }
-            return actionState == ActionState::Moving;
+            return active && isAlive() && !attacking;
         }
 
         void MeleePlayer::startAttack(GameManager &gameManager ) {
             if(!canAttack()){
                 return;
             }
-            actionState = ActionState::Attacking;
+            attacking = true;
+            if (!isJumping() && !isDucking()) actionState = ActionState::Attacking;
+            animation.reset();
             attackTimer = 0.0f;
+            attackCoolDownTimer = GameConfig::MELEE_ATTACK_INTERVAL;
             
 
         }
 
         void MeleePlayer::finishAttack(){
-            if(actionState == ActionState::Attacking){
-                actionState = ActionState::Moving;
-                attackTimer = 0.0f;
-                attackCoolDownTimer = GameConfig::MELEE_ATTACK_INTERVAL;
-            }
+            attacking = false;
+            attackTimer = 0.0f;
+            if (actionState == ActionState::Attacking) actionState = ActionState::Moving;
         }
 
         int MeleePlayer::getAttackDamage () const{
@@ -48,11 +51,11 @@
         }
 
         bool MeleePlayer::isAttacking () const{
-            return ActionState::Attacking == actionState;
+            return attacking;
         }
 
         void MeleePlayer::updateAttack(float deltaTime){
-            if(actionState != ActionState::Attacking){
+            if(!attacking){
                 return;
             }
             attackTimer +=deltaTime;
@@ -63,12 +66,8 @@
         }
 
         void MeleePlayer::update(float deltaTime){
+            if (!std::isfinite(deltaTime) || deltaTime < 0 || !isAlive()) return;
+            attackCoolDownTimer = std::max(0.0f, attackCoolDownTimer - deltaTime);
             Player::update(deltaTime);
-            this->updateAttack(deltaTime);
-            if (attackCoolDownTimer > 0){
-                attackCoolDownTimer-= deltaTime;
-            }
-            if (attackCoolDownTimer < 0){
-                attackCoolDownTimer = 0;
-            }
+            updateAttack(deltaTime);
         }

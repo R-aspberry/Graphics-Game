@@ -8,9 +8,12 @@
 #include "../world/Grid.h"
 #include <random>
 #include <utility>
+#include <algorithm>
+#include <cmath>
 
 WaveManager::WaveManager() : currentWave(1), enemiesSpawnedInWave(0), 
-                totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f),gameWon(false) {}
+                totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f),gameWon(false),
+                generator(std::random_device{}()) {}
 
 
 void WaveManager::processEnemyDeaths() {
@@ -88,8 +91,6 @@ Enemy* WaveManager::getEnemyAt(std::size_t index) {
 }
 
 bool WaveManager::spawnEnemy() {
-    static std::mt19937 generator{std::random_device{}()}; //random number generator
-
     std::uniform_int_distribution<int> laneDistribution(
         0, GameConfig::LANE_COUNT - 1
     ); //random lane selection 
@@ -214,7 +215,7 @@ bool WaveManager::spawnEnemyProjectile(Enemy *enemy) {
     float projectileY = projectileCenterY - EnemyProjectile::HEIGHT / 2.0f;
 
     glm::vec2 position = enemy->getPosition();
-    float projectileX =position.x - EnemyProjectile::WIDTH;
+    float projectileX = position.x + WorldLayout::ENEMY_WIDTH / 2.0f - EnemyProjectile::WIDTH / 2.0f;
 
     auto projectile = std::make_unique<EnemyProjectile>(
         projectileX,
@@ -229,8 +230,8 @@ bool WaveManager::spawnEnemyProjectile(Enemy *enemy) {
     return true;
 }
     
-void WaveManager::update(float deltaTime) {
-    if (deltaTime < 0.0f || gameWon) {
+void WaveManager::update(float deltaTime, bool deferCombat) {
+    if (!std::isfinite(deltaTime) || deltaTime < 0.0f || gameWon) {
         return;
     }
 
@@ -243,15 +244,6 @@ void WaveManager::update(float deltaTime) {
     for(auto& projectile : enemyProjectiles) {
         projectile->update(deltaTime);
         
-        if (projectile->getX() + projectile->getWidth() < 0.0f) {
-            projectile->setActive(false);
-        }
-    }
-    //delete projectiles that are no longer active
-    for(std::size_t i = enemyProjectiles.size(); i > 0; --i) {
-        if(!enemyProjectiles[i - 1]->isActive()) {
-            enemyProjectiles.erase(enemyProjectiles.begin() + (i - 1));
-        }
     }
 
     // Update spawning timer
@@ -268,6 +260,15 @@ void WaveManager::update(float deltaTime) {
         enemiesSpawnedInWave++;
         spawnTimer -= GameConfig::ENEMY_SPAWN_INTERVAL;
     }
+    if (!deferCombat) finishUpdate();
+}
+
+void WaveManager::finishUpdate() {
+    // Expire shots only AFTER combat has checked their entire travelled path.
+    enemyProjectiles.erase(std::remove_if(enemyProjectiles.begin(), enemyProjectiles.end(),
+        [](const std::unique_ptr<EnemyProjectile>& shot) {
+            return !shot->isActive() || shot->x + shot->width < 0.0f;
+        }), enemyProjectiles.end());
     processEnemyDeaths();
     // Check whether the wave is complete
     if (isWaveComplete()) {
@@ -279,4 +280,16 @@ void WaveManager::update(float deltaTime) {
         }
     }
     
+}
+
+void WaveManager::reset() {
+    activeEnemies.clear();
+    enemyProjectiles.clear();
+    dropGenerated.clear();
+    collectibles.clear();
+    currentWave = 1;
+    enemiesSpawnedInWave = 0;
+    totalEnemiesInWave = GameConfig::WAVE_1_COUNT;
+    spawnTimer = 0;
+    gameWon = false;
 }

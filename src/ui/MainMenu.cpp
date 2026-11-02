@@ -432,3 +432,22 @@ glDrawArrays(GL_TRIANGLES, 6, 6);
 
 glDisable(GL_BLEND);
 }
+
+void MainMenu::cleanup() {
+    unsigned int textures[] = {texture, buttonTexture, exitTexture, continueButton,
+                               restartButton, mainMenuButton, winTexture, loseTexture};
+    glDeleteTextures(8, textures);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &buttonVBO);
+    glDeleteBuffers(1, &escVBO);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &buttonVAO);
+    glDeleteVertexArrays(1, &escVAO);
+    if (shaderProgram) glDeleteProgram(shaderProgram);
+    texture = buttonTexture = exitTexture = continueButton = 0;
+    restartButton = mainMenuButton = winTexture = loseTexture = 0;
+    VAO = VBO = buttonVAO = buttonVBO = escVAO = escVBO = shaderProgram = 0;
+#ifdef _WIN32
+    PlaySound(nullptr, nullptr, 0);
+#endif
+}

@@ -3,6 +3,8 @@
 #include "../entities/Entity.h"
 #include "../entities/Projectile.h"
 #include <Constants.h>
+#include <algorithm>
+#include <cmath>
 #include "RangedPlayer.h"
 #include "GameManager.h"
 
@@ -23,28 +25,31 @@
         if (!(attackCoolDownTimer<=0.0f)){
             return false;
         }
-        return actionState == ActionState::Moving;
+        return active && isAlive() && !attacking;
     }
 
     void RangedPlayer::startAttack(GameManager& gameManager) {
         if(!canAttack()){
             return;
         }
-        actionState = ActionState::Attacking;
+        attacking = true;
+            if (!isJumping() && !isDucking()) actionState = ActionState::Attacking;
+            animation.reset();
         attackTimer = 0.0f;
-        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f - Constants::ProjectileHeight / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
+            attackCoolDownTimer = GameConfig::RANGED_ATTACK_INTERVAL;
+        // Start at the weapon/body, so an overlapping enemy at the entry edge
+        // cannot end up behind every shot's collision box.
+        auto projectile  = std::make_unique<Projectile>( x + width / 2.0f, y + height / 2.0f - Constants::ProjectileHeight / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
         gameManager.addProjectile(std::move(projectile));
     }
 
     void RangedPlayer::finishAttack(){
-        if(actionState == ActionState::Attacking){
-            actionState = ActionState::Moving;
+            attacking = false;
             attackTimer = 0.0f;
-            attackCoolDownTimer = Constants::attackIntervals;
+            if (actionState == ActionState::Attacking) actionState = ActionState::Moving;
         }
-    }
 
-    int RangedPlayer::getAttackDamage() const{
+        int RangedPlayer::getAttackDamage() const{
         return attackDamage;
     }
 
@@ -53,11 +58,11 @@
     }
 
     bool RangedPlayer::isAttacking () const{
-        return ActionState::Attacking == actionState;
+        return attacking;
     }
 
     void RangedPlayer::updateAttack(float deltaTime){
-        if(actionState != ActionState::Attacking){
+        if(!attacking){
             return;
         }
         attackTimer +=deltaTime;
@@ -68,7 +73,8 @@
     }
 
     void RangedPlayer::update(float deltaTime){
-        this->updateAttack(deltaTime);
-        Player::update(deltaTime);
-        attackCoolDownTimer-= deltaTime;
-    }
+            if (!std::isfinite(deltaTime) || deltaTime < 0 || !isAlive()) return;
+            attackCoolDownTimer = std::max(0.0f, attackCoolDownTimer - deltaTime);
+            Player::update(deltaTime);
+            updateAttack(deltaTime);
+        }

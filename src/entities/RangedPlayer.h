@@ -11,6 +11,7 @@ private:
     //float attackRange = 0.6f; //i still dk ??
     float attackCoolDownTimer = 0.0f;
     float attackTimer = 0.0f;
+    bool attacking = false;
     //float attackSpeed = 0.3f;
     //bool attacking;
 
@@ -31,7 +32,7 @@ public:
     float getAttackRange() const;
     bool isAttacking() const;
 
-    void update(float deltaTime);
+    void update(float deltaTime) override;
 };
 
 #endif // RANGED_PLAYER_H

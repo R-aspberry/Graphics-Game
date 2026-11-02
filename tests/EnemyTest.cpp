@@ -234,8 +234,8 @@ int main() {
     check(swordFighter.getDamage() == 1,
           "EasyEnemy deals 1 damage");
 
-    check(approximatelyEqual(swordFighter.getSpeed(), 60.0f),
-          "EasyEnemy speed is 60");
+    check(approximatelyEqual(swordFighter.getSpeed(), GameConfig::EASY_ENEMY_SPEED),
+          "EasyEnemy uses configured normalized speed");
 
     check(swordFighter.getLane() == 2,
           "EasyEnemy spawns in the correct lane");
@@ -249,7 +249,7 @@ int main() {
     // Test inherited movement
     swordFighter.update(0.5f);
 
-    check(approximatelyEqual(swordFighter.getPosition().x, 870.0f),
+    check(approximatelyEqual(swordFighter.getPosition().x, 900.0f - GameConfig::EASY_ENEMY_SPEED * 0.5f),
           "EasyEnemy inherits movement correctly");
 
     check(approximatelyEqual(swordFighter.getPosition().y, 250.0f),
@@ -297,8 +297,8 @@ int main() {
     check(archer.getDamage() == 1,
           "MediumEnemy deals 1 damage");
 
-    check(approximatelyEqual(archer.getSpeed(), 60.0f),
-          "MediumEnemy speed is 60");
+    check(approximatelyEqual(archer.getSpeed(), GameConfig::MEDIUM_ENEMY_SPEED),
+          "MediumEnemy uses configured normalized speed");
 
     check(archer.getLane() == 1,
           "MediumEnemy spawns in the correct lane");
@@ -312,7 +312,7 @@ int main() {
     // Test inherited movement
     archer.update(0.5f);
 
-    check(approximatelyEqual(archer.getPosition().x, 870.0f),
+    check(approximatelyEqual(archer.getPosition().x, 900.0f - GameConfig::MEDIUM_ENEMY_SPEED * 0.5f),
           "MediumEnemy inherits movement correctly");
 
     check(approximatelyEqual(archer.getPosition().y, 175.0f),
@@ -358,8 +358,8 @@ int main() {
     check(knight.getDamage() == 2,
           "HardEnemy deals 2 damage");
 
-    check(approximatelyEqual(knight.getSpeed(), 110.0f),
-          "HardEnemy speed is 110");
+    check(approximatelyEqual(knight.getSpeed(), GameConfig::HARD_ENEMY_SPEED),
+          "HardEnemy uses configured normalized speed");
 
     check(knight.getLane() == 3,
           "HardEnemy spawns in the correct lane");
@@ -373,8 +373,8 @@ int main() {
     // Inherited movement
     knight.update(0.5f);
 
-    check(approximatelyEqual(knight.getPosition().x, 845.0f),
-          "HardEnemy moves 55 units in 0.5 seconds");
+    check(approximatelyEqual(knight.getPosition().x, 900.0f - GameConfig::HARD_ENEMY_SPEED * 0.5f),
+          "HardEnemy moves at configured speed for 0.5 seconds");
 
     check(approximatelyEqual(knight.getPosition().y, 325.0f),
           "HardEnemy stays in its lane");

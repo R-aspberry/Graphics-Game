@@ -20,6 +20,8 @@ public:
     float damageFlashTimer;
     float attackRange;
     Animation animation;
+    bool jumping = false;
+    bool ducking = false;
 
 public:
     Player(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed);
