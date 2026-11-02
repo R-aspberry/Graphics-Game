@@ -8,7 +8,7 @@ class Collectible: public Entity {
         bool collected;
     
     public:
-        Collectible(int lane , glm::vec2 position, int reward)
+        Collectible(int lane , glm::vec2 position, int reward);
 
         glm::vec2 getPosition() const {
         return glm::vec2(x, y);
@@ -24,7 +24,7 @@ class Collectible: public Entity {
 
         int getValueOfCoins() const { return valueofcoins;};
         bool isCollected() const { return collected;};
-        int getLane() const { return laneindex;};
+        int getLane() const { return laneIndex;};
         bool collect();
         void update(float deltaTime) override;
 };

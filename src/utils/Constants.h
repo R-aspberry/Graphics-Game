@@ -11,9 +11,9 @@ namespace GameConfig {
     inline constexpr float RANGED_SPEED = 90.0f;
 
     // Enemy movement speeds
-    inline constexpr float EASY_ENEMY_SPEED = 60.0f;
-    inline constexpr float MEDIUM_ENEMY_SPEED = 60.0f;
-    inline constexpr float HARD_ENEMY_SPEED = 110.0f;
+    inline constexpr float EASY_ENEMY_SPEED = 0.06f;
+    inline constexpr float MEDIUM_ENEMY_SPEED = 0.06f;
+    inline constexpr float HARD_ENEMY_SPEED = 0.11f;
 
     // Attack intervals
     inline constexpr float MELEE_ATTACK_INTERVAL = 1.0f;

@@ -1,10 +1,11 @@
 # include "WaveManager.h"
-# include "../utils/Constants.h" 
-# include "../entities/EasyEnemy.h"
+#include "../world/Grid.h"
+#include "../utils/Constants.h" 
+#include "../entities/EasyEnemy.h"
 #include "../entities/MediumEnemy.h"
 #include "../entities/HardEnemy.h"
-# include <random>
-# include <utility>
+#include <random>
+#include <utility>
 
 WaveManager::WaveManager() : currentWave(1), enemiesSpawnedInWave(0), 
                 totalEnemiesInWave(GameConfig::WAVE_1_COUNT), spawnTimer(0.0f),gameWon(false) {}
@@ -53,6 +54,7 @@ void WaveManager::startNextWave() {
 
     activeEnemies.clear();
     dropGenerated.clear();
+    enemyProjectiles.clear();
 }
 
 
@@ -116,9 +118,17 @@ bool WaveManager::spawnEnemy() {
         }
     }
 
-    glm::vec2 spawnPosition(900.0f, 100.0f + lane * 75.0f); //calculate spawn position based on lane
+    static const Grid grid;
+    const auto& lanes = grid.getLanes();
+
+    const Lane& selectedLane = lanes[lane];
+
+    glm::vec2 spawnPosition(
+        selectedLane.right - 0.03f,
+        (selectedLane.top + selectedLane.bottom) / 2.0f
+    );
     
-       if (enemyType == EnemyType::EASY) {
+    if (enemyType == EnemyType::EASY) {
     enemy = std::make_unique<EasyEnemy>(lane, spawnPosition, 2.0f);
     }
     else if (enemyType == EnemyType::MEDIUM){
@@ -155,6 +165,54 @@ bool WaveManager::hasEnemyReachedBase(float homeBaseX) const {
     return false;
 }
 
+bool WaveManager::spawnEnemyProjectile(Enemy *enemy) {
+    if (enemy == nullptr) {
+        return false;
+    }
+    if(!enemy->canAttack()){
+        return false;
+    }
+    AttackType type = enemy->getAttackType();
+    if(type == AttackType::Melee || type == AttackType::Projectile){
+        return false;
+    }
+
+    static const Grid grid; 
+    const auto& lane = grid.getLanes(); 
+    int laneIndex = enemy->getLane();
+
+    if(laneIndex < 0 || laneIndex >= 4){
+        return false;
+    }
+    
+    const Lane& enemyLane = lane[laneIndex];
+    float laneheight = enemyLane.bottom - enemyLane.top;
+    float projectileCenterY;
+
+    if (type == AttackType::Low){
+        projectileCenterY = enemyLane.top + laneheight * 0.75f;
+    }
+    else if (type == AttackType::High){
+        projectileCenterY = enemyLane.top + laneheight * 0.25f;
+    }
+    float projectileY = projectileCenterY - EnemyProjectile::HEIGHT / 2.0f;
+
+    glm::vec2 position = enemy->getPosition();
+    float projectileX =position.x - EnemyProjectile::WIDTH;
+
+    auto projectile = std::make_unique<EnemyProjectile>(
+        projectileX,
+        projectileY,
+        laneIndex,
+        0.15f, 
+        enemy->getDamage(),
+        type
+    );
+    enemyProjectiles.push_back(std::move(projectile));
+    enemy->resetAttackTimer();
+    return true;
+}
+    
 void WaveManager::update(float deltaTime) {
     if (deltaTime < 0.0f || gameWon) {
         return;
@@ -163,6 +221,21 @@ void WaveManager::update(float deltaTime) {
     // Update existing enemies
     for (auto& enemy : activeEnemies) {
         enemy->update(deltaTime);
+        spawnEnemyProjectile(enemy.get()); 
+    }
+    // Update projectiles
+    for(auto& projectile : enemyProjectiles) {
+        projectile->update(deltaTime);
+        
+        if (projectile->getX() + projectile->getWidth() < 0.0f) {
+            projectile->setActive(false);
+        }
+    }
+    //delete projectiles that are no longer active
+    for(std::size_t i = enemyProjectiles.size(); i > 0; --i) {
+        if(!enemyProjectiles[i - 1]->isActive()) {
+            enemyProjectiles.erase(enemyProjectiles.begin() + (i - 1));
+        }
     }
 
     // Update spawning timer
