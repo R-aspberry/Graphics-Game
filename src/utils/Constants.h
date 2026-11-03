@@ -17,17 +17,22 @@ namespace GameConfig {
     inline constexpr float HARD_ENEMY_SPEED = 0.08f;
 
     // Attack intervals
-    inline constexpr float MELEE_ATTACK_INTERVAL = 1.0f;
+    inline constexpr float MELEE_ATTACK_INTERVAL = 0.35f; // cooldown after the 0.5s melee animation
     inline constexpr float RANGED_ATTACK_INTERVAL = 1.5f;
 
+    // Enemy attack cadence (health and damage remain as required by the spec)
+    inline constexpr float EASY_ENEMY_ATTACK_INTERVAL = 4.0f;
+    inline constexpr float MEDIUM_ENEMY_ATTACK_INTERVAL = 3.75f;
+    inline constexpr float HARD_ENEMY_ATTACK_INTERVAL = 3.0f;
+
     // Enemy spawning
-    inline constexpr float ENEMY_SPAWN_INTERVAL = 4.0f;
+    inline constexpr float ENEMY_SPAWN_INTERVAL = 5.5f; // number of enemies per wave is unchanged
 
     // Economy
     inline constexpr int INITIAL_COINS = 30;
-    inline constexpr int EASY_ENEMY_REWARD = 3;
-    inline constexpr int MEDIUM_ENEMY_REWARD = 5;
-    inline constexpr int HARD_ENEMY_REWARD = 8;
+    inline constexpr int EASY_ENEMY_REWARD = 10; // one kill can fund another Melee player
+    inline constexpr int MEDIUM_ENEMY_REWARD = 12;
+    inline constexpr int HARD_ENEMY_REWARD = 18;
 
     // Required enemy health
     inline constexpr int EASY_ENEMY_HP = 5;

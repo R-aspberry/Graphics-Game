@@ -139,13 +139,13 @@ bool WaveManager::spawnEnemy() {
     );
     
     if (enemyType == EnemyType::EASY) {
-    enemy = std::make_unique<EasyEnemy>(lane, spawnPosition, 2.0f);
+    enemy = std::make_unique<EasyEnemy>(lane, spawnPosition, GameConfig::EASY_ENEMY_ATTACK_INTERVAL);
     }
     else if (enemyType == EnemyType::MEDIUM){
-        enemy = std::make_unique<MediumEnemy>(lane, spawnPosition, 2.0f);
+        enemy = std::make_unique<MediumEnemy>(lane, spawnPosition, GameConfig::MEDIUM_ENEMY_ATTACK_INTERVAL);
     }
     else {
-        enemy = std::make_unique<HardEnemy>(lane, spawnPosition, 2.0f);
+        enemy = std::make_unique<HardEnemy>(lane, spawnPosition, GameConfig::HARD_ENEMY_ATTACK_INTERVAL);
     }
 
     activeEnemies.push_back(std::move(enemy));

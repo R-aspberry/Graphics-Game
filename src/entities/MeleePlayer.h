@@ -15,6 +15,9 @@ public:
     MeleePlayer(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed);
     virtual ~MeleePlayer() override;
 
+    void jump() override;
+    void duck() override;
+
     PlayerType getPlayerType() const override;
     void startAttack(GameManager &gameManager ) override;
     bool canAttack() const override;
