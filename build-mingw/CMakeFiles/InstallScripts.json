@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/user/Desktop/Graphics-Game/build-mingw/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/src/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/cmake_install.cmake",
+		"C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/glm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

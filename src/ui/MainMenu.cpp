@@ -152,7 +152,7 @@ if (!compileOK) {
 }
 glDeleteShader(vertexShader);
 glDeleteShader(fragmentShader);
-
+/*
 #ifdef _WIN32
     PlaySound(
         TEXT("assets/backgroundsound.wav"),
@@ -164,6 +164,9 @@ glDeleteShader(fragmentShader);
         "afplay assets/backgroundsound.wav >/dev/null 2>&1 &"
     );
 #endif
+
+*/
+
 int width, height, nrChannels;
 stbi_set_flip_vertically_on_load(true);
 unsigned char* data = stbi_load("assets/background.png", &width, &height, &nrChannels, 3); // Keep the original menu artwork.

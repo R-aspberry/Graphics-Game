@@ -1,0 +1,17 @@
+C:/Users/user/Desktop/Graphics-Game/build-mingw/CMakeFiles/TowerDefense.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/CMakeFiles/EnemyTests.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/CMakeFiles/WaveManagerTests.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/CMakeFiles/CombatQuickTest.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/CMakeFiles/rebuild_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/CMakeFiles/rebuild_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/src/CMakeFiles/glfw.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/src/CMakeFiles/update_mappings.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/src/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glfw/src/CMakeFiles/rebuild_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/CMakeFiles/rebuild_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/glm/CMakeFiles/glm.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/glm/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/Graphics-Game/build-mingw/external/glm/glm/CMakeFiles/rebuild_cache.dir

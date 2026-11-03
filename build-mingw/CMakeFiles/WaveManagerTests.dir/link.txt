@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\WaveManagerTests.dir/objects.a
+C:\MinGW\bin\ar.exe qc CMakeFiles\WaveManagerTests.dir/objects.a @CMakeFiles\WaveManagerTests.dir\objects1.rsp
+C:\MinGW\bin\g++.exe -Wl,--whole-archive CMakeFiles\WaveManagerTests.dir/objects.a -Wl,--no-whole-archive -o WaveManagerTests.exe -Wl,--out-implib,libWaveManagerTests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\WaveManagerTests.dir\linkLibs.rsp

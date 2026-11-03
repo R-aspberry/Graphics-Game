@@ -36,6 +36,7 @@ target_include_directories(TowerDefense PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/external/stb"
     "${CMAKE_CURRENT_SOURCE_DIR}/external/glad/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/external/glm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/miniaudio"
 )
 
 target_link_libraries(TowerDefense PRIVATE
