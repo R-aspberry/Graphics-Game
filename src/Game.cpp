@@ -3,14 +3,16 @@
 #include "world/Lane.h"
 #include "utils/WorldLayout.h"
 #include "systems/CollisionSystem.h"
-
-#include <iostream>
+#include "systems/WaveManager.h"
 #include "entities/Enemy.h"
 #include "entities/EasyEnemy.h"
 #include "entities/MediumEnemy.h"
 #include "entities/HardEnemy.h"
+#include "systems/Economy.h"
 #include <string>
 #include <memory>
+#include <algorithm>
+#include <iostream>
 #include "stb_image.h"
 
 const char *spriteVertexShader = R"(
@@ -43,15 +45,22 @@ const char *spriteFragmentShader = R"(
 
     uniform sampler2D image;
     uniform bool enemySprite;
+    uniform float damageTint; //added for damage red tint
+
+    uniform bool solidColor;
+    uniform vec3 circleColor;
 
     void main()
     {
         vec4 pixel = texture(image, TexCoord);
 
-        if (enemySprite && pixel.r < 0.08 &&pixel.g < 0.08 &&pixel.b < 0.08)
+        if (enemySprite && pixel.r < 0.08 && pixel.g < 0.08 && pixel.b < 0.08)
             discard;
 
-        FragColor = pixel;
+        vec3 redColor = vec3(1.0, 0.1, 0.1);
+        vec3 finalColor = mix(pixel.rgb, redColor, damageTint);
+
+        FragColor = vec4(finalColor, pixel.a);
     }
 )";
 
@@ -108,6 +117,14 @@ bool Game::init(){
     meleeTextureA2 = loadTexture("assets/sprites/Melee_A2.png");
     meleeTextureA3 = loadTexture("assets/sprites/Melee_A3.png");
     meleeTextureA4 = loadTexture("assets/sprites/Melee_A4.png");
+    meleeTextureJ1 = loadTexture("assets/sprites/Melee_J1.png");
+    meleeTextureJ2 = loadTexture("assets/sprites/Melee_J2.png");
+    meleeTextureJ3 = loadTexture("assets/sprites/Melee_J3.png");
+    meleeTextureD1 = loadTexture("assets/sprites/Melee_D1.png");
+    meleeTextureD2 = loadTexture("assets/sprites/Melee_D2.png");
+    meleeTextureD3 = loadTexture("assets/sprites/Melee_D3.png");
+
+    projectileTexture = loadTexture("assets/sprites/Projectile.png");
 
 
 
@@ -122,6 +139,12 @@ bool Game::init(){
     rangedTextureA2 = loadTexture("assets/sprites/Ranged_A2.png");
     rangedTextureA3 = loadTexture("assets/sprites/Ranged_A3.png");
     rangedTextureA4 = loadTexture("assets/sprites/Ranged_A4.png");
+    rangedTextureD1 = loadTexture("assets/sprites/Ranged_D1.png");
+    rangedTextureD2 = loadTexture("assets/sprites/Ranged_D2.png");
+    rangedTextureD3 = loadTexture("assets/sprites/Ranged_D3.png");
+    rangedTextureJ1 = loadTexture("assets/sprites/Ranged_J1.png");
+    rangedTextureJ2 = loadTexture("assets/sprites/Ranged_J2.png");
+    rangedTextureJ3 = loadTexture("assets/sprites/Ranged_J3.png");
 
 
     enemyMoveTextures[0][0] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M1.png");
@@ -165,7 +188,6 @@ void Game::jumpPlayerInLane(int laneIndex) {
     for (Player* player : gameManager.getPlayersInLane(laneIndex)) {
         if (player->getPlayerType() != PlayerType::Defense) {
             player->jump();
-            return;
         }
     }
 }
@@ -174,7 +196,6 @@ void Game::duckPlayerInLane(int laneIndex) {
     for (Player* player : gameManager.getPlayersInLane(laneIndex)) {
         if (player->getPlayerType() != PlayerType::Defense) {
             player->duck();
-            return;
         }
     }
 }
@@ -183,27 +204,136 @@ void Game::renderPlayers()
 {
     const auto& players = gameManager.getActivePlayers();
 
+
+    
     for(const auto& player : players){
         GLuint texture =0;
+        int frame = (int(animationTimer/0.15f) % 4) + 1;
+
+        int mov_att = 0; //if mov_att = 0 moving 1 attacking 2 jumping 3 ducking
+        if (player->actionState == ActionState::Attacking){
+            mov_att = 1;
+        }
+        if (player->actionState == ActionState::Moving){
+            mov_att = 0;
+        }
+        if (player->actionState == ActionState::Jumping){
+            mov_att = 2;
+        }
+        if (player->actionState == ActionState::Ducking){
+            mov_att = 3;
+        }
 
         if(player->getPlayerType() == PlayerType::Defense){
             texture = defenseTexture;
         }
         if(player->getPlayerType() == PlayerType::Melee){
-            texture = meleeTextureM1;
+            if(frame ==1 ){
+                if(mov_att == 1){
+                    texture = meleeTextureA1;}
+                else{
+                    texture = meleeTextureM1;}
+            }
+            if (frame == 2){
+                if(mov_att == 0){
+                    texture = meleeTextureM2;}
+                if(mov_att == 1){
+                    texture = meleeTextureA2;}
+                if(mov_att == 2){
+                    texture = meleeTextureJ1;
+                }
+                if(mov_att == 3){
+                    texture = meleeTextureD1;
+                }
+            }
+            if (frame == 3){
+                if(mov_att == 0){
+                    texture = meleeTextureM3;}
+                if(mov_att == 1){
+                    texture = meleeTextureA3;}
+                 if(mov_att == 2){
+                    texture = meleeTextureJ2;
+                }
+                if(mov_att == 3){
+                    texture = meleeTextureD2;
+                }
+                
+            }
+            if (frame == 4){
+                if(mov_att == 0){
+                    texture = meleeTextureM4;}
+                if(mov_att == 1){
+                    texture = meleeTextureA4;}
+
+                 if(mov_att == 2){
+                    texture = meleeTextureJ3;
+                }
+                if(mov_att == 3){
+                    texture = meleeTextureD3;
+                }
+            }
+            
         }
         if(player->getPlayerType() == PlayerType::Ranged){
-            texture = rangedTextureM1;
+            if(frame ==1 ){
+                 if(mov_att == 0){
+                    texture = rangedTextureM1;}
+                if(mov_att == 1){
+                    texture = rangedTextureA1;}
+            }
+            if (frame == 2){
+                if(mov_att == 0){
+                    texture = rangedTextureM2;}
+                if(mov_att == 1){
+                    texture = rangedTextureA2;}
+            }
+            if (frame == 3){
+                if(mov_att == 0){
+                    texture = rangedTextureM3;}
+                if(mov_att == 1){
+                    texture = rangedTextureA3;}
+            }
+            if (frame == 4){
+                if(mov_att == 0){
+                    texture = rangedTextureM4;}
+                if(mov_att == 1){
+                    texture = rangedTextureA4;}
+            }
+        }
+        if (texture == 0){
+            continue;
         }
 
-        const float width = WorldLayout::PLAYER_WIDTH;
+        float healthRatio = (float)player->getHealth() / player->getMaxHealth();
+        float damageTint = 1.0f - healthRatio;
+
+        if (player->damageFlashTimer > 0.0f) {
+            damageTint = 1.0f;
+        }
+
+        if (damageTint < 0.0f) {
+            damageTint = 0.0f;
+        }
+
+        if (damageTint > 1.0f) {
+            damageTint = 1.0f;
+        }
+
+        float width = WorldLayout::PLAYER_WIDTH;
         const float height = WorldLayout::PLAYER_HEIGHT;
+
+        if(mov_att == 2 || mov_att == 3){
+            // Jump/duck images are 485x404, unlike the tall move frames.
+            // Keep their source aspect ratio instead of vertically squashing them.
+            width = height * (485.0f / 404.0f);
+        }
         rendere->drawSprite(
             texture,
-            player->getX(),
+            player->getX()  - (width - WorldLayout::PLAYER_WIDTH) * 0.5f,
             WorldLayout::toRenderY(player->getY(), height),
             width,
-            height);
+            height,
+        damageTint);
     }
 
 }
@@ -284,6 +414,54 @@ void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime
         );
 }
 
+
+void Game::renderCollectibles(const WaveManager& waveManager)
+{
+    if (!initialized || rendere == nullptr)
+        return;
+
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    if (viewport[2] <= 0 || viewport[3] <= 0)
+        return;
+
+    for (std::size_t i = 0; i < waveManager.getDropCount(); i++)
+    {
+        const Collectible* drop = waveManager.getDropAt(i);
+
+        if (drop == nullptr || drop->isCollected())
+            continue;
+
+        float width = drop->getWidthOfCollisionBox();
+        float height = drop->getHeightOfCollisionBox();
+
+        // Fit a true circle inside the collectible's box
+        float pixelWidth = width * viewport[2];
+        float pixelHeight = height * viewport[3];
+        float diameter = std::min(pixelWidth, pixelHeight);
+
+        float drawWidth = diameter / viewport[2];
+        float drawHeight = diameter / viewport[3];
+
+        // Keep the circle centered in its collision box
+        float x = drop->getPosition().x
+                + (width - drawWidth) / 2.0f;
+
+        float y = drop->getPosition().y
+                + (height - drawHeight) / 2.0f;
+
+        rendere->drawCircle(
+            x,
+            WorldLayout::toRenderY(y, drawHeight),
+            drawWidth,
+            drawHeight,
+            1.0f, 0.75f, 0.0f
+        );
+    }
+}
+
+
 void Game::render() {
 
     if (!initialized || rendere == nullptr) {
@@ -291,20 +469,40 @@ void Game::render() {
     }
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // are these 2 lines needed 
     renderPlayers();
     renderProjectiles();
 }
 
-void Game::update(float deltaTime){
-    gameManager.update(deltaTime);
-    gameManager.cleanupInactiveEntities();
-}
+// void Game::update(float deltaTime){
+//     gameManager.update(deltaTime);
+//     gameManager.cleanupInactiveEntities();
+// }
 
 void Game::update(float deltaTime, const std::vector<Enemy*>& enemies) {
+    animationTimer+=deltaTime;
     gameManager.update(deltaTime);
     combatSystem.update(deltaTime, enemies);
     gameManager.cleanupInactiveEntities();
+}
+
+void Game::collectDrops(WaveManager& waveManager, Economy& economy) {
+    for(std::size_t i = waveManager.getDropCount(); i> 0 ;) {
+        --i;
+
+        Collectible* coin = waveManager.getDropAt(i);
+
+        if (coin == nullptr || coin->isCollected())
+            continue;
+
+        for(Player* player : gameManager.getActivePlayers()){
+            if(player != nullptr && collisionSystem.playerTouchesCollectible(*player, *coin) && coin->collect()){
+                economy.addCoins(coin->getValueOfCoins());
+                waveManager.removeDropAt(i);
+                break;
+            }
+        }
+    }
 }
 // bool Game::init()
 // {

@@ -12,6 +12,7 @@
       PrevactionState(ActionState::Moving),
       movementBlocked(false),
       jumpTimer(0.0f),
+      jumpStartY(y),
       duckTimer(0.0f),
       damageFlashTimer(0.0f),
       attackRange(0.0f){
@@ -68,6 +69,7 @@
         if (actionState == ActionState::Idle || actionState == ActionState::Moving){
             setActionState(ActionState::Jumping);
             jumpTimer = 0.0f;
+            jumpStartY = y;
         }
         else {
             return;
@@ -101,9 +103,15 @@
         }
         jumpTimer += deltaTime;
         if(jumpTimer >= Constants::JUMP_DURATION){
+            y = jumpStartY;
             jumpTimer = 0.0f;
             actionState = ActionState::Moving;
+            return;
         }
+
+        // Gameplay coordinates grow downward, so decreasing Y raises the player.
+        const float progress = jumpTimer / Constants::JUMP_DURATION;
+        y = jumpStartY - 0.035f * 4.0f * progress * (1.0f - progress); //makes a smooth curve that is 0 at the beginning/end and 1 at the middle. 0.035f is the maximum jump height.
     }
 
     void Player::updateDuck (float deltaTime){
@@ -147,3 +155,7 @@
      bool Player::canMove() const{
         return !movementBlocked;
     }
+
+     bool Player::isMoving() const {
+        return ActionState::Moving == actionState;
+     }

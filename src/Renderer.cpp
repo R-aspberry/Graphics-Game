@@ -1,6 +1,9 @@
 
 #include "Renderer.h"
 
+#include <cmath>
+#include <vector>
+
 Renderer::Renderer(Shader& shader, float width, float height): shader(shader), width(width), height(height){
     shader.use();
     initRender();
@@ -30,13 +33,16 @@ void Renderer::initRender(){
     
 }
 
-void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h){
+void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h, float damageTint){
     if (shader.Program == 0)
     {
         return;
     }
 
     shader.use();
+
+    GLint damageTintLocation = glGetUniformLocation(shader.Program, "damageTint");
+    glUniform1f(damageTintLocation, damageTint); // the uniform methods take location and feature to applt
 
     float newX = ((2 * x )/ w) - 1;
     float newY = 1- ((2 * y)/ h);
@@ -78,7 +84,63 @@ void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h)
     // glDisable(GL_BLEND);
 }
 
+void Renderer::drawCircle(float x, float y,float width, float height,float r, float g, float b){
+    if(shader.Program == 0)
+        return;
+    const int segments = 36;
+    const float PI = 3.14159265f;
+    if(circleVAO == 0){
+        std::vector<float> vertices;
 
+        // Center of circle
+        vertices.push_back(0.5f);
+        vertices.push_back(0.5f);
+
+        // Points around the circle
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = 2.0f * PI * i / segments;
+
+            float px = 0.5f + 0.5f * std::cos(angle);
+            float py = 0.5f + 0.5f * std::sin(angle);
+
+            vertices.push_back(px);
+            vertices.push_back(py);
+        }
+
+        glGenVertexArrays(1, &circleVAO);
+        glGenBuffers(1, &circleVBO);
+
+        glBindVertexArray(circleVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, circleVBO);
+
+        glBufferData( GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW );
+
+        glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 );
+
+        glEnableVertexAttribArray(0);
+    }
+    shader.use();
+
+    // Position and size
+    glUniform4f( glGetUniformLocation(shader.Program, "spriteRect"), x, y, width, height);
+
+    // Enable solid-color rendering
+    glUniform1i( glGetUniformLocation(shader.Program, "solidColor"), 1 );
+
+    // Circle color
+    glUniform3f( glGetUniformLocation(shader.Program, "circleColor"), r, g, b );
+
+    glBindVertexArray(circleVAO);
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, segments + 2);
+
+    glBindVertexArray(0);
+
+    // Restore normal sprite rendering
+    glUniform1i( glGetUniformLocation(shader.Program, "solidColor"), 0 );
+}
+    
 // void Renderer::updateWindow (float width, float height){
 //     Renderer::width = width;
 //     Renderer::height = height;

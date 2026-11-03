@@ -648,6 +648,7 @@ int main()
                         }
                     }
                     game->update(deltaTime, enemies);
+                    game->collectDrops(waveManager, economy);
 
                     // Collect drops only when a living player touches one in its lane.
                     for (std::size_t i = waveManager.getDropCount(); i > 0; --i) {
@@ -743,6 +744,8 @@ int main()
                         }
                     }
                     game->render();
+                    game->renderCollectibles(waveManager);
+                    
                     const bool meleeUnlocked = true;
                     const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20);
                     const bool defenseUnlocked = collectedCoins >= 30 && economy.canAfford(30);

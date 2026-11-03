@@ -5,6 +5,7 @@
 #include "../entities/Player.h"
 #include "../entities/Projectile.h"
 #include "../entities/Enemy.h"
+#include "../entities/Collectible.h"
 
 class CollisionSystem {
 public:
@@ -14,6 +15,7 @@ public:
     bool sameLane(Entity& a, Entity& b) const;
     bool playerEnemyEncounter(Player& player, Enemy& enemy) const;
     bool projectileHitsTarget(Projectile& projectile, Enemy& enemy) const;
+    bool playerTouchesCollectible(Player& player, Collectible& coin) const;
 };
 
 #endif

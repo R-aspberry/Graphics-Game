@@ -2,6 +2,7 @@
 #include "../entities/Enemy.h"
 #include "../entities/Player.h"
 #include "../utils/WorldLayout.h"
+#include "../entities/Collectible.h"
 
     bool CollisionSystem::intersects(const Rect& a, const Rect& b) const{
         return (a.x < b.x + b.width) && (a.x + a.width > b.x) &&
@@ -57,7 +58,16 @@
             }
         }
 
+    
+
         return false;
+    }
+
+    bool CollisionSystem::playerTouchesCollectible( Player& player, Collectible& coin) const {
+        if (coin.isCollected())
+            return false;
+
+        return sameLane(player, coin) && intersects(player, coin);
     }
 
     
