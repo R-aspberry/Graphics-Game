@@ -48,8 +48,8 @@ namespace GameConfig {
 }
 namespace Constants
 {
-    constexpr float JUMP_DURATION = 0.6f;
-    constexpr float DUCK_DURATION = 0.8f;
+    constexpr float JUMP_DURATION = 1.0f;
+    constexpr float DUCK_DURATION = 1.0f;
     constexpr float damageFlashDuration = 0.6f;
     constexpr float attackDuration = 0.5f;
     constexpr float attackIntervals = 0.5f ; 

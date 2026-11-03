@@ -32,6 +32,12 @@ private :
     GLuint meleeTextureA2 ;
     GLuint meleeTextureA3 ;
     GLuint meleeTextureA4 ;
+    GLuint meleeTextureJ1 ;
+    GLuint meleeTextureJ2 ;
+    GLuint meleeTextureJ3 ;
+    GLuint meleeTextureD1 ;
+   GLuint  meleeTextureD2 ;
+   GLuint meleeTextureD3 ;
 
 
 
@@ -46,6 +52,14 @@ private :
     GLuint rangedTextureA2;
     GLuint rangedTextureA3;
     GLuint rangedTextureA4;
+
+    GLuint rangedTextureD1;
+    GLuint rangedTextureD2;
+    GLuint rangedTextureD3;
+
+    GLuint rangedTextureJ1;
+    GLuint rangedTextureJ2;
+    GLuint rangedTextureJ3;
 
     GLuint projectileTexture = 0;
     std::array<std::array<GLuint, 4>, 3> enemyMoveTextures{};

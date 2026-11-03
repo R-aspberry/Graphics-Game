@@ -112,6 +112,12 @@ bool Game::init(){
     meleeTextureA2 = loadTexture("assets/sprites/Melee_A2.png");
     meleeTextureA3 = loadTexture("assets/sprites/Melee_A3.png");
     meleeTextureA4 = loadTexture("assets/sprites/Melee_A4.png");
+    meleeTextureJ1 = loadTexture("assets/sprites/Melee_J1.png");
+    meleeTextureJ2 = loadTexture("assets/sprites/Melee_J2.png");
+    meleeTextureJ3 = loadTexture("assets/sprites/Melee_J3.png");
+    meleeTextureD1 = loadTexture("assets/sprites/Melee_D1.png");
+    meleeTextureD2 = loadTexture("assets/sprites/Melee_D2.png");
+    meleeTextureD3 = loadTexture("assets/sprites/Melee_D3.png");
 
     projectileTexture = loadTexture("assets/sprites/Projectile.png");
 
@@ -128,6 +134,12 @@ bool Game::init(){
     rangedTextureA2 = loadTexture("assets/sprites/Ranged_A2.png");
     rangedTextureA3 = loadTexture("assets/sprites/Ranged_A3.png");
     rangedTextureA4 = loadTexture("assets/sprites/Ranged_A4.png");
+    rangedTextureD1 = loadTexture("assets/sprites/Ranged_D1.png");
+    rangedTextureD2 = loadTexture("assets/sprites/Ranged_D2.png");
+    rangedTextureD3 = loadTexture("assets/sprites/Ranged_D3.png");
+    rangedTextureJ1 = loadTexture("assets/sprites/Ranged_J1.png");
+    rangedTextureJ2 = loadTexture("assets/sprites/Ranged_J2.png");
+    rangedTextureJ3 = loadTexture("assets/sprites/Ranged_J3.png");
 
 
     enemyMoveTextures[0][0] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M1.png");
@@ -171,7 +183,6 @@ void Game::jumpPlayerInLane(int laneIndex) {
     for (Player* player : gameManager.getPlayersInLane(laneIndex)) {
         if (player->getPlayerType() != PlayerType::Defense) {
             player->jump();
-            return;
         }
     }
 }
@@ -180,7 +191,6 @@ void Game::duckPlayerInLane(int laneIndex) {
     for (Player* player : gameManager.getPlayersInLane(laneIndex)) {
         if (player->getPlayerType() != PlayerType::Defense) {
             player->duck();
-            return;
         }
     }
 }
@@ -195,12 +205,18 @@ void Game::renderPlayers()
         GLuint texture =0;
         int frame = (int(animationTimer/0.15f) % 4) + 1;
 
-        int mov_att = 0; //if mov_att = 0 moving 1 attacking
+        int mov_att = 0; //if mov_att = 0 moving 1 attacking 2 jumping 3 ducking
         if (player->actionState == ActionState::Attacking){
             mov_att = 1;
         }
         if (player->actionState == ActionState::Moving){
             mov_att = 0;
+        }
+        if (player->actionState == ActionState::Jumping){
+            mov_att = 2;
+        }
+        if (player->actionState == ActionState::Ducking){
+            mov_att = 3;
         }
 
         if(player->getPlayerType() == PlayerType::Defense){
@@ -208,28 +224,48 @@ void Game::renderPlayers()
         }
         if(player->getPlayerType() == PlayerType::Melee){
             if(frame ==1 ){
-                if(mov_att == 0){
-                    texture = meleeTextureM1;}
                 if(mov_att == 1){
                     texture = meleeTextureA1;}
+                else{
+                    texture = meleeTextureM1;}
             }
             if (frame == 2){
                 if(mov_att == 0){
                     texture = meleeTextureM2;}
                 if(mov_att == 1){
                     texture = meleeTextureA2;}
+                if(mov_att == 2){
+                    texture = meleeTextureJ1;
+                }
+                if(mov_att == 3){
+                    texture = meleeTextureD1;
+                }
             }
             if (frame == 3){
                 if(mov_att == 0){
                     texture = meleeTextureM3;}
                 if(mov_att == 1){
                     texture = meleeTextureA3;}
+                 if(mov_att == 2){
+                    texture = meleeTextureJ2;
+                }
+                if(mov_att == 3){
+                    texture = meleeTextureD2;
+                }
+                
             }
             if (frame == 4){
                 if(mov_att == 0){
                     texture = meleeTextureM4;}
                 if(mov_att == 1){
                     texture = meleeTextureA4;}
+
+                 if(mov_att == 2){
+                    texture = meleeTextureJ3;
+                }
+                if(mov_att == 3){
+                    texture = meleeTextureD3;
+                }
             }
             
         }
@@ -278,11 +314,17 @@ void Game::renderPlayers()
             damageTint = 1.0f;
         }
 
-        const float width = WorldLayout::PLAYER_WIDTH;
+        float width = WorldLayout::PLAYER_WIDTH;
         const float height = WorldLayout::PLAYER_HEIGHT;
+
+        if(mov_att == 2 || mov_att == 3){
+            // Jump/duck images are 485x404, unlike the tall move frames.
+            // Keep their source aspect ratio instead of vertically squashing them.
+            width = height * (485.0f / 404.0f);
+        }
         rendere->drawSprite(
             texture,
-            player->getX(),
+            player->getX()  - (width - WorldLayout::PLAYER_WIDTH) * 0.5f,
             WorldLayout::toRenderY(player->getY(), height),
             width,
             height,

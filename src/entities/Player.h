@@ -16,6 +16,7 @@ public:
     ActionState PrevactionState;
     bool movementBlocked;
     float jumpTimer;
+    float jumpStartY;
     float duckTimer;
     float damageFlashTimer;
     float attackRange;
