@@ -8,20 +8,20 @@ namespace GameConfig {
     inline constexpr int LANE_COUNT = 4;
 
     // Player movement speeds
-    inline constexpr float MELEE_SPEED = 0.10f;
-    inline constexpr float RANGED_SPEED = 0.09f;
+    inline constexpr float MELEE_SPEED = 0.09f;
+    inline constexpr float RANGED_SPEED = 0.08f;
 
     // Enemy movement speeds
-    inline constexpr float EASY_ENEMY_SPEED = 0.06f;
-    inline constexpr float MEDIUM_ENEMY_SPEED = 0.06f;
-    inline constexpr float HARD_ENEMY_SPEED = 0.11f;
+    inline constexpr float EASY_ENEMY_SPEED = 0.045f;
+    inline constexpr float MEDIUM_ENEMY_SPEED = 0.045f;
+    inline constexpr float HARD_ENEMY_SPEED = 0.08f;
 
     // Attack intervals
     inline constexpr float MELEE_ATTACK_INTERVAL = 1.0f;
     inline constexpr float RANGED_ATTACK_INTERVAL = 1.5f;
 
     // Enemy spawning
-    inline constexpr float ENEMY_SPAWN_INTERVAL = 3.0f;
+    inline constexpr float ENEMY_SPAWN_INTERVAL = 4.0f;
 
     // Economy
     inline constexpr int INITIAL_COINS = 30;
