@@ -39,6 +39,25 @@
             return true;
        }
        return false;
+
+    }
+
+    bool CollisionSystem::projectileHitsTarget(Projectile& projectile, Enemy& enemy) const
+    {
+        if (projectile.getLaneIndex() == enemy.getLane())
+        {
+            if (
+                projectile.getX() + projectile.getWidth() > enemy.getPosition().x &&
+                projectile.getX() < enemy.getPosition().x + WorldLayout::ENEMY_WIDTH &&
+                projectile.getY() + projectile.getHeight() > enemy.getPosition().y &&
+                projectile.getY() < enemy.getPosition().y + WorldLayout::ENEMY_HEIGHT
+            )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     

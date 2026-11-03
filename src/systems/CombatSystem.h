@@ -3,6 +3,7 @@
 #include "../entities/Player.h"
 #include "../entities/Enemy.h"
 #include "../entities/Projectile.h"
+#include "../entities/EnemyProjectile.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -25,7 +26,7 @@ class CombatSystem {
         void resolvePlayerAttack(Player& player, Enemy& enemy);
         void resolveEnemyAttack(Enemy& enemy, Player& player);
         void setPlayerManager(GameManager* playerManager);
-
-
+        void resolvePlayerProjectiles(const std::vector<Enemy*>& activeEnemies);
+        void resolveEnemyProjectiles(const std::vector<EnemyProjectile*>& shots);
 };
 

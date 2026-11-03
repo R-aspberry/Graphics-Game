@@ -13,6 +13,7 @@ public:
     bool projectileHitsTarget(Projectile& projectile, Entity& target) const;
     bool sameLane(Entity& a, Entity& b) const;
     bool playerEnemyEncounter(Player& player, Enemy& enemy) const;
+    bool projectileHitsTarget(Projectile& projectile, Enemy& enemy) const;
 };
 
 #endif
