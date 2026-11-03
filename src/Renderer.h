@@ -17,7 +17,7 @@ public:
 
     Renderer(Shader& shader, float width, float height);
     ~ Renderer();
-    void drawSprite(unsigned int texture, float x,float y, float width, float height);
+    void drawSprite(unsigned int texture, float x,float y, float width, float height, float damageTint = 0.0f);
     void updateWindow(float width, float height);
     void initRender();
 };

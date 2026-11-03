@@ -52,6 +52,8 @@ public:
     void update(float deltaTime) override ;
     void setActionState(ActionState newState);
     bool canMove() const;
+
+    bool isMoving() const;
 };
 
 

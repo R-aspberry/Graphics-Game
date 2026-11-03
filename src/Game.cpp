@@ -43,15 +43,19 @@ const char *spriteFragmentShader = R"(
 
     uniform sampler2D image;
     uniform bool enemySprite;
+    uniform float damageTint; //added for damage red tint
 
     void main()
     {
         vec4 pixel = texture(image, TexCoord);
 
-        if (enemySprite && pixel.r < 0.08 &&pixel.g < 0.08 &&pixel.b < 0.08)
+        if (enemySprite && pixel.r < 0.08 && pixel.g < 0.08 && pixel.b < 0.08)
             discard;
 
-        FragColor = pixel;
+        vec3 redColor = vec3(1.0, 0.1, 0.1);
+        vec3 finalColor = mix(pixel.rgb, redColor, damageTint);
+
+        FragColor = vec4(finalColor, pixel.a);
     }
 )";
 
@@ -108,6 +112,8 @@ bool Game::init(){
     meleeTextureA2 = loadTexture("assets/sprites/Melee_A2.png");
     meleeTextureA3 = loadTexture("assets/sprites/Melee_A3.png");
     meleeTextureA4 = loadTexture("assets/sprites/Melee_A4.png");
+
+    projectileTexture = loadTexture("assets/sprites/Projectile.png");
 
 
 
@@ -183,17 +189,93 @@ void Game::renderPlayers()
 {
     const auto& players = gameManager.getActivePlayers();
 
+
+    
     for(const auto& player : players){
         GLuint texture =0;
+        int frame = (int(animationTimer/0.15f) % 4) + 1;
+
+        int mov_att = 0; //if mov_att = 0 moving 1 attacking
+        if (player->actionState == ActionState::Attacking){
+            mov_att = 1;
+        }
+        if (player->actionState == ActionState::Moving){
+            mov_att = 0;
+        }
 
         if(player->getPlayerType() == PlayerType::Defense){
             texture = defenseTexture;
         }
         if(player->getPlayerType() == PlayerType::Melee){
-            texture = meleeTextureM1;
+            if(frame ==1 ){
+                if(mov_att == 0){
+                    texture = meleeTextureM1;}
+                if(mov_att == 1){
+                    texture = meleeTextureA1;}
+            }
+            if (frame == 2){
+                if(mov_att == 0){
+                    texture = meleeTextureM2;}
+                if(mov_att == 1){
+                    texture = meleeTextureA2;}
+            }
+            if (frame == 3){
+                if(mov_att == 0){
+                    texture = meleeTextureM3;}
+                if(mov_att == 1){
+                    texture = meleeTextureA3;}
+            }
+            if (frame == 4){
+                if(mov_att == 0){
+                    texture = meleeTextureM4;}
+                if(mov_att == 1){
+                    texture = meleeTextureA4;}
+            }
+            
         }
         if(player->getPlayerType() == PlayerType::Ranged){
-            texture = rangedTextureM1;
+            if(frame ==1 ){
+                 if(mov_att == 0){
+                    texture = rangedTextureM1;}
+                if(mov_att == 1){
+                    texture = rangedTextureA1;}
+            }
+            if (frame == 2){
+                if(mov_att == 0){
+                    texture = rangedTextureM2;}
+                if(mov_att == 1){
+                    texture = rangedTextureA2;}
+            }
+            if (frame == 3){
+                if(mov_att == 0){
+                    texture = rangedTextureM3;}
+                if(mov_att == 1){
+                    texture = rangedTextureA3;}
+            }
+            if (frame == 4){
+                if(mov_att == 0){
+                    texture = rangedTextureM4;}
+                if(mov_att == 1){
+                    texture = rangedTextureA4;}
+            }
+        }
+        if (texture == 0){
+            continue;
+        }
+
+        float healthRatio = (float)player->getHealth() / player->getMaxHealth();
+        float damageTint = 1.0f - healthRatio;
+
+        if (player->damageFlashTimer > 0.0f) {
+            damageTint = 1.0f;
+        }
+
+        if (damageTint < 0.0f) {
+            damageTint = 0.0f;
+        }
+
+        if (damageTint > 1.0f) {
+            damageTint = 1.0f;
         }
 
         const float width = WorldLayout::PLAYER_WIDTH;
@@ -203,7 +285,8 @@ void Game::renderPlayers()
             player->getX(),
             WorldLayout::toRenderY(player->getY(), height),
             width,
-            height);
+            height,
+        damageTint);
     }
 
 }
@@ -291,17 +374,18 @@ void Game::render() {
     }
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // are these 2 lines needed 
     renderPlayers();
     renderProjectiles();
 }
 
-void Game::update(float deltaTime){
-    gameManager.update(deltaTime);
-    gameManager.cleanupInactiveEntities();
-}
+// void Game::update(float deltaTime){
+//     gameManager.update(deltaTime);
+//     gameManager.cleanupInactiveEntities();
+// }
 
 void Game::update(float deltaTime, const std::vector<Enemy*>& enemies) {
+    animationTimer+=deltaTime;
     gameManager.update(deltaTime);
     combatSystem.update(deltaTime, enemies);
     gameManager.cleanupInactiveEntities();

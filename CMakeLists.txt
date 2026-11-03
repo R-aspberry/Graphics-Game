@@ -98,7 +98,7 @@ endif()
 
 
 # build command  cmake --build build  
-# run command 
+# run command ./build/TowerDefense 
 
 add_executable(CombatQuickTest
     tests/CombatQuickTest.cpp

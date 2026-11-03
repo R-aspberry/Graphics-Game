@@ -30,13 +30,16 @@ void Renderer::initRender(){
     
 }
 
-void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h){
+void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h, float damageTint){
     if (shader.Program == 0)
     {
         return;
     }
 
     shader.use();
+
+    GLint damageTintLocation = glGetUniformLocation(shader.Program, "damageTint");
+    glUniform1f(damageTintLocation, damageTint); // the uniform methods take location and feature to applt
 
     float newX = ((2 * x )/ w) - 1;
     float newY = 1- ((2 * y)/ h);

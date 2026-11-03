@@ -147,3 +147,7 @@
      bool Player::canMove() const{
         return !movementBlocked;
     }
+
+     bool Player::isMoving() const {
+        return ActionState::Moving == actionState;
+     }
