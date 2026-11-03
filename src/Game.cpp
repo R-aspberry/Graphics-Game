@@ -52,6 +52,12 @@ const char *spriteFragmentShader = R"(
 
     void main()
     {
+        if (solidColor)
+        {
+            FragColor = vec4(circleColor, 1.0);
+            return;
+        }
+
         vec4 pixel = texture(image, TexCoord);
 
         if (enemySprite && pixel.r < 0.08 && pixel.g < 0.08 && pixel.b < 0.08)
@@ -343,7 +349,7 @@ void Game::renderProjectiles()
     for (Projectile* projectile : gameManager.getActiveProjectiles()) {
         rendere->drawSprite(projectileTexture, projectile->getX(),
                             WorldLayout::toRenderY(projectile->getY(), projectile->getHeight()),
-                            projectile->getWidth(), projectile->getHeight());
+                            projectile->getWidth(), projectile->getHeight(), 0.0f);
     }
 }
 
@@ -375,7 +381,7 @@ void Game::render(const Lane& lane, PlayerType type) {
     const float y = WorldLayout::toRenderY(
         WorldLayout::standingY(lane, height),
         height);
-    rendere->drawSprite(texture, x, y, width, height);
+    rendere->drawSprite(texture, x, y, width, height, 0.0f);
 } // modified the render method 
 
 void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) {
@@ -407,7 +413,7 @@ void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime
             glGetUniformLocation(shader.Program, "enemySprite"), 1
         );
 
-        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height);
+        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, 0.0f);
 
         glUniform1i(
             glGetUniformLocation(shader.Program, "enemySprite"), 0

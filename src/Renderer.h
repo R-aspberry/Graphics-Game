@@ -20,7 +20,7 @@ public:
 
     Renderer(Shader& shader, float width, float height);
     ~ Renderer();
-    void drawSprite(unsigned int texture, float x,float y, float width, float height);
+    void drawSprite(unsigned int texture, float x,float y, float width, float height, float damageTint);
     void drawCircle(float x, float y,float width, float height,float r, float g, float b);
     void updateWindow(float width, float height);
     void initRender();
