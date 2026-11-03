@@ -22,8 +22,7 @@ private :
     CombatSystem combatSystem;
     Shader shader;
     std::unique_ptr<Renderer> rendere;
-    const GLuint texture = enemyMoveTextures[3][4];
-    
+        
     GLuint meleeTextureM1 ;
     GLuint meleeTextureM2 ;
     GLuint meleeTextureM3 ;

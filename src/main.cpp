@@ -26,6 +26,7 @@
 #include "systems/WaveManager.h"
 #include "ui/PlayerCard.h"
 #include "ui/HUD.h"
+#include "cutscene/Cutscene.h"
 
 static const char *vertexShaderSource = R"(
     #version 330 core
@@ -272,6 +273,12 @@ int main()
         return 1;
     }
 
+    // Play the cinematic between Start and actual gameplay.
+    Cutscene cutscene;
+    const bool cutsceneReady = cutscene.init();
+    if (!cutsceneReady)
+        std::cerr << "Cutscene assets unavailable: Start will open gameplay directly.\n";
+
     glfwSetMouseButtonCallback(
         window,
         mouseButtonCallback);
@@ -467,7 +474,6 @@ int main()
     int previousUpState = GLFW_RELEASE;
     int previousDownState = GLFW_RELEASE;
     int previousLeftMouseState = GLFW_RELEASE;
-    float cutsceneElapsed = 0.0f;
     int hoveredLane = -1;
     int hoveredCard = -1;
     int collectedCoins = 0;
@@ -492,7 +498,8 @@ int main()
         glfwPollEvents();
         if (startNewGameRequested) {
             restartGame();
-            cutsceneElapsed = 0.0f;
+            if (cutsceneReady) cutscene.start();
+            else currentScreen = AppScreen::PLAYING;
             startNewGameRequested = false;
         }
         const double currentTime = glfwGetTime();
@@ -546,13 +553,15 @@ int main()
             mainMenu.draw();
         } else {
             if (currentScreen == AppScreen::CUTSCENE) {
-                cutsceneElapsed += deltaTime;
-                if (cutsceneElapsed >= 2.0f ||
+                cutscene.update(deltaTime);
+                if (cutscene.finished() ||
                     glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS ||
                     glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+                    cutscene.stopAudio();
                     currentScreen = AppScreen::PLAYING;
-                    cutsceneElapsed = 0.0f;
                     suppressGameplayClick = true;
+                } else {
+                    cutscene.draw(framebufferWidth, framebufferHeight);
                 }
             }
             double mouseX = 0.0;
@@ -698,7 +707,7 @@ int main()
                 }
             }
 
-            if (currentScreen == AppScreen::PLAYING || currentScreen == AppScreen::CUTSCENE) {
+            if (currentScreen == AppScreen::PLAYING) {
                 glUseProgram(program);
                 const auto& lanes = grid.getLanes();
                 float bounds[16];
@@ -784,6 +793,7 @@ int main()
     glDeleteProgram(program);
     glDeleteTextures(1, &backgroundTexture);
 
+    cutscene.cleanup(); // Release our shader and buffers before GLFW is destroyed.
     game.reset();
     ResourceManager::clear();
     hud.cleanup();
