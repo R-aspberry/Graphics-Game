@@ -24,22 +24,25 @@ void GameManager::setGrid(Grid* gameGrid) {
 }
 
     Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
+        if (grid == nullptr || laneIndex < 0 ||
+            laneIndex >= static_cast<int>(grid->getLanes().size())) {
+            return nullptr;
+        }
         const Lane& lane = grid->getLanes()[laneIndex];
 
         float playerX = WorldLayout::playerSpawnX(lane);
-        float laneCenterY = (lane.top + lane.bottom) / 2.0f;
         float playerY = WorldLayout::standingY(lane, WorldLayout::PLAYER_HEIGHT);
         
         std::unique_ptr<Player> player = nullptr;
         if (type == PlayerType::Defense) {
-            player =  std::make_unique<DefensePlayer>(playerX, playerY, Constants::defensewidth, Constants::defenseheight, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
+            player =  std::make_unique<DefensePlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
         }
         if (type == PlayerType::Melee) {
-            player =  std::make_unique<MeleePlayer>(playerX, playerY, Constants::meleewidth, Constants::meleeheight, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
+            player =  std::make_unique<MeleePlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
             player->setActionState(ActionState::Moving);
         }
         if (type == PlayerType::Ranged) {
-            player =  std::make_unique<RangedPlayer>(playerX, playerY, Constants::rangedwidth, Constants::rangedheight, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
+            player =  std::make_unique<RangedPlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
             player->setActionState(ActionState::Moving);
         }
         
@@ -149,6 +152,3 @@ void GameManager::setGrid(Grid* gameGrid) {
         removeDefeatedPlayers();
         removeInactiveProjectiles();
     }
-
-
-    

@@ -39,6 +39,7 @@ void CombatSystem::resolvePlayerAttacks(const std::vector<Enemy*>& activeEnemies
 
 void CombatSystem::resolvePlayerAttack(Player& player, Enemy& enemy){
     player.startAttack(*playerManager);
+    enemy.takeDamage(1);
 }
 
 void CombatSystem::resolveEnemyAttack(Enemy& enemy, Player& player)

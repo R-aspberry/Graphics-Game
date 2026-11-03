@@ -380,9 +380,9 @@ void checkSingleDropLifecycle() {
     manager.update(0.0f);
     check(manager.getDropCount() == 1, "Dead enemy generates one collectible");
 
-    const EnemyDrop* drop = manager.getDropAt(0);
-    check(drop && samePosition(drop->position, expectedPosition) &&
-          drop->lane == expectedLane,
+    const Collectible* drop = manager.getDropAt(0);
+    check(drop && samePosition(drop->getPosition(), expectedPosition) &&
+          drop->getLane() == expectedLane,
           "Collectible appears at dead enemy's position and lane");
     check(manager.getDropAt(1) == nullptr,
           "Index equal to drop count returns nullptr");
@@ -454,25 +454,28 @@ void checkMultipleDropsAndRemovalOrder() {
     check(manager.getDropCount() == 3,
           "Last enemy's drop survives when active enemies are cleared");
 
-    const EnemyDrop* drop0 = manager.getDropAt(0);
-    const EnemyDrop* drop1 = manager.getDropAt(1);
-    const EnemyDrop* drop2 = manager.getDropAt(2);
-    check(drop0 && samePosition(drop0->position, firstPosition) && drop0->lane == firstLane,
+    const Collectible* drop0 = manager.getDropAt(0);
+    const Collectible* drop1 = manager.getDropAt(1);
+    const Collectible* drop2 = manager.getDropAt(2);
+    check(drop0 && samePosition(drop0->getPosition(), firstPosition) &&
+          drop0->getLane() == firstLane,
           "First drop preserves first enemy position and lane");
-    check(drop1 && samePosition(drop1->position, secondPosition) && drop1->lane == secondLane,
+    check(drop1 && samePosition(drop1->getPosition(), secondPosition) &&
+          drop1->getLane() == secondLane,
           "Second drop preserves second enemy position and lane");
-    check(drop2 && samePosition(drop2->position, thirdPosition) && drop2->lane == thirdLane,
+    check(drop2 && samePosition(drop2->getPosition(), thirdPosition) &&
+          drop2->getLane() == thirdLane,
           "Third drop preserves third enemy position and lane");
 
     check(manager.removeDropAt(1), "Removing middle drop succeeds");
     check(manager.getDropCount() == 2, "Middle removal reduces drop count to two");
-    const EnemyDrop* newFirst = manager.getDropAt(0);
-    const EnemyDrop* newSecond = manager.getDropAt(1);
-    check(newFirst && samePosition(newFirst->position, firstPosition) &&
-          newFirst->lane == firstLane,
+    const Collectible* newFirst = manager.getDropAt(0);
+    const Collectible* newSecond = manager.getDropAt(1);
+    check(newFirst && samePosition(newFirst->getPosition(), firstPosition) &&
+          newFirst->getLane() == firstLane,
           "Middle removal preserves the earlier drop");
-    check(newSecond && samePosition(newSecond->position, thirdPosition) &&
-          newSecond->lane == thirdLane,
+    check(newSecond && samePosition(newSecond->getPosition(), thirdPosition) &&
+          newSecond->getLane() == thirdLane,
           "Middle removal shifts the later drop into the removed index");
     check(manager.removeDropAt(1), "Removing last remaining index succeeds");
     check(manager.removeDropAt(0), "Removing first remaining index succeeds");

@@ -20,7 +20,6 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
 )
 
 # Exclude Game.cpp and the older GLAD 1 source.
-list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/Game[.]cpp$")
 list(FILTER PROJECT_SOURCES EXCLUDE REGEX "/glad[.]c$")
 
 add_executable(TowerDefense
@@ -80,10 +79,14 @@ if(BUILD_GAME_TESTS)
     add_executable(WaveManagerTests
         tests/WaveManagerTest.cpp
         src/systems/WaveManager.cpp
+        src/entities/Collectible.cpp
+        src/entities/EnemyProjectile.cpp
+        src/entities/Entity.cpp
         src/entities/Enemy.cpp
         src/entities/EasyEnemy.cpp
         src/entities/MediumEnemy.cpp
         src/entities/HardEnemy.cpp
+        src/world/Grid.cpp
     )
 
     target_link_libraries(WaveManagerTests PRIVATE glm::glm)
@@ -92,3 +95,7 @@ if(BUILD_GAME_TESTS)
         "${CMAKE_CURRENT_SOURCE_DIR}/src/entities"
     )
 endif()
+
+
+# build command  cmake --build build  
+# run command 

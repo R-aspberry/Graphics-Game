@@ -9,6 +9,8 @@ namespace WorldLayout {
 
     inline constexpr float ENEMY_WIDTH = 0.055f;
     inline constexpr float ENEMY_HEIGHT = 0.070f;
+    inline constexpr float LOW_ATTACK_OFFSET = 0.75f;
+    inline constexpr float HIGH_ATTACK_OFFSET = 0.25f;
 
     // Projectile sizes
     inline constexpr float PROJECTILE_WIDTH = 0.012f;

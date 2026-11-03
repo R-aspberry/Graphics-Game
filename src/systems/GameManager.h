@@ -40,7 +40,6 @@ public:
     void updatePlayerPositions(float deltaTime);
     void updateProjectiles(float deltaTime);
     void cleanupInactiveEntities();
-   void setGrid(Grid* gameGrid);
 };
 
 #endif // GAMEMANAGER_H
