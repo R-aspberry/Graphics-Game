@@ -11,7 +11,8 @@
 #include <array>
 #include "world/Lane.h"
 #include "entities/Enemy.h"
-
+class WaveManager;
+class Economy;
 
 class Game
 
@@ -85,8 +86,10 @@ public :
     GLuint loadTexture(const char* path);
     CombatSystem& getCombatSystem() { return combatSystem; }
     std::vector<Player*> getPlayersInLane(int laneIndex) const {
-    return gameManager.getPlayersInLane(laneIndex);
-}
+        return gameManager.getPlayersInLane(laneIndex);
+    }
+    void collectDrops(WaveManager& waveManager, Economy& economy);
+    void renderCollectibles(const WaveManager& waveManager);
 
 };
 
