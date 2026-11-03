@@ -15,16 +15,16 @@ class Entity{
 
     virtual ~Entity() ;
 
-    float getX();
-    float getY();
-    float getWidth() ;
-    float getHeight() ;
-    int getLaneIndex();
-    bool isActive() ;
+    float getX() const;
+    float getY() const;
+    float getWidth() const;
+    float getHeight() const;
+    int getLaneIndex()const;
+    bool isActive()const;
 
     void setPosition(float newX, float newY) ;
     void setActive(bool isActive) ;
-    Rect getBounds() ;
+    Rect getBounds() const;
 
     virtual void update(float deltaTime) = 0;
      

@@ -21,6 +21,7 @@ static const char* cardVertexShaderSource = R"(
 static const char* cardFragmentShaderSource = R"(
     #version 330 core
     uniform bool hovered;
+    uniform bool unlocked;
     in vec2 TexCoord;
     out vec4 FragColor;
 
@@ -28,7 +29,12 @@ static const char* cardFragmentShaderSource = R"(
 
     void main(){
     vec4 color = texture(cardTexture, TexCoord);
-    if (hovered)
+    if (!unlocked)
+    {
+        float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+        color.rgb = vec3(luminance) * 0.45;
+    }
+    else if (hovered)
     {
         color.rgb = min(color.rgb * 1.25, vec3(1.0));
     }
@@ -178,7 +184,8 @@ glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
-void PlayerCard:: draw(int hoveredCard)
+void PlayerCard::draw(int hoveredCard, bool defenseUnlocked, bool meleeUnlocked,
+                      bool rangedUnlocked)
 {
     glUseProgram(shaderProgram);
     glActiveTexture(GL_TEXTURE0);
@@ -189,15 +196,19 @@ void PlayerCard:: draw(int hoveredCard)
     glBindVertexArray(cardVAO);
 
     int hoveredLocation =glGetUniformLocation(shaderProgram, "hovered");
-    glUniform1i(hoveredLocation, hoveredCard == 0);
+    const int unlockedLocation = glGetUniformLocation(shaderProgram, "unlocked");
+    glUniform1i(unlockedLocation, defenseUnlocked);
+    glUniform1i(hoveredLocation, defenseUnlocked && hoveredCard == 0);
     glBindTexture(GL_TEXTURE_2D, defenseTexture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    glUniform1i(hoveredLocation, hoveredCard == 1);
+    glUniform1i(unlockedLocation, meleeUnlocked);
+    glUniform1i(hoveredLocation, meleeUnlocked && hoveredCard == 1);
     glBindTexture(GL_TEXTURE_2D, meleeTexture);
     glDrawArrays(GL_TRIANGLES, 6, 6);
 
-    glUniform1i(hoveredLocation, hoveredCard == 2);
+    glUniform1i(unlockedLocation, rangedUnlocked);
+    glUniform1i(hoveredLocation, rangedUnlocked && hoveredCard == 2);
     glBindTexture(GL_TEXTURE_2D, rangedTexture);
     glDrawArrays(GL_TRIANGLES, 12, 6);
 

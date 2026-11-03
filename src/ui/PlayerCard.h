@@ -4,7 +4,9 @@ class PlayerCard
 {
 public:
     void init();
-    void draw(int hoveredCard);
+    // cards are ordered Defense, Melee, Ranged to match the on-screen layout
+    void draw(int hoveredCard, bool defenseUnlocked, bool meleeUnlocked,
+              bool rangedUnlocked);
 
 private:
     unsigned int cardVAO = 0;

@@ -220,7 +220,7 @@ bool WaveManager::spawnEnemyProjectile(Enemy *enemy) {
         projectileX,
         projectileY,
         laneIndex,
-        0.15f, 
+        0.10f,
         enemy->getDamage(),
         type
     );

@@ -16,6 +16,7 @@ public:
     ActionState PrevactionState;
     bool movementBlocked;
     float jumpTimer;
+    float jumpStartY;
     float duckTimer;
     float damageFlashTimer;
     float attackRange;
@@ -52,6 +53,8 @@ public:
     void update(float deltaTime) override ;
     void setActionState(ActionState newState);
     bool canMove() const;
+
+    bool isMoving() const;
 };
 
 
