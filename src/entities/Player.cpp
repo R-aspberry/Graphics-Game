@@ -1,7 +1,7 @@
 #include "../utils/Types.h"
 #include "../utils/Animation.h"
 #include "../entities/Entity.h"
-#include <Constants.h>
+#include "../utils/Constants.h"
 #include "Player.h"
 
 
@@ -38,12 +38,12 @@
             actionState = ActionState::Defeated;
         }
         else{
-            actionState = ActionState::Damaged;
+            actionState = PrevactionState; // still not clear when we set action state to damaged 
         }
     }
 
     bool Player::isAlive() const {
-        return actionState != ActionState::Defeated /*|| health!=0*/;
+        return actionState != ActionState::Defeated && health>0;
     }
     int Player::getHealth() const {
         return health;

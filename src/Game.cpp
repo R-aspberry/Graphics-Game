@@ -71,7 +71,6 @@ GLuint Game::loadTexture(const char* path){
     int channels = 0;
     unsigned char* data = stbi_load(path, &width,&height,&channels,4);
     if (data == nullptr) {
-        std::cerr << "Failed to load player texture: " << path << '\n';
         return 0;
     }
 
@@ -101,23 +100,49 @@ bool Game::init(){
 
     rendere = std::make_unique<Renderer>(shader, 1000.0f, 700.0f);
 
-    meleeTexture = loadTexture("assets/sprites/Melee_M1.png");
-    defenseTexture = loadTexture("assets/sprites/Defense.png");
-    rangedTexture = loadTexture("assets/sprites/Ranged_M1.png");
+    meleeTextureM1 = loadTexture("assets/sprites/Melee_M1.png");
+    meleeTextureM2 = loadTexture("assets/sprites/Melee_M2.png");
+    meleeTextureM3 = loadTexture("assets/sprites/Melee_M3.png");
+    meleeTextureM4 = loadTexture("assets/sprites/Melee_M4.png");
+    meleeTextureA1 = loadTexture("assets/sprites/Melee_A1.png");
+    meleeTextureA2 = loadTexture("assets/sprites/Melee_A2.png");
+    meleeTextureA3 = loadTexture("assets/sprites/Melee_A3.png");
+    meleeTextureA4 = loadTexture("assets/sprites/Melee_A4.png");
 
-    const char* enemyFolders[] = {"EASYENEMY", "MEDIUMENEMY", "HARDENEMY"};
-    for (std::size_t type = 0; type < enemyMoveTextures.size(); ++type) {
-        for (std::size_t frame = 0; frame < enemyMoveTextures[type].size(); ++frame) {
-            const std::string path =
-                "assets/sprites/enemies/" + std::string(enemyFolders[type]) +
-                "/" + enemyFolders[type] + "_M" + std::to_string(frame + 1) + ".png";
-            enemyMoveTextures[type][frame] = ResourceManager::loadTexture(path);
-        }
-    } // this method should be removed 
+
+
+    defenseTexture = loadTexture("assets/sprites/Defense.png");
     
-    if(meleeTexture == 0 || rangedTexture ==0 || defenseTexture == 0){
-        return false;
-    }
+
+    rangedTextureM1 = loadTexture("assets/sprites/Ranged_M1.png");
+    rangedTextureM2 = loadTexture("assets/sprites/Ranged_M2.png");
+    rangedTextureM3 = loadTexture("assets/sprites/Ranged_M3.png");
+    rangedTextureM4 = loadTexture("assets/sprites/Ranged_M4.png");
+    rangedTextureA1 = loadTexture("assets/sprites/Ranged_A1.png");
+    rangedTextureA2 = loadTexture("assets/sprites/Ranged_A2.png");
+    rangedTextureA3 = loadTexture("assets/sprites/Ranged_A3.png");
+    rangedTextureA4 = loadTexture("assets/sprites/Ranged_A4.png");
+
+
+    enemyMoveTextures[0][0] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M1.png");
+    enemyMoveTextures[0][1] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M2.png");
+    enemyMoveTextures[0][2] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M3.png");
+    enemyMoveTextures[0][3] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M4.png");
+
+    
+    enemyMoveTextures[1][0] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_M1.png");
+    enemyMoveTextures[1][1] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_M2.png");
+    enemyMoveTextures[1][2] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_M3.png");
+    enemyMoveTextures[1][3] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_M4.png");
+
+    enemyMoveTextures[2][0] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_M1.png");
+    enemyMoveTextures[2][1] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_M2.png");
+    enemyMoveTextures[2][2] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_M3.png");
+    enemyMoveTextures[2][3] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_M4.png");
+
+    
+    
+    
 
     initialized = true;
     return true;
@@ -165,10 +190,10 @@ void Game::renderPlayers()
             texture = defenseTexture;
         }
         if(player->getPlayerType() == PlayerType::Melee){
-            texture = meleeTexture;
+            texture = meleeTextureM1;
         }
         if(player->getPlayerType() == PlayerType::Ranged){
-            texture = rangedTexture;
+            texture = rangedTextureM1;
         }
 
         const float width = WorldLayout::PLAYER_WIDTH;
@@ -183,6 +208,15 @@ void Game::renderPlayers()
 
 }
 
+void Game::renderProjectiles()
+{
+    for (Projectile* projectile : gameManager.getActiveProjectiles()) {
+        rendere->drawSprite(projectileTexture, projectile->getX(),
+                            WorldLayout::toRenderY(projectile->getY(), projectile->getHeight()),
+                            projectile->getWidth(), projectile->getHeight());
+    }
+}
+
 void Game::render(const Lane& lane, PlayerType type) {
     if (!initialized || rendere == nullptr) {
         return;
@@ -191,10 +225,10 @@ void Game::render(const Lane& lane, PlayerType type) {
     GLuint texture = 0;
     switch (type) {
         case PlayerType::Melee:
-            texture = meleeTexture;
+            texture = meleeTextureM1;
             break;
         case PlayerType::Ranged:
-            texture = rangedTexture;
+            texture = rangedTextureM1;
             break;
         case PlayerType::Defense:
             texture = defenseTexture;
@@ -259,6 +293,7 @@ void Game::render() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderPlayers();
+    renderProjectiles();
 }
 
 void Game::update(float deltaTime){

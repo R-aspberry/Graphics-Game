@@ -8,7 +8,13 @@
     Projectile::~Projectile() = default;
 
     void Projectile::update(float deltaTime) {
+        if (!isActive() || deltaTime < 0.0f) {
+            return;
+        }
         x += speed*deltaTime;
+        if (x > 1.0f) {
+            setActive(false);
+        }
     }
 
     Player* Projectile::getOwner() const{

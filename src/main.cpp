@@ -470,6 +470,7 @@ int main()
     float cutsceneElapsed = 0.0f;
     int hoveredLane = -1;
     int hoveredCard = -1;
+    int collectedCoins = 0;
 
     auto restartGame = [&]()
     {
@@ -477,6 +478,7 @@ int main()
         homeBase.reset();
         waveManager = WaveManager();
         game->reset();
+        collectedCoins = 0;
         laneSelected = -1;
         for (int i = 0; i < 4; ++i) {
             if (grid.getLanes()[i].selected) {
@@ -583,9 +585,6 @@ int main()
 
                 if (!isPaused && click && !suppressGameplayClick) {
                     if (hoveredLane >= 0) {
-                        if (laneSelected >= 0 && laneSelected != hoveredLane) {
-                            grid.toggleLaneSelection(laneSelected);
-                        }
                         grid.toggleLaneSelection(hoveredLane);
                         laneSelected = grid.getLanes()[hoveredLane].selected ? hoveredLane : -1;
                     } else if (hoveredCard >= 0) {
@@ -593,7 +592,12 @@ int main()
                                               : hoveredCard == 1 ? PlayerType::Melee
                                                                  : PlayerType::Ranged;
                         const int cost = hoveredCard == 0 ? 30 : hoveredCard == 1 ? 10 : 20;
-                        purchasePlayer(laneSelected, type, cost, economy, *game);
+                        const bool unlocked = hoveredCard == 1 ||
+                            (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
+                            (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
+                        if (unlocked) {
+                            purchasePlayer(laneSelected, type, cost, economy, *game);
+                        }
                     }
                 }
 
@@ -604,12 +608,14 @@ int main()
                     const int downState =
                         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
                         glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
-                    if (laneSelected >= 0) {
-                        if (upState && previousUpState == GLFW_RELEASE) {
-                            game->jumpPlayerInLane(laneSelected);
+                    if (upState && previousUpState == GLFW_RELEASE) {
+                        for (const Lane& lane : grid.getLanes()) {
+                            if (lane.selected) game->jumpPlayerInLane(lane.id);
                         }
-                        if (downState && previousDownState == GLFW_RELEASE) {
-                            game->duckPlayerInLane(laneSelected);
+                    }
+                    if (downState && previousDownState == GLFW_RELEASE) {
+                        for (const Lane& lane : grid.getLanes()) {
+                            if (lane.selected) game->duckPlayerInLane(lane.id);
                         }
                     }
                     previousUpState = upState ? GLFW_PRESS : GLFW_RELEASE;
@@ -633,6 +639,31 @@ int main()
                         }
                     }
                     game->update(deltaTime, enemies);
+
+                    // Collect drops only when a living player touches one in its lane.
+                    for (std::size_t i = waveManager.getDropCount(); i > 0; --i) {
+                        Collectible* drop = waveManager.getDropAt(i - 1);
+                        if (drop == nullptr) continue;
+                        bool collected = false;
+                        for (Player* player : game->getPlayersInLane(drop->getLane())) {
+                            if (player == nullptr || !player->isAlive()) continue;
+                            const bool overlaps =
+                                player->getX() < drop->getX() + drop->getWidth() &&
+                                player->getX() + player->getWidth() > drop->getX() &&
+                                player->getY() < drop->getY() + drop->getHeight() &&
+                                player->getY() + player->getHeight() > drop->getY();
+                            if (overlaps) {
+                                collected = drop->collect();
+                                break;
+                            }
+                        }
+                        if (collected) {
+                            const int reward = drop->getValueOfCoins();
+                            economy.addCoins(reward);
+                            collectedCoins += reward;
+                            waveManager.removeDropAt(i - 1);
+                        }
+                    }
 
                     if (waveManager.hasEnemyReachedBase(WorldLayout::HOME_BASE_X)) {
                         homeBase.enemyReached();
@@ -703,8 +734,29 @@ int main()
                         }
                     }
                     game->render();
-                    playerCard.draw(isPaused ? -1 : hoveredCard);
+                    const bool meleeUnlocked = true;
+                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20);
+                    const bool defenseUnlocked = collectedCoins >= 30 && economy.canAfford(30);
+                    playerCard.draw(isPaused ? -1 : hoveredCard, defenseUnlocked,
+                                    meleeUnlocked, rangedUnlocked);
                     hud.drawCoins(economy.getCoins(), framebufferWidth, framebufferHeight);
+                    for (int lane = 0; lane < 4; ++lane) {
+                        for (Player* player : game->getPlayersInLane(lane)) {
+                            if (player != nullptr && player->isAlive()) {
+                                hud.drawhealth(static_cast<int>(player->getX() * framebufferWidth),
+                                    static_cast<int>((1.0f - player->getY()) * framebufferHeight),
+                                    38, 5, player->getHealth(), player->getMaxHealth());
+                            }
+                        }
+                    }
+                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i) {
+                        const Enemy* enemy = waveManager.getEnemyAt(i);
+                        if (enemy != nullptr && enemy->getState() != EnemyState::DEAD) {
+                            hud.drawhealth(static_cast<int>(enemy->getPosition().x * framebufferWidth),
+                                static_cast<int>((1.0f - enemy->getPosition().y) * framebufferHeight),
+                                38, 5, enemy->getHealth(), enemy->getMaxHealth());
+                        }
+                    }
                     if (isPaused) mainMenu.escTab();
                 }
             } else if (currentScreen == AppScreen::WON || currentScreen == AppScreen::LOST) {

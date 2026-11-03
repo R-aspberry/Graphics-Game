@@ -22,9 +22,32 @@ private :
     CombatSystem combatSystem;
     Shader shader;
     std::unique_ptr<Renderer> rendere;
-    GLuint meleeTexture = 0;
-    GLuint rangedTexture = 0;
-    GLuint defenseTexture = 0;
+    const GLuint texture = enemyMoveTextures[3][4];
+    
+    GLuint meleeTextureM1 ;
+    GLuint meleeTextureM2 ;
+    GLuint meleeTextureM3 ;
+    GLuint meleeTextureM4 ;
+    GLuint meleeTextureA1 ;
+    GLuint meleeTextureA2 ;
+    GLuint meleeTextureA3 ;
+    GLuint meleeTextureA4 ;
+
+
+
+    GLuint defenseTexture ;
+    
+
+    GLuint rangedTextureM1 ;
+    GLuint rangedTextureM2;
+    GLuint rangedTextureM3;
+    GLuint rangedTextureM4;
+    GLuint rangedTextureA1;
+    GLuint rangedTextureA2;
+    GLuint rangedTextureA3;
+    GLuint rangedTextureA4;
+
+    GLuint projectileTexture = 0;
     std::array<std::array<GLuint, 4>, 3> enemyMoveTextures{};
     
     bool initialized ;
