@@ -3,14 +3,16 @@
 #include "world/Lane.h"
 #include "utils/WorldLayout.h"
 #include "systems/CollisionSystem.h"
-
-#include <iostream>
+#include "systems/WaveManager.h"
 #include "entities/Enemy.h"
 #include "entities/EasyEnemy.h"
 #include "entities/MediumEnemy.h"
 #include "entities/HardEnemy.h"
+#include "systems/Economy.h"
 #include <string>
 #include <memory>
+#include <algorithm>
+#include <iostream>
 #include "stb_image.h"
 
 const char *spriteVertexShader = R"(
@@ -44,6 +46,9 @@ const char *spriteFragmentShader = R"(
     uniform sampler2D image;
     uniform bool enemySprite;
 
+    uniform bool solidColor;
+    uniform vec3 circleColor;
+
     void main()
     {
         vec4 pixel = texture(image, TexCoord);
@@ -52,6 +57,11 @@ const char *spriteFragmentShader = R"(
             discard;
 
         FragColor = pixel;
+
+        if (solidColor) {
+            FragColor = vec4(circleColor, 1.0);
+            return;
+        }
     }
 )";
 
@@ -250,6 +260,54 @@ void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime
         );
 }
 
+
+void Game::renderCollectibles(const WaveManager& waveManager)
+{
+    if (!initialized || rendere == nullptr)
+        return;
+
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    if (viewport[2] <= 0 || viewport[3] <= 0)
+        return;
+
+    for (std::size_t i = 0; i < waveManager.getDropCount(); i++)
+    {
+        const Collectible* drop = waveManager.getDropAt(i);
+
+        if (drop == nullptr || drop->isCollected())
+            continue;
+
+        float width = drop->getWidthOfCollisionBox();
+        float height = drop->getHeightOfCollisionBox();
+
+        // Fit a true circle inside the collectible's box
+        float pixelWidth = width * viewport[2];
+        float pixelHeight = height * viewport[3];
+        float diameter = std::min(pixelWidth, pixelHeight);
+
+        float drawWidth = diameter / viewport[2];
+        float drawHeight = diameter / viewport[3];
+
+        // Keep the circle centered in its collision box
+        float x = drop->getPosition().x
+                + (width - drawWidth) / 2.0f;
+
+        float y = drop->getPosition().y
+                + (height - drawHeight) / 2.0f;
+
+        rendere->drawCircle(
+            x,
+            WorldLayout::toRenderY(y, drawHeight),
+            drawWidth,
+            drawHeight,
+            1.0f, 0.75f, 0.0f
+        );
+    }
+}
+
+
 void Game::render() {
 
     if (!initialized || rendere == nullptr) {
@@ -270,6 +328,25 @@ void Game::update(float deltaTime, const std::vector<Enemy*>& enemies) {
     gameManager.update(deltaTime);
     combatSystem.update(deltaTime, enemies);
     gameManager.cleanupInactiveEntities();
+}
+
+void Game::collectDrops(WaveManager& waveManager, Economy& economy) {
+    for(std::size_t i = waveManager.getDropCount(); i> 0 ;) {
+        --i;
+
+        Collectible* coin = waveManager.getDropAt(i);
+
+        if (coin == nullptr || coin->isCollected())
+            continue;
+
+        for(Player* player : gameManager.getActivePlayers()){
+            if(player != nullptr && collisionSystem.playerTouchesCollectible(*player, *coin) && coin->collect()){
+                economy.addCoins(coin->getValueOfCoins());
+                waveManager.removeDropAt(i);
+                break;
+            }
+        }
+    }
 }
 // bool Game::init()
 // {

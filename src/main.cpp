@@ -633,6 +633,7 @@ int main()
                         }
                     }
                     game->update(deltaTime, enemies);
+                    game->collectDrops(waveManager, economy);
 
                     if (waveManager.hasEnemyReachedBase(WorldLayout::HOME_BASE_X)) {
                         homeBase.enemyReached();
@@ -703,6 +704,7 @@ int main()
                         }
                     }
                     game->render();
+                    game->renderCollectibles(waveManager);
                     playerCard.draw(isPaused ? -1 : hoveredCard);
                     hud.drawCoins(economy.getCoins(), framebufferWidth, framebufferHeight);
                     if (isPaused) mainMenu.escTab();
