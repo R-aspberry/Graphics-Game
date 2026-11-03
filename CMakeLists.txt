@@ -99,3 +99,33 @@ endif()
 
 # build command  cmake --build build  
 # run command 
+
+add_executable(CombatQuickTest
+    tests/CombatQuickTest.cpp
+    src/systems/CombatSystem.cpp
+    src/systems/CollisionSystem.cpp
+    src/systems/GameManager.cpp
+    src/systems/WaveManager.cpp
+    src/entities/Entity.cpp
+    src/entities/Player.cpp
+    src/entities/MeleePlayer.cpp
+    src/entities/RangedPlayer.cpp
+    src/entities/DefensePlayer.cpp
+    src/entities/Projectile.cpp
+    src/entities/Enemy.cpp
+    src/entities/EasyEnemy.cpp
+    src/entities/MediumEnemy.cpp
+    src/entities/HardEnemy.cpp
+    src/entities/EnemyProjectile.cpp
+    src/entities/Collectible.cpp
+    src/world/Grid.cpp
+)
+
+target_include_directories(CombatQuickTest PRIVATE
+    src/systems
+    src/utils
+    src/entities
+    src/world
+)
+
+target_link_libraries(CombatQuickTest PRIVATE glm::glm)

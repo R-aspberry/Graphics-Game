@@ -1,6 +1,6 @@
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H
-
+#include <algorithm>
 #include <vector>
 #include <memory>
 #include "../entities/Player.h"

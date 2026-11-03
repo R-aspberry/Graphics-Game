@@ -46,6 +46,10 @@ public :
     void renderProjectiles();
     Player* placePlayer(PlayerType player, int lane);
     GLuint loadTexture(const char* path);
+    CombatSystem& getCombatSystem() { return combatSystem; }
+    std::vector<Player*> getPlayersInLane(int laneIndex) const {
+    return gameManager.getPlayersInLane(laneIndex);
+}
 
 };
 

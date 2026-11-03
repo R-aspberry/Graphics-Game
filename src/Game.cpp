@@ -21,14 +21,19 @@ const char *spriteVertexShader = R"(
 
     out vec2 TexCoord;
     uniform vec4 spriteRect;
-
+    uniform bool enemySprite;
     void main()
     {
         vec2 position = spriteRect.xy + aPos * spriteRect.zw;
         gl_Position = vec4(position * 2.0 - 1.0, 0.0, 1.0);
         TexCoord = aTex;
+        if (enemySprite)
+        {
+            TexCoord.x = 1.0 - TexCoord.x;
+        }
     }
 )";
+
 
 const char *spriteFragmentShader = R"(
     #version 330 core
@@ -37,10 +42,16 @@ const char *spriteFragmentShader = R"(
     out vec4 FragColor;
 
     uniform sampler2D image;
+    uniform bool enemySprite;
 
     void main()
     {
-        FragColor = texture(image, TexCoord);
+        vec4 pixel = texture(image, TexCoord);
+
+        if (enemySprite && pixel.r < 0.08 &&pixel.g < 0.08 &&pixel.b < 0.08)
+            discard;
+
+        FragColor = pixel;
     }
 )";
 
@@ -226,7 +237,17 @@ void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime
     if (enemy.getLane() != lane.id) {
         return;
     }
-    rendere->drawSprite(texture, enemy.getPosition().x, y, width, height);
+    shader.use();
+
+        glUniform1i(
+            glGetUniformLocation(shader.Program, "enemySprite"), 1
+        );
+
+        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height);
+
+        glUniform1i(
+            glGetUniformLocation(shader.Program, "enemySprite"), 0
+        );
 }
 
 void Game::render() {

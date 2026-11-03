@@ -616,6 +616,15 @@ int main()
                     previousDownState = downState ? GLFW_PRESS : GLFW_RELEASE;
 
                     waveManager.update(deltaTime);
+                    std::vector<EnemyProjectile*> shots;
+
+                    for (size_t i = 0; i < waveManager.getEnemyProjectilesCount(); i++)
+                    {
+                        shots.push_back(waveManager.getEnemyProjectileAt(i));
+                    }
+
+                    // Check bullet collisions
+                    game->getCombatSystem().resolveEnemyProjectiles(shots);
                     std::vector<Enemy*> enemies;
                     enemies.reserve(waveManager.getActiveEnemyCount());
                     for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i) {
