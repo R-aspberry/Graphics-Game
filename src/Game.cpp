@@ -24,12 +24,13 @@ const char *spriteVertexShader = R"(
     out vec2 TexCoord;
     uniform vec4 spriteRect;
     uniform bool enemySprite;
+    uniform bool flipSprite;
     void main()
     {
         vec2 position = spriteRect.xy + aPos * spriteRect.zw;
         gl_Position = vec4(position * 2.0 - 1.0, 0.0, 1.0);
         TexCoord = aTex;
-        if (enemySprite)
+        if (enemySprite || flipSprite)
         {
             TexCoord.x = 1.0 - TexCoord.x;
         }
@@ -49,6 +50,8 @@ const char *spriteFragmentShader = R"(
 
     uniform bool solidColor;
     uniform vec3 circleColor;
+    uniform bool removeLightBackground;
+    uniform float brightness;
 
     void main()
     {
@@ -60,11 +63,16 @@ const char *spriteFragmentShader = R"(
 
         vec4 pixel = texture(image, TexCoord);
 
+        float brightest = max(pixel.r, max(pixel.g, pixel.b));
+        float darkest = min(pixel.r, min(pixel.g, pixel.b));
+        if (removeLightBackground && brightest > 0.75 && brightest - darkest < 0.08)
+            discard;
+
         if (enemySprite && pixel.r < 0.08 && pixel.g < 0.08 && pixel.b < 0.08)
             discard;
 
         vec3 redColor = vec3(1.0, 0.1, 0.1);
-        vec3 finalColor = mix(pixel.rgb, redColor, damageTint);
+        vec3 finalColor = mix(pixel.rgb, redColor, damageTint) * brightness;
 
         FragColor = vec4(finalColor, pixel.a);
     }
@@ -114,6 +122,8 @@ bool Game::init(){
     }
 
     rendere = std::make_unique<Renderer>(shader, 1000.0f, 700.0f);
+    shader.use();
+    glUniform1f(glGetUniformLocation(shader.Program, "brightness"), 1.0f);
 
     meleeTextureM1 = loadTexture("assets/sprites/Melee_M1.png");
     meleeTextureM2 = loadTexture("assets/sprites/Melee_M2.png");
@@ -131,6 +141,7 @@ bool Game::init(){
     meleeTextureD3 = loadTexture("assets/sprites/Melee_D3.png");
 
     projectileTexture = loadTexture("assets/sprites/Projectile.png");
+    enemyProjectileTexture = loadTexture("assets/sprites/EnemyProjectile.png");
 
 
 
@@ -347,11 +358,38 @@ void Game::renderPlayers()
 void Game::renderProjectiles()
 {
     for (Projectile* projectile : gameManager.getActiveProjectiles()) {
+        const float drawHeight = projectile->getHeight() * 1.5f;
+        const float drawWidth = drawHeight * 3.0f;
+        const float drawY = projectile->getY() -
+            (drawHeight - projectile->getHeight()) * 0.5f;
         rendere->drawSprite(projectileTexture, projectile->getX(),
-                            WorldLayout::toRenderY(projectile->getY(), projectile->getHeight()),
-                            projectile->getWidth(), projectile->getHeight(), 0.0f);
+                            WorldLayout::toRenderY(drawY, drawHeight),
+                            drawWidth, drawHeight, 0.0f);
     }
-}
+}// methods x and y has been altered as to make the projectile fit without them projectile was being rendered at 20px making it invisible 
+
+void Game::renderEnemyProjectiles(WaveManager& waveManager)
+{
+    for (std::size_t i = 0; i < waveManager.getEnemyProjectilesCount(); ++i) {
+        const EnemyProjectile* projectile = waveManager.getEnemyProjectileAt(i);
+        if (projectile != nullptr && projectile->isActive()) {
+            const float drawHeight = projectile->getHeight() * 1.5f;
+            const float drawWidth = drawHeight * 2.0f;
+            const float drawY = projectile->getY() -
+                (drawHeight - projectile->getHeight()) * 0.5f;
+            shader.use();
+            glUniform1i(glGetUniformLocation(shader.Program, "flipSprite"), 1);
+            glUniform1i(glGetUniformLocation(shader.Program, "removeLightBackground"), 1);
+            glUniform1f(glGetUniformLocation(shader.Program, "brightness"), 1.8f);
+            rendere->drawSprite(enemyProjectileTexture, projectile->getX(),
+                                WorldLayout::toRenderY(drawY, drawHeight),
+                                drawWidth, drawHeight, 0.0f);
+            glUniform1i(glGetUniformLocation(shader.Program, "flipSprite"), 0);
+            glUniform1i(glGetUniformLocation(shader.Program, "removeLightBackground"), 0);
+            glUniform1f(glGetUniformLocation(shader.Program, "brightness"), 1.0f);
+        }
+    }
+}// method needs review by hana but i approve 
 
 void Game::render(const Lane& lane, PlayerType type) {
     if (!initialized || rendere == nullptr) {

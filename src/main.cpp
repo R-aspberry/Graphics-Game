@@ -747,6 +747,7 @@ int main()
                         }
                     }
                     game->render();
+                    game->renderEnemyProjectiles(waveManager);
                     game->renderCollectibles(waveManager);
                     
                     const bool meleeUnlocked = true;

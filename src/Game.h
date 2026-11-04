@@ -62,6 +62,7 @@ private :
     GLuint rangedTextureJ3;
 
     GLuint projectileTexture = 0;
+    GLuint enemyProjectileTexture = 0;
     std::array<std::array<GLuint, 4>, 3> enemyMoveTextures{};
     
     bool initialized ;
@@ -81,6 +82,7 @@ public :
     void render();
     void renderPlayers();
     void renderProjectiles();
+    void renderEnemyProjectiles(WaveManager& waveManager);
     Player* placePlayer(PlayerType player, int lane);
     GLuint loadTexture(const char* path);
     CombatSystem& getCombatSystem() { return combatSystem; }
