@@ -9,6 +9,7 @@ class Enemy{
         float speed;
         float attackInterval;
         float timeSinceLastAttack;
+        float damageFlashTimer;
         int lane;
         int maxHealth;
         glm::vec2 position;
@@ -39,4 +40,6 @@ class Enemy{
 
         void setMovementBlocked(bool blocked);
         bool isMovementBlocked() const;
+
+        float getdamageFlashTimer() const;
 };

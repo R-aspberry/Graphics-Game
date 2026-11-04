@@ -227,11 +227,14 @@ int main()
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* videoMode = monitor ? glfwGetVideoMode(monitor) : nullptr;
+
     GLFWwindow *window = glfwCreateWindow(
-        1000,
-        700,
+        videoMode ? videoMode->width : 1000,
+        videoMode ? videoMode->height : 700,
         "Tower Defense Game",
-        nullptr,
+        monitor,
         nullptr);
 
     if (!window)

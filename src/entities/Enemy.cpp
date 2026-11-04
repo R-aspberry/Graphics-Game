@@ -1,7 +1,7 @@
 #include "Enemy.h"
 
 Enemy::Enemy(int health, int damage, float speed, float attackInterval, int lane, glm::vec2 position)
-    : health(health), damage(damage), speed(speed), attackInterval(attackInterval), timeSinceLastAttack(0.0f), lane(lane), maxHealth(health), position(position), state(EnemyState::MOVING), MovementBlocked(false) {}
+    : health(health), damage(damage), speed(speed), attackInterval(attackInterval), timeSinceLastAttack(0.0f), lane(lane), maxHealth(health), position(position), state(EnemyState::MOVING), MovementBlocked(false), damageFlashTimer(0.0f) {}
 
 void Enemy:: update(float deltaTime) {
     if (deltaTime < 0.0f) {
@@ -59,4 +59,8 @@ void Enemy::setMovementBlocked(bool blocked){
 
 bool Enemy::isMovementBlocked() const{
     return MovementBlocked;
+}
+
+float Enemy::getdamageFlashTimer() const{
+    return damageFlashTimer;
 }

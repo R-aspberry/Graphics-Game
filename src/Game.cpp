@@ -382,7 +382,7 @@ void Game::render(const Lane& lane, PlayerType type) {
         WorldLayout::standingY(lane, height),
         height);
     rendere->drawSprite(texture, x, y, width, height, 0.0f);
-} // modified the render method 
+} // modified the render method this method is prob useless not removed incase it is being called somehwere else
 
 void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) {
     if (!initialized || rendere == nullptr || enemy.getState() == EnemyState::DEAD) {
@@ -413,12 +413,29 @@ void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime
             glGetUniformLocation(shader.Program, "enemySprite"), 1
         );
 
-        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, 0.0f);
+        float healthRatio = (float)enemy.getHealth() / enemy.getMaxHealth();
+        float damageTint = 1.0f - healthRatio;
+
+        if (enemy.getdamageFlashTimer() > 0.0f) {
+            damageTint = 1.0f;
+        }
+
+        if (damageTint < 0.0f) {
+            damageTint = 0.0f;
+        }
+
+        if (damageTint > 1.0f) {
+            damageTint = 1.0f;
+        }
+
+
+        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, damageTint);
 
         glUniform1i(
             glGetUniformLocation(shader.Program, "enemySprite"), 0
         );
-}
+}// i dont like the render enemy method it takes lane ? idk why it also takes animation timer why ? it should just render all active enemies
+//but it is working all good plus gamemanager doesnt hold such an array 
 
 
 void Game::renderCollectibles(const WaveManager& waveManager)
