@@ -18,6 +18,9 @@ public:
     RangedPlayer(float x, float y, float width, float height, int laneIndex,  int maxHealth, float moveSpeed);
     virtual ~RangedPlayer() override;
 
+    void jump() override;
+    void duck() override;
+
     // Player Interface Implementations
     virtual PlayerType getPlayerType() const override;
     virtual void startAttack(GameManager& gameManager) override;

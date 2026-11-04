@@ -9,8 +9,6 @@ namespace WorldLayout {
 
     inline constexpr float ENEMY_WIDTH = 0.055f;
     inline constexpr float ENEMY_HEIGHT = 0.070f;
-    inline constexpr float LOW_ATTACK_OFFSET = 0.75f;
-    inline constexpr float HIGH_ATTACK_OFFSET = 0.25f;
 
     // Projectile sizes
     inline constexpr float PROJECTILE_WIDTH = 0.012f;
@@ -23,7 +21,9 @@ namespace WorldLayout {
     // Horizontal spawn margins
     inline constexpr float PLAYER_SPAWN_INSET = 0.025f;
     inline constexpr float ENEMY_SPAWN_INSET = 0.020f;
-
+// Enemy projectile attack heights  
+    inline constexpr float HIGH_ATTACK_OFFSET = 0.25f;
+    inline constexpr float LOW_ATTACK_OFFSET = 0.75f;
     // Gap between character feet and lane bottom
     inline constexpr float FLOOR_GAP = 0.008f;
 

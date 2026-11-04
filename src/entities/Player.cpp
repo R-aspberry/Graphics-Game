@@ -134,10 +134,11 @@
         damageFlashTimer -= deltaTime;
 
         if (damageFlashTimer <= 0.0f)
-        { damageFlashTimer = 0.0f;
-            if(actionState!= ActionState::Defeated){
-            actionState = PrevactionState;
-        }
+        {
+            damageFlashTimer = 0.0f;
+            // takeDamage() does not enter Damaged state, so do not restore
+            // PrevactionState here. Doing so cancels a newly requested jump,
+            // duck or attack, making enemy projectiles much harder to avoid.
         }
 
         

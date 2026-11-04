@@ -72,3 +72,19 @@
         Player::update(deltaTime);
         attackCoolDownTimer-= deltaTime;
     }
+
+// Players must be able to dodge even during an attack animation.
+// Finish the current attack first so it still observes its cooldown.
+void RangedPlayer::jump() {
+    if (actionState == ActionState::Attacking) {
+        finishAttack();
+    }
+    Player::jump();
+}
+
+void RangedPlayer::duck() {
+    if (actionState == ActionState::Attacking) {
+        finishAttack();
+    }
+    Player::duck();
+}
