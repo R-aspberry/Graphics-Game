@@ -4,6 +4,7 @@
 
 #include "Cutscene.h"
 #include "utils/ResourceManager.h"
+#include "../systems/SoundManager.h"
 
 #include <algorithm>
 #include <cmath>
@@ -196,26 +197,25 @@ bool Cutscene::init()
 void Cutscene::start()
 {
     elapsed_ = 0.0f;
-#ifdef _WIN32
-    // Plays original 18-second cinematic cue; temporarily replaces the menu loop.
-    audioPlaying_ = PlaySoundA("assets/cutscene/cinematic.wav", nullptr,
-                               SND_ASYNC | SND_FILENAME) != FALSE;
-#endif
+    audioPlaying_ = true;
+
+    SoundManager::instance().playMusic(
+        "assets/cutscene/cinematic.wav",
+        false
+    );
 }
 
 void Cutscene::update(float deltaTime) { elapsed_ = std::min(Duration, elapsed_ + std::max(0.0f, deltaTime)); }
 
 void Cutscene::stopAudio()
 {
-#ifdef _WIN32
     if (audioPlaying_)
     {
-        PlaySoundA("assets/backgroundsound.wav", nullptr, SND_ASYNC | SND_LOOP | SND_FILENAME);
+        SoundManager::instance().playMusic("assets/backgroundsound.wav",true);
+
         audioPlaying_ = false;
     }
-#endif
 }
-
 void Cutscene::quad(GLuint texture, float x, float y, float w, float h,
                     float r, float g, float b, float alpha, bool flipX, float glitch, float uCrop)
 {

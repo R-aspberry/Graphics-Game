@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #endif
+#include "systems/SoundManager.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 const char* vertexShaderSource = R"(
@@ -62,7 +63,17 @@ float buttonVertices[] = {
 
      0.10f,  0.00f,   0.0f, 0.0f,
      0.46f,  0.20f,   1.0f, 1.0f,
-     0.10f,  0.20f,   0.0f, 1.0f
+     0.10f,  0.20f,   0.0f, 1.0f,
+
+
+     // SOUND SETTINGS — vertices 12–17
+    -0.24f, -0.32f, 0.0f, 0.0f,
+    0.24f, -0.32f, 1.0f, 0.0f,
+    0.24f, -0.12f, 1.0f, 1.0f,
+
+    -0.24f, -0.32f, 0.0f, 0.0f,
+    0.24f, -0.12f, 1.0f, 1.0f,
+    -0.24f, -0.12f, 0.0f, 1.0f
 };
 
 float escVertices[] = {
@@ -153,17 +164,7 @@ if (!compileOK) {
 glDeleteShader(vertexShader);
 glDeleteShader(fragmentShader);
 
-#ifdef _WIN32
-    PlaySound(
-        TEXT("assets/backgroundsound.wav"),
-        NULL,
-        SND_ASYNC | SND_LOOP | SND_FILENAME
-    );
-#elif defined(__APPLE__)
-    std::system(
-        "afplay assets/backgroundsound.wav >/dev/null 2>&1 &"
-    );
-#endif
+
 int width, height, nrChannels;
 stbi_set_flip_vertically_on_load(true);
 unsigned char* data = stbi_load("assets/background.png", &width, &height, &nrChannels, 3); // Keep the original menu artwork.
@@ -240,6 +241,28 @@ glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
              w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, exitImage);
 
 stbi_image_free(exitImage);
+    
+unsigned char* settingsImage = stbi_load(
+    "assets/sound/settings.png", &w, &h, &channels, 4
+);
+
+if (!settingsImage)
+{
+    std::cerr << "Settings image failed: "
+              << stbi_failure_reason() << '\n';
+    return;
+}
+
+glGenTextures(1, &settingsTexture);
+glBindTexture(GL_TEXTURE_2D, settingsTexture);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+             w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, settingsImage);
+
+stbi_image_free(settingsImage);
 
 glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -416,19 +439,21 @@ void MainMenu::draw()
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     // Button
-glEnable(GL_BLEND);
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-// This VAO contains BOTH button rectangles
-glBindVertexArray(buttonVAO);
+    // This VAO contains BOTH button rectangles
+    glBindVertexArray(buttonVAO);
 
-// Select the Start image, then draw the first rectangle
-glBindTexture(GL_TEXTURE_2D, buttonTexture);
-glDrawArrays(GL_TRIANGLES, 0, 6);
+    // Select the Start image, then draw the first rectangle
+    glBindTexture(GL_TEXTURE_2D, buttonTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
-// Select the Exit image, then draw the second rectangle
-glBindTexture(GL_TEXTURE_2D, exitTexture);
-glDrawArrays(GL_TRIANGLES, 6, 6);
+    // Select the Exit image, then draw the second rectangle
+    glBindTexture(GL_TEXTURE_2D, exitTexture);
+    glDrawArrays(GL_TRIANGLES, 6, 6);
 
-glDisable(GL_BLEND);
+    glBindTexture(GL_TEXTURE_2D, settingsTexture);
+    glDrawArrays(GL_TRIANGLES, 12, 6);
+    glDisable(GL_BLEND);
 }

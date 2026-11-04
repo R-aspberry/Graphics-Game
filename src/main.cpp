@@ -10,11 +10,14 @@
 #include <dwmapi.h>
 #endif
 
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
 #include <memory>
 
+#include "systems/SoundManager.h"
+#include "ui/SoundSettings.h"
 #include "../external/stb/stb_image.h"
 #include "world/Grid.h"
 #include "world/HomeBase.h"
@@ -87,11 +90,14 @@ static GLuint compileShader(GLenum kind, const char *source)
 enum class AppScreen
 {
     MENU,
+    SOUND_SETTINGS,
     CUTSCENE,
     PLAYING,
     WON,
     LOST
 };
+
+
 
 static AppScreen currentScreen = AppScreen::MENU;
 
@@ -158,6 +164,11 @@ void mouseButtonCallback(
 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
+    else if (x >= -0.24 && x <= 0.24 &&
+         y >= -0.32 && y <= -0.12)
+{
+    currentScreen = AppScreen::SOUND_SETTINGS;
+}
 }
 
 // =====================================
@@ -257,10 +268,16 @@ int main()
         glfwTerminate();
         return 1;
     }
+    SoundManager& audio = SoundManager::instance();
 
+    if (audio.init()) {
+        audio.playMusic("assets/backgroundsound.wav", true);
+    }
     std::cout << "OpenGL context initialized\n";
     MainMenu mainMenu;
     mainMenu.init();
+    SoundSettings soundSettings;
+    soundSettings.init();
     PlayerCard playerCard;
     playerCard.init();
     HUD hud;
@@ -552,9 +569,59 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (currentScreen == AppScreen::MENU) {
-            mainMenu.draw();
-        } else {
+       if (currentScreen == AppScreen::MENU) {
+        mainMenu.draw();
+}
+    
+        else if (currentScreen == AppScreen::SOUND_SETTINGS) {
+           soundSettings.draw();
+
+    double mx, my;
+    glfwGetCursorPos(window, &mx, &my);
+
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
+    int mouseState = glfwGetMouseButton(
+        window, GLFW_MOUSE_BUTTON_LEFT
+    );
+
+    if (width > 0 && height > 0 &&
+        mouseState == GLFW_PRESS &&
+        previousLeftMouseState == GLFW_RELEASE)
+    {
+        float x = static_cast<float>(2.0 * mx / width - 1.0);
+        float y = static_cast<float>(1.0 - 2.0 * my / height);
+
+        SoundAction action = soundSettings.handleClick(x, y);
+
+        
+if (action == SoundAction::Back)
+{
+    currentScreen = AppScreen::MENU;
+}
+else if (action == SoundAction::VolumeUp)
+{
+    audio.setVolume(audio.getVolume() + 0.1f);
+}
+else if (action == SoundAction::VolumeDown)
+{
+    audio.setVolume(audio.getVolume() - 0.1f);
+}
+else if (action == SoundAction::Mute)
+{
+    audio.toggleMute();
+}
+
+
+        // VolumeUp, VolumeDown and Mute
+        // will be connected to the audio system next.
+    }
+
+    previousLeftMouseState = mouseState;
+
+            
+}           else {
             if (currentScreen == AppScreen::CUTSCENE) {
                 cutscene.update(deltaTime);
                 if (cutscene.finished() ||
@@ -688,6 +755,9 @@ int main()
                     } else if (waveManager.hasWon()) {
                         currentScreen = AppScreen::WON;
                         isPaused = false;
+
+                        audio.playMusic("assets/samoray.wav", false);
+
                         glfwSetWindowTitle(window, "Tower Defense Game - YOU WON!");
                     }
                 }
@@ -782,9 +852,11 @@ int main()
                     const double y = 1.0 - 2.0 * mouseY / windowHeight;
                     if (x >= -0.24 && x <= 0.24 && y >= -0.14 && y <= 0.14) {
                         restartGame();
+                        audio.playMusic("assets/backgroundsound.wav", true);
                         currentScreen = AppScreen::PLAYING;
                     } else if (x >= -0.24 && x <= 0.24 && y >= -0.48 && y <= -0.20) {
                         currentScreen = AppScreen::MENU;
+                        audio.playMusic("assets/backgroundsound.wav", true);
                     }
                     suppressGameplayClick = true;
                 }
@@ -792,7 +864,7 @@ int main()
             previousLeftMouseState = leftMouseState;
         }
 
-        glfwSwapBuffers(window);
+                glfwSwapBuffers(window);
     }
 
     glDeleteBuffers(1, &vbo);
@@ -800,11 +872,13 @@ int main()
     glDeleteProgram(program);
     glDeleteTextures(1, &backgroundTexture);
 
-    cutscene.cleanup(); // Release our shader and buffers before GLFW is destroyed.
+    cutscene.cleanup(); 
+    audio.shutdown();
     game.reset();
     ResourceManager::clear();
     hud.cleanup();
     glfwSetMouseButtonCallback(window, nullptr);
+    soundSettings.cleanup();
     glfwDestroyWindow(window);
     glfwTerminate();
 
