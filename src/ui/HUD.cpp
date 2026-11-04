@@ -139,7 +139,7 @@ void HUD::drawhealth(int x,int y,int w, int h,int health,int maxHealth)
         health = maxHealth;
     float actualHealth = (health/(float)maxHealth)*w;
     glEnable(GL_SCISSOR_TEST);
-    drawRect(x,y,w,h,0.2f,0.2f,0.2f);
+    drawRect(x,y,w,h,0.4f,0.4f,0.2f);
 
     drawRect(x, y, (int)actualHealth, h, 0.0f, 1.0f, 0.0f);
     glDisable(GL_SCISSOR_TEST);

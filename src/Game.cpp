@@ -344,6 +344,8 @@ void Game::renderPlayers()
 
 }
 
+
+
 void Game::renderProjectiles()
 {
     for (Projectile* projectile : gameManager.getActiveProjectiles()) {

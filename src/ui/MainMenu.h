@@ -16,6 +16,7 @@ private:
     unsigned int buttonTexture = 0; // strat button
     unsigned int exitTexture = 0;
 
+    unsigned int settingsTexture = 0;
     unsigned int continueButton = 0;
     unsigned int restartButton = 0;    
     unsigned int mainMenuButton = 0;
