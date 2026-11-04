@@ -651,7 +651,7 @@ int main()
                         }
                     }
                     game->update(deltaTime, enemies);
-                    game->collectDrops(waveManager, economy);
+                    //game->collectDrops(waveManager, economy); // this is wrong because it doesnt update collected coins 
 
                     // Collect drops only when a living player touches one in its lane.
                     for (std::size_t i = waveManager.getDropCount(); i > 0; --i) {

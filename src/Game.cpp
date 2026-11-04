@@ -76,7 +76,7 @@ const char *spriteFragmentShader = R"(
 
         FragColor = vec4(finalColor, pixel.a);
     }
-)";
+)"; // understand it at the time of evaluation
 
 Game::Game()
     : combatSystem(&gameManager, &collisionSystem),
@@ -291,30 +291,49 @@ void Game::renderPlayers()
             }
             
         }
-        if(player->getPlayerType() == PlayerType::Ranged){
+        else if(player->getPlayerType() == PlayerType::Ranged){
             if(frame ==1 ){
                  if(mov_att == 0){
                     texture = rangedTextureM1;}
                 if(mov_att == 1){
                     texture = rangedTextureA1;}
+                
             }
             if (frame == 2){
                 if(mov_att == 0){
                     texture = rangedTextureM2;}
                 if(mov_att == 1){
                     texture = rangedTextureA2;}
+                if(mov_att == 2){
+                    texture = rangedTextureJ1;
+                }
+                if(mov_att == 3){
+                    texture = rangedTextureD1;
+                }
             }
             if (frame == 3){
                 if(mov_att == 0){
                     texture = rangedTextureM3;}
                 if(mov_att == 1){
                     texture = rangedTextureA3;}
+                if(mov_att == 2){
+                    texture = rangedTextureJ2;
+                }
+                if(mov_att == 3){
+                    texture = rangedTextureD2;
+                }
             }
             if (frame == 4){
                 if(mov_att == 0){
                     texture = rangedTextureM4;}
                 if(mov_att == 1){
                     texture = rangedTextureA4;}
+                if(mov_att == 2){
+                    texture = rangedTextureJ3;
+                }
+                if(mov_att == 3){
+                    texture = rangedTextureD3;
+                }
             }
         }
         if (texture == 0){
@@ -362,9 +381,12 @@ void Game::renderProjectiles()
         const float drawWidth = drawHeight * 3.0f;
         const float drawY = projectile->getY() -
             (drawHeight - projectile->getHeight()) * 0.5f;
+        shader.use();
+        glUniform1i(glGetUniformLocation(shader.Program, "removeLightBackground"), 1);
         rendere->drawSprite(projectileTexture, projectile->getX(),
                             WorldLayout::toRenderY(drawY, drawHeight),
                             drawWidth, drawHeight, 0.0f);
+        glUniform1i(glGetUniformLocation(shader.Program, "removeLightBackground"), 0);
     }
 }// methods x and y has been altered as to make the projectile fit without them projectile was being rendered at 20px making it invisible 
 
