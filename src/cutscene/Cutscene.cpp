@@ -8,8 +8,6 @@
 #include <mmsystem.h>
 #endif
 
-// The same idea as Lab 2: use a vertex shader and fragment shader.
-// Our vertices are a rectangle, so we can draw PNG pictures on it.
 const char *cutsceneVertexShader = R"(
 #version 330 core
 layout (location = 0) in vec2 aPos;
@@ -40,7 +38,7 @@ void main()
 }
 )";
 
-// Lab 2 also shows how to compile shaders.
+
 static GLuint compileCutsceneShader(GLenum type, const char *source)
 {
     GLuint shader = glCreateShader(type);
@@ -92,7 +90,7 @@ bool Cutscene::init()
         return false;
     }
 
-    // A rectangle made from two triangles (Lab 1 / Lab 3).
+  
     float vertices[] = {
         // position     texture position
         0, 0, 0, 0,
@@ -113,7 +111,7 @@ bool Cutscene::init()
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
-    // Reuse the texture-loading function that already exists in your game.
+    
     background = ResourceManager::loadTexture("assets/backgrounds/cyberpunk.png");
     signal = ResourceManager::loadTexture("assets/cutscene/signal.png");
     enemyText = ResourceManager::loadTexture("assets/cutscene/enemy_line.png");
@@ -316,5 +314,4 @@ void Cutscene::cleanup()
     VAO = 0;
     shaderProgram = 0;
     ready = false;
-    // The shared ResourceManager frees the PNG textures when the game closes.
 }
