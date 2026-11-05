@@ -686,7 +686,7 @@ else if (action == SoundAction::Mute)
                         }
                         else{
                         grid.toggleLaneSelection(hoveredLane);
-                        laneSelected =  -1;
+                        laneSelected = -1;}
                     } else if (hoveredCard >= 0) {
                         const PlayerType type = hoveredCard == 0 ? PlayerType::Defense
                                               : hoveredCard == 1 ? PlayerType::Melee
@@ -696,18 +696,17 @@ else if (action == SoundAction::Mute)
                             (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
                             (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
                         if (unlocked) {
-                            for(const auto& lane :grid.getLanes()){
+                            if (hoveredCard == 0) {
+                                defencePLaced = true;// one defense only placed at a time not more we care about mouse click not lanes selected 
+
+                            }
+                            else {
+                                for(const auto& lane :grid.getLanes()){
                                 if(lane.selected){                            
                                     laneSelected = lane.id;
                                     purchasePlayer(laneSelected, type, cost, economy, *game);
                                 }
-                                
-                            if (hoveredCard == 0) {
-                                defencePLaced = true;
-
                             }
-                            else {
-                                purchasePlayer(laneSelected, type, cost, economy, *game);
                             }
                         }
                     }
@@ -721,10 +720,14 @@ else if (action == SoundAction::Mute)
                         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
                         glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
                     if (upState && previousUpState == GLFW_RELEASE) {
-                        game->jumpPlayers();
+                        for (const Lane& lane : grid.getLanes()) {
+                            if (lane.selected) game->jumpPlayers();
+                        }
                     }
                     if (downState && previousDownState == GLFW_RELEASE) {
-                        game->duckPlayers();
+                        for (const Lane& lane : grid.getLanes()) {
+                            if (lane.selected) game->duckPlayers();
+                        }
                     }
                     previousUpState = upState ? GLFW_PRESS : GLFW_RELEASE;
                     previousDownState = downState ? GLFW_PRESS : GLFW_RELEASE;
