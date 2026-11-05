@@ -64,7 +64,7 @@ private :
     GLuint projectileTexture = 0;
     GLuint enemyProjectileTexture = 0;
     std::array<std::array<GLuint, 4>, 3> enemyMoveTextures{};
-    
+    std::array<std::array<GLuint, 4>, 3> enemyAttackTextures{};
     bool initialized ;
 
 public :
@@ -76,8 +76,8 @@ public :
     void setGrid(Grid* grid);
     void update(float deltaTime);
     void update(float deltaTime, const std::vector<Enemy*>& enemies);
-    void jumpPlayerInLane(int laneIndex);
-    void duckPlayerInLane(int laneIndex);
+    void jumpPlayers();
+    void duckPlayers();
     void reset();
     void render();
     void renderPlayers();

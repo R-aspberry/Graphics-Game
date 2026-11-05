@@ -1,7 +1,7 @@
 #include "Enemy.h"
 
 Enemy::Enemy(int health, int damage, float speed, float attackInterval, int lane, glm::vec2 position)
-    : health(health), damage(damage), speed(speed), attackInterval(attackInterval), timeSinceLastAttack(0.0f), lane(lane), maxHealth(health), position(position), state(EnemyState::MOVING), MovementBlocked(false), damageFlashTimer(0.0f) {}
+    : health(health), damage(damage), speed(speed), attackInterval(attackInterval), timeSinceLastAttack(0.0f), attackAnimationTimer(0.0f), lane(lane), maxHealth(health), position(position), state(EnemyState::MOVING), MovementBlocked(false), damageFlashTimer(0.0f) {}
 
 void Enemy:: update(float deltaTime) {
     if (deltaTime < 0.0f) {
@@ -45,6 +45,22 @@ bool Enemy::canAttack() const {
 
 void Enemy::resetAttackTimer() {
     timeSinceLastAttack = 0.0f;
+}
+
+bool Enemy::updateRangedAttack(float deltaTime) {
+    if (state != EnemyState::FIGHTING) {
+        if (!canAttack()) return false;
+        setState(EnemyState::FIGHTING);
+        attackAnimationTimer = 0.0f;
+        return false;
+    }
+
+    attackAnimationTimer += deltaTime;
+    if (attackAnimationTimer < 0.60f) return false;
+
+    setState(EnemyState::MOVING);
+    attackAnimationTimer = 0.0f;
+    return true;
 }
 
 void Enemy::setState(EnemyState newState) {

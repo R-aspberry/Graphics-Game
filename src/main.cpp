@@ -686,7 +686,7 @@ else if (action == SoundAction::Mute)
                         }
                         else{
                         grid.toggleLaneSelection(hoveredLane);
-                        laneSelected = grid.getLanes()[hoveredLane].selected ? hoveredLane : -1;}
+                        laneSelected = -1;}
                     } else if (hoveredCard >= 0) {
                         const PlayerType type = hoveredCard == 0 ? PlayerType::Defense
                                               : hoveredCard == 1 ? PlayerType::Melee
@@ -697,11 +697,16 @@ else if (action == SoundAction::Mute)
                             (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
                         if (unlocked) {
                             if (hoveredCard == 0) {
-                                defencePLaced = true;
+                                defencePLaced = true;// one defense only placed at a time not more we care about mouse click not lanes selected 
 
                             }
                             else {
-                                purchasePlayer(laneSelected, type, cost, economy, *game);
+                                for(const auto& lane :grid.getLanes()){
+                                if(lane.selected){                            
+                                    laneSelected = lane.id;
+                                    purchasePlayer(laneSelected, type, cost, economy, *game);
+                                }
+                            }
                             }
                         }
                     }
@@ -716,12 +721,12 @@ else if (action == SoundAction::Mute)
                         glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
                     if (upState && previousUpState == GLFW_RELEASE) {
                         for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->jumpPlayerInLane(lane.id);
+                            if (lane.selected) game->jumpPlayers();
                         }
                     }
                     if (downState && previousDownState == GLFW_RELEASE) {
                         for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->duckPlayerInLane(lane.id);
+                            if (lane.selected) game->duckPlayers();
                         }
                     }
                     previousUpState = upState ? GLFW_PRESS : GLFW_RELEASE;
@@ -847,8 +852,8 @@ else if (action == SoundAction::Mute)
                     game->renderEnemyProjectiles(waveManager);
                     game->renderCollectibles(waveManager);
                     
-                    const bool meleeUnlocked = true;
-                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20);
+                    const bool meleeUnlocked = economy.canAfford(10);
+                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20); // both checks needed because at first ranged and defense not unclocked 
                     const bool defenseUnlocked = collectedCoins >= 30 && economy.canAfford(30);
                     playerCard.draw(isPaused ? -1 : hoveredCard, defenseUnlocked,
                                     meleeUnlocked, rangedUnlocked);

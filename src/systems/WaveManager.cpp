@@ -237,7 +237,12 @@ void WaveManager::update(float deltaTime) {
     // Update existing enemies
     for (auto& enemy : activeEnemies) {
         enemy->update(deltaTime);
-        spawnEnemyProjectile(enemy.get()); 
+        const AttackType type = enemy->getAttackType();
+        if (type == AttackType::High || type == AttackType::Low) {
+            if (enemy->updateRangedAttack(deltaTime)) {
+                spawnEnemyProjectile(enemy.get());
+            }
+        }
     }
     // Update projectiles
     for(auto& projectile : enemyProjectiles) {

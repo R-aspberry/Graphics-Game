@@ -24,6 +24,9 @@ void CombatSystem::update(float deltaTime, const std::vector<Enemy*>& activeEnem
         Enemy* enemy = activeEnemies[i];
         if (enemy!=nullptr && (*enemy).getHealth() > 0){
             enemy->setMovementBlocked(false);
+            if (enemy->getAttackType() == AttackType::Melee) {
+                enemy->setState(EnemyState::MOVING);
+            }
         }
     }
 
@@ -195,6 +198,7 @@ void CombatSystem::resolveEnemyAttacks(const std::vector<Enemy*>& activeEnemies)
                         {
                             (*enemy).setMovementBlocked(true);
                             (*player).setMovementBlocked(true);
+                            enemy->setState(EnemyState::FIGHTING);
 
                             if ((*enemy).canAttack())
                             {
