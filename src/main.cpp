@@ -686,7 +686,7 @@ else if (action == SoundAction::Mute)
                         }
                         else{
                         grid.toggleLaneSelection(hoveredLane);
-                        laneSelected = grid.getLanes()[hoveredLane].selected ? hoveredLane : -1;}
+                        laneSelected =  -1;
                     } else if (hoveredCard >= 0) {
                         const PlayerType type = hoveredCard == 0 ? PlayerType::Defense
                                               : hoveredCard == 1 ? PlayerType::Melee
@@ -696,6 +696,12 @@ else if (action == SoundAction::Mute)
                             (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
                             (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
                         if (unlocked) {
+                            for(const auto& lane :grid.getLanes()){
+                                if(lane.selected){                            
+                                    laneSelected = lane.id;
+                                    purchasePlayer(laneSelected, type, cost, economy, *game);
+                                }
+                                
                             if (hoveredCard == 0) {
                                 defencePLaced = true;
 
@@ -715,14 +721,10 @@ else if (action == SoundAction::Mute)
                         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
                         glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
                     if (upState && previousUpState == GLFW_RELEASE) {
-                        for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->jumpPlayerInLane(lane.id);
-                        }
+                        game->jumpPlayers();
                     }
                     if (downState && previousDownState == GLFW_RELEASE) {
-                        for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->duckPlayerInLane(lane.id);
-                        }
+                        game->duckPlayers();
                     }
                     previousUpState = upState ? GLFW_PRESS : GLFW_RELEASE;
                     previousDownState = downState ? GLFW_PRESS : GLFW_RELEASE;

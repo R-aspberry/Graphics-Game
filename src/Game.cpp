@@ -76,7 +76,7 @@ const char *spriteFragmentShader = R"(
 
         FragColor = vec4(finalColor, pixel.a);
     }
-)"; // understand it at the time of evaluation
+)"; // understand it at the time of evaluation edited for redtint w for collectible 
 
 Game::Game()
     : combatSystem(&gameManager, &collisionSystem),
@@ -201,20 +201,36 @@ Player* Game::placePlayer(PlayerType type, int laneIndex) {
     return gameManager.placePlayer(type, laneIndex);
 }
 
-void Game::jumpPlayerInLane(int laneIndex) {
+void Game::jumpPlayers() {
+    for(const Lane& lane : gameManager.getGrid()->getLanes()){
+        int laneIndex = -1;
+        if(lane.selected){
+            laneIndex = lane.id;
+        }
+    if(laneIndex != -1){
     for (Player* player : gameManager.getPlayersInLane(laneIndex)) {
         if (player->getPlayerType() != PlayerType::Defense) {
             player->jump();
         }
     }
 }
+}
+}
 
-void Game::duckPlayerInLane(int laneIndex) {
+void Game::duckPlayers() {
+    for(const Lane& lane : gameManager.getGrid()->getLanes()){
+        int laneIndex = -1;
+        if(lane.selected){
+            laneIndex = lane.id;
+        }
+    if(laneIndex != -1){
     for (Player* player : gameManager.getPlayersInLane(laneIndex)) {
         if (player->getPlayerType() != PlayerType::Defense) {
             player->duck();
         }
     }
+}
+}
 }
 
 void Game::renderPlayers()
@@ -225,7 +241,7 @@ void Game::renderPlayers()
     
     for(const auto& player : players){
         GLuint texture =0;
-        int frame = (int(animationTimer/0.15f) % 4) + 1;
+        int frame = (int(animationTimer/0.15f) % 4) + 1; // why did i plus one 
 
         int mov_att = 0; //if mov_att = 0 moving 1 attacking 2 jumping 3 ducking
         if (player->actionState == ActionState::Attacking){
