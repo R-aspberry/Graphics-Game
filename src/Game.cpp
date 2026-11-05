@@ -241,7 +241,7 @@ void Game::renderPlayers()
     
     for(const auto& player : players){
         GLuint texture =0;
-        int frame = (int(animationTimer/0.15f) % 4) + 1;
+        int frame = (int(animationTimer/0.15f) % 4) + 1; // why did i plus one 
 
         int mov_att = 0; //if mov_att = 0 moving 1 attacking 2 jumping 3 ducking
         if (player->actionState == ActionState::Attacking){

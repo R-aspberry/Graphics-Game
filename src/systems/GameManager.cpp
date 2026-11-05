@@ -25,7 +25,7 @@ void GameManager::setGrid(Grid* gameGrid) {
 
     Player* GameManager::placePlayer(PlayerType type, int laneIndex) {
         if (grid == nullptr || laneIndex < 0 ||
-            laneIndex >= static_cast<int>(grid->getLanes().size())) {
+            laneIndex >= grid->getLanes().size()) {
             return nullptr;
         }
         const Lane& lane = grid->getLanes()[laneIndex];

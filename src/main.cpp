@@ -598,7 +598,7 @@ int main()
                 if (!isPaused && click && !suppressGameplayClick) {
                     if (hoveredLane >= 0) {
                         grid.toggleLaneSelection(hoveredLane);
-                        laneSelected = grid.getLanes()[hoveredLane].selected ? hoveredLane : -1;
+                        laneSelected =  -1;
                     } else if (hoveredCard >= 0) {
                         const PlayerType type = hoveredCard == 0 ? PlayerType::Defense
                                               : hoveredCard == 1 ? PlayerType::Melee
@@ -608,7 +608,13 @@ int main()
                             (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
                             (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
                         if (unlocked) {
-                            purchasePlayer(laneSelected, type, cost, economy, *game);
+                            for(const auto& lane :grid.getLanes()){
+                                if(lane.selected){                            
+                                    laneSelected = lane.id;
+                                    purchasePlayer(laneSelected, type, cost, economy, *game);
+                                }
+                                
+                            }
                         }
                     }
                 }
