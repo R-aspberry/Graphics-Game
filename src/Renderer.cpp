@@ -44,10 +44,10 @@ void Renderer::drawSprite(unsigned int texture,float x,float y, float w,float h,
     GLint damageTintLocation = glGetUniformLocation(shader.Program, "damageTint");
     glUniform1f(damageTintLocation, damageTint); // the uniform methods take location and feature to applt
 
-    float newX = ((2 * x )/ w) - 1;
-    float newY = 1- ((2 * y)/ h);
-    float newW = ((2 * w )/ Renderer::width);
-    float newH = ((2 * h )/ Renderer::height);
+    // float newX = ((2 * x )/ w) - 1;
+    // float newY = 1- ((2 * y)/ h);
+    // float newW = ((2 * w )/ Renderer::width);
+    // float newH = ((2 * h )/ Renderer::height);
 
     GLint rectLocation = glGetUniformLocation(shader.Program, "spriteRect");
     glUniform4f(rectLocation, x , y, w , h);
