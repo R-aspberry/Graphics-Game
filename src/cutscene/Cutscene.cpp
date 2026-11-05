@@ -1,420 +1,320 @@
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
 #include "Cutscene.h"
 #include "utils/ResourceManager.h"
-#include "../systems/SoundManager.h"
 
-#include <algorithm>
-#include <cmath>
 #include <iostream>
-#include <string>
-#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
 #endif
 
-namespace
-{
-    const char *kVertex = R"(
+// The same idea as Lab 2: use a vertex shader and fragment shader.
+// Our vertices are a rectangle, so we can draw PNG pictures on it.
+const char *cutsceneVertexShader = R"(
 #version 330 core
-layout(location=0) in vec2 aPos;
-layout(location=1) in vec2 aUV;
-out vec2 uv;
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTex;
+out vec2 TexCoord;
 uniform vec4 rect;
-uniform vec4 uvRect;
-void main() {
-    gl_Position = vec4(rect.xy + rect.zw*aPos, 0.0, 1.0);
-    uv = uvRect.xy + aUV*uvRect.zw;
+uniform int flipX;
+void main()
+{
+    gl_Position = vec4(rect.x + aPos.x * rect.z,
+                       rect.y + aPos.y * rect.w, 0.0, 1.0);
+    TexCoord = aTex;
+    if (flipX == 1)
+        TexCoord.x = 1.0 - TexCoord.x;
 }
 )";
-    const char *kFragment = R"(
+
+const char *cutsceneFragmentShader = R"(
 #version 330 core
-in vec2 uv;
+in vec2 TexCoord;
 out vec4 FragColor;
 uniform sampler2D image;
-uniform vec4 tint;
-uniform float time;
-uniform float glitch;
-void main() {
-    float strip = floor(uv.y*125.0);
-    float jolt = step(0.80, fract(sin(strip*65.73 + floor(time*18.0)*23.37)*4358.23));
-    vec2 warped = uv + vec2(jolt*glitch*(sin(time*7.0)>0.0?1.0:-1.0), 0.0);
-    vec4 tex = texture(image, warped);
-    if (glitch > 0.001) {
-        tex.r = texture(image, warped + vec2(0.004*glitch,0.0)).r;
-        tex.b = texture(image, warped - vec2(0.004*glitch,0.0)).b;
-    }
-    // A subtle analog scanline, not a flashing strobe.
-    float scan = 1.0 - 0.045*(0.5+0.5*sin(gl_FragCoord.y*1.55));
-    FragColor = vec4(tex.rgb*tint.rgb*scan, tex.a*tint.a);
+uniform float opacity;
+void main()
+{
+    FragColor = texture(image, TexCoord);
+    FragColor.a = FragColor.a * opacity;
 }
 )";
 
-    float clamp01(float x) { return std::max(0.0f, std::min(1.0f, x)); }
-    float smooth(float x)
-    {
-        x = clamp01(x);
-        return x * x * (3.0f - 2.0f * x);
-    }
-    float ramp(float t, float a, float b) { return smooth((t - a) / (b - a)); }
-    float window(float t, float in0, float in1, float out0, float out1)
-    {
-        return ramp(t, in0, in1) * (1.0f - ramp(t, out0, out1));
-    }
-    float pseudo(float n) { return std::sin(n * 12.9898f) * 43758.5453f - std::floor(std::sin(n * 12.9898f) * 43758.5453f); }
+// Lab 2 also shows how to compile shaders.
+static GLuint compileCutsceneShader(GLenum type, const char *source)
+{
+    GLuint shader = glCreateShader(type);
+    glShaderSource(shader, 1, &source, nullptr);
+    glCompileShader(shader);
 
-    GLuint compile(GLenum kind, const char *source)
+    int success = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success)
     {
-        GLuint s = glCreateShader(kind);
-        glShaderSource(s, 1, &source, nullptr);
-        glCompileShader(s);
-        GLint okay = GL_FALSE;
-        glGetShaderiv(s, GL_COMPILE_STATUS, &okay);
-        if (!okay)
-        {
-            char error[2048] = {};
-            glGetShaderInfoLog(s, sizeof(error), nullptr, error);
-            std::cerr << "Cutscene shader compilation failed: " << error << '\n';
-            glDeleteShader(s);
-            return 0;
-        }
-        return s;
+        char log[512] = {};
+        glGetShaderInfoLog(shader, 512, nullptr, log);
+        std::cerr << "Cutscene shader error: " << log << '\n';
+        glDeleteShader(shader);
+        return 0;
     }
-
-    GLuint uploadRGBA(int w, int h, const std::vector<unsigned char> &pixels)
-    {
-        GLuint texture = 0;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        return texture;
-    }
-
-    void loadFrames(std::array<GLuint, 4> &frames, const std::string &folder,
-                    const std::string &prefix, const std::string &action)
-    {
-        for (int i = 0; i < 4; ++i)
-            frames[i] = ResourceManager::loadTexture(folder + prefix + "_" + action + std::to_string(i + 1) + ".png");
-    }
-} // namespace
+    return shader;
+}
 
 bool Cutscene::init()
 {
-    if (initialized_)
+    if (ready)
         return true;
-    GLuint vertex = compile(GL_VERTEX_SHADER, kVertex);
-    GLuint fragment = compile(GL_FRAGMENT_SHADER, kFragment);
-    if (!vertex || !fragment)
+
+    GLuint vertex = compileCutsceneShader(GL_VERTEX_SHADER, cutsceneVertexShader);
+    GLuint fragment = compileCutsceneShader(GL_FRAGMENT_SHADER, cutsceneFragmentShader);
+    if (vertex == 0 || fragment == 0)
     {
-        if (vertex)
+        if (vertex != 0)
             glDeleteShader(vertex);
-        if (fragment)
+        if (fragment != 0)
             glDeleteShader(fragment);
         return false;
     }
-    program_ = glCreateProgram();
-    glAttachShader(program_, vertex);
-    glAttachShader(program_, fragment);
-    glLinkProgram(program_);
+
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertex);
+    glAttachShader(shaderProgram, fragment);
+    glLinkProgram(shaderProgram);
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-    GLint okay = GL_FALSE;
-    glGetProgramiv(program_, GL_LINK_STATUS, &okay);
-    if (!okay)
+
+    int success = 0;
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success)
     {
-        char error[2048] = {};
-        glGetProgramInfoLog(program_, sizeof(error), nullptr, error);
-        std::cerr << "Cutscene shader link failed: " << error << '\n';
+        std::cerr << "Cutscene shader linking failed.\n";
         cleanup();
         return false;
     }
 
-    // Local unit quad, bottom-left origin, full alpha RGBA sprite rendering.
-    const float quadVertices[] = {
-        0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1,
-        0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1};
-    glGenVertexArrays(1, &vao_);
-    glGenBuffers(1, &vbo_);
-    glBindVertexArray(vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+    // A rectangle made from two triangles (Lab 1 / Lab 3).
+    float vertices[] = {
+        // position     texture position
+        0, 0, 0, 0,
+        1, 0, 1, 0,
+        1, 1, 1, 1,
+        0, 0, 0, 0,
+        1, 1, 1, 1,
+        0, 1, 0, 1};
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
-    white_ = uploadRGBA(1, 1, {255, 255, 255, 255});
-    std::vector<unsigned char> portalPixels(128 * 128 * 4);
-    for (int y = 0; y < 128; ++y)
-        for (int x = 0; x < 128; ++x)
-        {
-            float dx = (x - 63.5f) / 63.5f, dy = (y - 63.5f) / 63.5f;
-            float dist = std::sqrt(dx * dx + dy * dy);
-            float ring = std::exp(-std::pow((dist - 0.62f) / 0.10f, 2.0f));
-            float core = std::exp(-dist * dist * 8.0f);
-            float aura = std::exp(-dist * dist * 1.7f);
-            float alpha = clamp01(0.95f * ring + 0.27f * core + 0.20f * aura);
-            const size_t offset = static_cast<size_t>((y * 128 + x) * 4);
-            portalPixels[offset + 0] = 210;
-            portalPixels[offset + 1] = 92;
-            portalPixels[offset + 2] = 255;
-            portalPixels[offset + 3] = static_cast<unsigned char>(alpha * 255.0f);
-        }
-    portal_ = uploadRGBA(128, 128, portalPixels);
+    // Reuse the texture-loading function that already exists in your game.
+    background = ResourceManager::loadTexture("assets/backgrounds/cyberpunk.png");
+    signal = ResourceManager::loadTexture("assets/cutscene/signal.png");
+    enemyText = ResourceManager::loadTexture("assets/cutscene/enemy_line.png");
+    playerText = ResourceManager::loadTexture("assets/cutscene/hero_line.png");
+    title = ResourceManager::loadTexture("assets/cutscene/title.png");
+    objective = ResourceManager::loadTexture("assets/cutscene/objective.png");
+    skipText = ResourceManager::loadTexture("assets/cutscene/skip.png");
 
-    city_ = ResourceManager::loadTexture("assets/backgrounds/cyberpunk.png");
-    signal_ = ResourceManager::loadTexture("assets/cutscene/signal.png");
-    enemyLine_ = ResourceManager::loadTexture("assets/cutscene/enemy_line.png");
-    heroLine_ = ResourceManager::loadTexture("assets/cutscene/hero_line.png");
-    title_ = ResourceManager::loadTexture("assets/cutscene/title.png");
-    objective_ = ResourceManager::loadTexture("assets/cutscene/objective.png");
-    skip_ = ResourceManager::loadTexture("assets/cutscene/skip.png");
+    // Movement (M), attack (A), and death (D) pictures.
+    playerWalk[0] = ResourceManager::loadTexture("assets/sprites/Melee_M1.png");
+    playerWalk[1] = ResourceManager::loadTexture("assets/sprites/Melee_M2.png");
+    playerWalk[2] = ResourceManager::loadTexture("assets/sprites/Melee_M3.png");
+    playerWalk[3] = ResourceManager::loadTexture("assets/sprites/Melee_M4.png");
 
-    loadFrames(meleeWalk_, "assets/sprites/", "Melee", "M");
-    loadFrames(meleeAttack_, "assets/sprites/", "Melee", "A");
-    loadFrames(easyWalk_, "assets/sprites/enemies/EASYENEMY/", "EASYENEMY", "M");
-    loadFrames(easyAttack_, "assets/sprites/enemies/EASYENEMY/", "EASYENEMY", "A");
-    loadFrames(easyDeath_, "assets/sprites/enemies/EASYENEMY/", "EASYENEMY", "D");
-    loadFrames(mediumWalk_, "assets/sprites/enemies/MEDIUMENEMY/", "MEDIUMENEMY", "M");
-    loadFrames(hardWalk_, "assets/sprites/enemies/HARDENEMY/", "HARDENEMY", "M");
+    playerAttack[0] = ResourceManager::loadTexture("assets/sprites/Melee_A1.png");
+    playerAttack[1] = ResourceManager::loadTexture("assets/sprites/Melee_A2.png");
+    playerAttack[2] = ResourceManager::loadTexture("assets/sprites/Melee_A3.png");
+    playerAttack[3] = ResourceManager::loadTexture("assets/sprites/Melee_A4.png");
 
-    initialized_ = program_ && vao_ && city_ && meleeWalk_[0] && easyWalk_[0] && signal_ && enemyLine_ && heroLine_ && title_ && objective_;
-    if (!initialized_)
-        std::cerr << "Cutscene: one or more assets could not be loaded. Check paths and launch from project root.\n";
-    return initialized_;
+    enemyWalk[0] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M1.png");
+    enemyWalk[1] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M2.png");
+    enemyWalk[2] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M3.png");
+    enemyWalk[3] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_M4.png");
+
+    enemyAttack[0] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A1.png");
+    enemyAttack[1] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A2.png");
+    enemyAttack[2] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A3.png");
+    enemyAttack[3] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A4.png");
+
+    enemyDeath[0] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_D1.png");
+    enemyDeath[1] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_D2.png");
+    enemyDeath[2] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_D3.png");
+    enemyDeath[3] = ResourceManager::loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_D4.png");
+
+    ready = background != 0 && signal != 0 && title != 0 &&
+            playerWalk[0] != 0 && playerAttack[0] != 0 &&
+            enemyWalk[0] != 0 && enemyAttack[0] != 0 && enemyDeath[0] != 0;
+
+    if (!ready)
+        std::cerr << "Some cutscene pictures are missing.\n";
+
+    return ready;
 }
 
 void Cutscene::start()
 {
-    elapsed_ = 0.0f;
-    audioPlaying_ = true;
-
-    SoundManager::instance().playMusic(
-        "assets/cutscene/cinematic.wav",
-        false
-    );
+    time = 0.0f;
+#ifdef _WIN32
+    // Keep the soundtrack you already chose for this cutscene.
+    musicPlaying = PlaySoundA("assets/cutscene/cinematic.wav", nullptr,
+                              SND_ASYNC | SND_FILENAME) != 0;
+#endif
 }
 
-void Cutscene::update(float deltaTime) { elapsed_ = std::min(Duration, elapsed_ + std::max(0.0f, deltaTime)); }
+void Cutscene::update(float deltaTime)
+{
+    if (deltaTime > 0.0f)
+        time += deltaTime;
+}
+
+bool Cutscene::finished() const
+{
+    return time >= 18.0f;
+}
 
 void Cutscene::stopAudio()
 {
-    if (audioPlaying_)
+#ifdef _WIN32
+    if (musicPlaying)
     {
-        SoundManager::instance().playMusic("assets/backgroundsound.wav",true);
-
-        audioPlaying_ = false;
+        PlaySoundA("assets/backgroundsound.wav", nullptr,
+                   SND_ASYNC | SND_LOOP | SND_FILENAME);
+        musicPlaying = false;
     }
+#endif
 }
-void Cutscene::quad(GLuint texture, float x, float y, float w, float h,
-                    float r, float g, float b, float alpha, bool flipX, float glitch, float uCrop)
+
+void Cutscene::drawImage(GLuint texture, float x, float y,
+                         float width, float height, float opacity, bool flip)
 {
-    if (!texture || alpha <= 0.001f || !program_)
+    if (texture == 0)
         return;
-    glUseProgram(program_);
-    glUniform4f(glGetUniformLocation(program_, "rect"), x, y, w, h);
-    glUniform4f(glGetUniformLocation(program_, "uvRect"),
-                flipX ? (1.0f - uCrop * 0.5f) : (uCrop * 0.5f), 0.0f,
-                flipX ? -(1.0f - uCrop) : (1.0f - uCrop), 1.0f);
-    glUniform4f(glGetUniformLocation(program_, "tint"), r, g, b, clamp01(alpha));
-    glUniform1f(glGetUniformLocation(program_, "time"), elapsed_);
-    glUniform1f(glGetUniformLocation(program_, "glitch"), glitch);
-    glUniform1i(glGetUniformLocation(program_, "image"), 0);
+
+    glUseProgram(shaderProgram);
+    glUniform4f(glGetUniformLocation(shaderProgram, "rect"), x, y, width, height);
+    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), opacity);
+    glUniform1i(glGetUniformLocation(shaderProgram, "flipX"), flip ? 1 : 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "image"), 0);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glBindVertexArray(vao_);
+    glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
-void Cutscene::box(float x, float y, float w, float h, float r, float g, float b, float a)
-{
-    quad(white_, x, y, w, h, r, g, b, a);
-}
-void Cutscene::glow(float cx, float cy, float width, float height, float r, float g, float b, float a)
-{
-    quad(portal_, cx - width * 0.5f, cy - height * 0.5f, width, height, r, g, b, a);
-}
-void Cutscene::atmosphere(float intensity)
-{
-    // Procedural neon rain: repeatable streaks, no assets and no RNG state.
-    for (int i = 0; i < 66; ++i)
-    {
-        float x = -1.0f + 2.0f * pseudo(i + 3.1f);
-        float y = 1.2f - 2.4f * std::fmod(pseudo(i + 8.4f) + elapsed_ * (0.11f + pseudo(i + 11.2f) * 0.13f), 1.0f);
-        float length = 0.018f + 0.045f * pseudo(i + 22.4f);
-        float alpha = intensity * (0.09f + 0.14f * pseudo(i + 6.8f));
-        box(x, y, 0.0014f, length, 0.35f, 0.9f, 1.0f, alpha);
-    }
-    // Dynamic scan/signal guides; they feel like a compromised HUD.
-    float scanY = 0.78f - 1.7f * std::fmod(elapsed_ * 0.16f, 1.0f);
-    box(-1.0f, scanY, 2.0f, 0.004f, 0.22f, 1.0f, 1.0f, 0.11f * intensity);
-}
 
-void Cutscene::draw(int framebufferWidth, int framebufferHeight)
+void Cutscene::draw(int screenWidth, int screenHeight)
 {
-    if (!initialized_ || framebufferWidth <= 0 || framebufferHeight <= 0)
+    if (!ready || screenWidth <= 0 || screenHeight <= 0)
         return;
-    glViewport(0, 0, framebufferWidth, framebufferHeight);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_SCISSOR_TEST);
+
+    glViewport(0, 0, screenWidth, screenHeight);
+    glClearColor(0.01f, 0.01f, 0.06f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glClearColor(0.011f, 0.013f, 0.045f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
-    float t = elapsed_;
-    float shake = (t > 10.7f && t < 12.1f) ? std::sin(t * 125.0f) * 0.009f * window(t, 10.7f, 10.9f, 11.75f, 12.1f) : 0.0f;
-    float bgZoom = 0.015f + 0.030f * ramp(t, 0.0f, 14.0f);
-    float bgReveal = ramp(t, 0.10f, 1.20f);
-    // Center-crop the very wide city image so it remains cinematic at 1000x700.
-    // Unlike stretching it, cropping preserves the skyscraper and neon proportions.
-    const float sourceAspect = 1967.0f / 799.0f;
-    const float screenAspect = static_cast<float>(framebufferWidth) / framebufferHeight;
-    const float crop = 1.0f - std::min(1.0f, screenAspect / sourceAspect);
-    quad(city_, -1.0f - bgZoom + shake, -1.0f - bgZoom, 2.0f + 2 * bgZoom, 2.0f + 2 * bgZoom,
-         0.57f, 0.69f, 0.94f, bgReveal, false,
-         window(t, 2.7f, 2.85f, 3.20f, 3.4f) * 0.09f + window(t, 11.1f, 11.15f, 11.55f, 11.8f) * 0.05f,
-         crop);
-    box(-1.0f, -1.0f, 2.0f, 2.0f, 0.02f, 0.01f, 0.08f, 0.22f);
-    atmosphere(bgReveal);
+    // Draw the city without stretching it.
+    float bgWidth = 2.0f * (1967.0f / 799.0f) * screenHeight / screenWidth;
+    if (bgWidth < 2.0f)
+        bgWidth = 2.0f;
+    drawImage(background, -bgWidth / 2.0f, -1.0f, bgWidth, 2.0f);
 
-    // Hazard HUD: an urgent transmission arriving before the threat.
-    float signalA = window(t, 0.5f, 1.2f, 3.0f, 3.65f);
-    box(-0.91f, 0.68f, 1.23f, 0.004f, 0.12f, 0.95f, 1.0f, signalA * 0.66f);
-    quad(signal_, -0.89f, 0.49f, 1.35f, 0.32f, 1, 1, 1, signalA);
-    for (int i = 0; i < 4; ++i)
+    int frame = (int)(time * 7.0f) % 4;
+
+    // 0-3 seconds: the warning appears.
+    if (time < 3.0f)
+        drawImage(signal, -0.85f, 0.35f, 1.7f, 0.4f);
+
+    // Enemy walks LEFT from 3 seconds until the fight begins.
+    if (time >= 3.0f && time < 13.0f)
     {
-        float a = signalA * (0.15f + 0.15f * std::sin(t * 3.0f + i));
-        box(-0.87f + i * 0.16f, 0.43f, 0.12f, 0.016f, 0.16f, 1.0f, 1.0f, a);
+        float enemyX = 0.95f;
+        if (time < 10.0f)
+            enemyX = 0.95f - (time - 3.0f) * 0.12f;
+        else
+            enemyX = 0.11f;
+
+        if (time >= 10.0f)
+            drawImage(enemyAttack[frame], enemyX, -0.68f, 0.48f, 0.82f, 1.0f, true);
+        else
+            drawImage(enemyWalk[frame], enemyX, -0.68f, 0.48f, 0.82f, 1.0f, true);
     }
 
-    const float portalA = window(t, 3.0f, 4.0f, 13.0f, 14.9f);
-    const float portalPulse = 1.0f + 0.07f * std::sin(t * 11.0f);
-    glow(0.74f + shake, -0.17f, 0.83f * portalPulse, 1.33f * portalPulse,
-         0.94f, 0.32f, 1.0f, portalA * 0.94f);
-    if (portalA > 0.001f)
+    // Enemy speaks before the player arrives.
+    if (time >= 4.0f && time < 6.7f)
+        drawImage(enemyText, -0.8f, -0.92f, 1.6f, 0.3f);
+
+    // Player walks RIGHT from 6 seconds until the fight begins.
+    if (time >= 6.0f && time < 15.0f)
     {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE); // bloom-like additive energy.
-        for (int i = 0; i < 18; ++i)
-        {
-            float ang = i * 0.349f + t * (0.34f + (i % 3) * 0.13f);
-            float radius = 0.25f + 0.05f * std::sin(t * 5.0f + i);
-            float xx = 0.73f + radius * std::cos(ang);
-            float yy = -0.18f + radius * 1.4f * std::sin(ang);
-            box(xx, yy, 0.008f, 0.030f, 0.77f, 0.24f, 1.0f, 0.40f * portalA);
-        }
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        float playerX = -1.05f;
+        if (time < 10.0f)
+            playerX = -1.05f + (time - 6.0f) * 0.17f;
+        else
+            playerX = -0.37f;
+
+        if (time >= 10.0f && time < 13.0f)
+            drawImage(playerAttack[frame], playerX, -0.68f, 0.53f, 0.99f);
+        else if (time >= 13.0f)
+            drawImage(playerWalk[0], playerX, -0.68f, 0.53f, 0.99f);
+        else
+            drawImage(playerWalk[frame], playerX, -0.68f, 0.53f, 0.99f);
     }
 
-    float enemyA = window(t, 3.45f, 4.08f, 13.5f, 14.4f);
+    // The player answers.
+    if (time >= 7.0f && time < 10.0f)
+        drawImage(playerText, -0.8f, -0.92f, 1.6f, 0.3f);
 
-    float enemyAdvance = clamp01((t - 3.6f) / 6.4f);
-
-    float enemyX = 0.93f - 0.65f * enemyAdvance - 0.22f * ramp(t, 10.0f, 11.1f) + shake;
-
-    int moveFrame = static_cast<int>(t * 7.0f) % 4;
-    int atkFrame = static_cast<int>((t - 10.0f) * 8.0f) % 4;
-    if (atkFrame < 0)
-        atkFrame = 0;
-    GLuint enemyTex = (t >= 10.1f && t < 13.35f) ? easyAttack_[atkFrame] : easyWalk_[moveFrame];
-    glow(enemyX + 0.23f, -0.69f, 0.5f, 0.23f, 0.72f, 0.09f, 1.0f, enemyA * 0.43f);
-    quad(enemyTex, enemyX, -0.68f, 0.48f, 0.82f, 1, 1, 1, enemyA, true);
-    // The harder enemies loom behind the first invader.
-    if (t >= 4.5f && t < 9.7f)
+    // A short bright hit during the fight, without complicated effects.
+    if (time >= 11.0f && time < 11.13f)
     {
-        float rearA = window(t, 4.5f, 5.3f, 8.5f, 9.7f) * 0.40f;
-        quad(hardWalk_[moveFrame], 0.56f, -0.58f, 0.37f, 0.73f, 0.65f, 0.42f, 0.81f, rearA, true);
-        quad(mediumWalk_[moveFrame], 0.72f, 0.15f + 0.05f * std::sin(t * 4.0f), 0.28f, 0.49f, 0.70f, 0.55f, 0.95f, rearA);
+        glClearColor(0.65f, 0.55f, 0.9f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
-    float enemyLineA = window(t, 4.2f, 4.6f, 6.1f, 6.9f);
-    quad(enemyLine_, -0.80f, -0.90f, 1.60f, 0.31f, 1, 1, 1, enemyLineA);
 
-    float heroA = window(t, 6.0f, 6.45f, 15.0f, 16.25f);
-    float heroAdvance = ramp(t, 6.2f, 9.5f);
-    float heroX = -1.05f + 0.53f * heroAdvance + 0.30f * ramp(t, 10.0f, 11.1f) + shake;
-    GLuint heroTex = (t >= 10.1f && t < 13.35f) ? meleeAttack_[atkFrame] : meleeWalk_[moveFrame];
-    glow(heroX + 0.25f, -0.7f, 0.66f, 0.25f, 0.12f, 1.0f, 0.94f, heroA * 0.52f);
-    quad(heroTex, heroX, -0.68f, 0.53f, 0.99f, 1, 1, 1, heroA);
-    float heroLineA = window(t, 7.2f, 7.7f, 9.35f, 10.1f);
-    quad(heroLine_, -0.80f, -0.90f, 1.60f, 0.31f, 1, 1, 1, heroLineA);
-
-    // One readable impact, a sword-vs-robot strike with a brief screen shake.
-    float impactA = window(t, 10.7f, 10.95f, 11.45f, 12.10f);
-    glow(0.02f + shake, -0.18f, 1.09f, 1.28f, 0.95f, 0.30f, 1.0f, impactA);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    for (int i = 0; i < 10; ++i)
+    // 13-15 seconds: enemy defeat animation.
+    if (time >= 13.0f && time < 15.0f)
     {
-        float theta = i * 0.63f + t * 3.0f;
-        float len = 0.15f + 0.33f * impactA;
-        box(0.01f + std::cos(theta) * len * 0.65f, -0.17f + std::sin(theta) * len * 0.65f,
-            0.008f, 0.045f, 0.45f, 0.94f, 1.0f, impactA * 0.68f);
+        int deathFrame = (int)((time - 13.0f) * 2.0f);
+        if (deathFrame > 3)
+            deathFrame = 3;
+        drawImage(enemyDeath[deathFrame], 0.11f, -0.68f, 0.48f, 0.82f, 1.0f, true);
     }
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    float singleFlash = window(t, 11.18f, 11.24f, 11.30f, 11.48f);
-    box(-1.0f, -1.0f, 2.0f, 2.0f, 0.83f, 0.98f, 1.0f, singleFlash * 0.78f);
 
-    float deathA = window(t, 13.18f, 13.38f, 14.45f, 15.2f);
-    int deathFrame = std::min(3, std::max(0, static_cast<int>((t - 13.3f) * 6.5f)));
-    quad(easyDeath_[deathFrame], 0.25f, -0.68f, 0.50f, 0.83f, 1, 1, 1, deathA, true);
+    // 15-18 seconds: the title and objective.
+    if (time >= 15.0f)
+    {
+        glClearColor(0.01f, 0.01f, 0.06f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        drawImage(title, -0.85f, -0.05f, 1.7f, 0.58f);
+        drawImage(objective, -0.80f, -0.50f, 1.6f, 0.27f);
+    }
 
-    float titleA = window(t, 14.7f, 15.45f, 17.2f, 18.0f);
-    box(-1.0f, -1.0f, 2.0f, 2.0f, 0.01f, 0.02f, 0.055f, titleA * 0.88f);
-    glow(0.0f, 0.05f, 1.65f, 1.1f, 0.16f, 0.75f, 1.0f, titleA * 0.30f);
-    quad(title_, -0.86f, -0.09f, 1.72f, 0.57f, 1, 1, 1, titleA);
-    quad(objective_, -0.78f, -0.52f, 1.56f, 0.28f, 1, 1, 1, titleA * ramp(t, 15.6f, 16.4f));
-
-    // Letterbox and minimalist cinematic HUD stay over everything.
-    box(-1.0f, 0.80f, 2.0f, 0.20f, 0.01f, 0.013f, 0.035f, 1.0f);
-    box(-1.0f, -1.0f, 2.0f, 0.17f, 0.01f, 0.013f, 0.035f, 1.0f);
-    box(-1.0f, 0.795f, 2.0f, 0.004f, 0.23f, 0.85f, 1.0f, 0.45f);
-    box(-1.0f, -0.835f, 2.0f, 0.004f, 0.72f, 0.20f, 1.0f, 0.40f);
-    float initialFade = 1.0f - ramp(t, 0.0f, 0.75f);
-    float finalFade = ramp(t, 17.4f, Duration);
-    box(-1, -1, 2, 2, 0.0f, 0.0f, 0.018f, std::max(initialFade, finalFade));
-    if (skip_)
-        quad(skip_, 0.36f, -0.969f, 0.59f, 0.13f, 1, 1, 1, 0.55f * (1.0f - finalFade));
+    drawImage(skipText, 0.40f, -0.96f, 0.55f, 0.13f);
     glDisable(GL_BLEND);
-    glBindVertexArray(0);
     glUseProgram(0);
 }
 
 void Cutscene::cleanup()
 {
     stopAudio();
-    if (vbo_)
-    {
-        glDeleteBuffers(1, &vbo_);
-        vbo_ = 0;
-    }
-    if (vao_)
-    {
-        glDeleteVertexArrays(1, &vao_);
-        vao_ = 0;
-    }
-    if (white_)
-    {
-        glDeleteTextures(1, &white_);
-        white_ = 0;
-    }
-    if (portal_)
-    {
-        glDeleteTextures(1, &portal_);
-        portal_ = 0;
-    }
-    if (program_)
-    {
-        glDeleteProgram(program_);
-        program_ = 0;
-    }
-    initialized_ = false;
+    if (VBO != 0)
+        glDeleteBuffers(1, &VBO);
+    if (VAO != 0)
+        glDeleteVertexArrays(1, &VAO);
+    if (shaderProgram != 0)
+        glDeleteProgram(shaderProgram);
+    VBO = 0;
+    VAO = 0;
+    shaderProgram = 0;
+    ready = false;
+    // The shared ResourceManager frees the PNG textures when the game closes.
 }
