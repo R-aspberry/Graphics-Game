@@ -47,6 +47,22 @@ void Enemy::resetAttackTimer() {
     timeSinceLastAttack = 0.0f;
 }
 
+bool Enemy::updateRangedAttack(float deltaTime) {
+    if (state != EnemyState::FIGHTING) {
+        if (!canAttack()) return false;
+        setState(EnemyState::FIGHTING);
+        attackAnimationTimer = 0.0f;
+        return false;
+    }
+
+    attackAnimationTimer += deltaTime;
+    if (attackAnimationTimer < 0.60f) return false;
+
+    setState(EnemyState::MOVING);
+    attackAnimationTimer = 0.0f;
+    return true;
+}
+
 void Enemy::setState(EnemyState newState) {
     if (state == EnemyState::DEAD|| newState == EnemyState::DEAD) return; 
     state = newState;

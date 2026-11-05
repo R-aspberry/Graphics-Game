@@ -1,6 +1,8 @@
 #include "Cutscene.h"
 #include "utils/ResourceManager.h"
+
 #include <iostream>
+
 #ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
