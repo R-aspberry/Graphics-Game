@@ -621,14 +621,10 @@ int main()
                         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
                         glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
                     if (upState && previousUpState == GLFW_RELEASE) {
-                        for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->jumpPlayerInLane(lane.id);
-                        }
+                        game->jumpPlayers();
                     }
                     if (downState && previousDownState == GLFW_RELEASE) {
-                        for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->duckPlayerInLane(lane.id);
-                        }
+                        game->duckPlayers();
                     }
                     previousUpState = upState ? GLFW_PRESS : GLFW_RELEASE;
                     previousDownState = downState ? GLFW_PRESS : GLFW_RELEASE;

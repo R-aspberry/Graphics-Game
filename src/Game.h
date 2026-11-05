@@ -76,8 +76,8 @@ public :
     void setGrid(Grid* grid);
     void update(float deltaTime);
     void update(float deltaTime, const std::vector<Enemy*>& enemies);
-    void jumpPlayerInLane(int laneIndex);
-    void duckPlayerInLane(int laneIndex);
+    void jumpPlayers();
+    void duckPlayers();
     void reset();
     void render();
     void renderPlayers();
