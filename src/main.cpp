@@ -167,9 +167,6 @@ static AppScreen currentScreen = AppScreen::MENU;
 static bool suppressGameplayClick = false;
 static bool startNewGameRequested = false;
 
-// =====================================
-// MOUSE CALLBACK
-// =====================================
 
 void mouseButtonCallback(
     GLFWwindow *window,
@@ -234,10 +231,6 @@ void mouseButtonCallback(
 }
 }
 
-// =====================================
-// WINDOWS TITLE BAR
-// =====================================
-
 void customizeTitleBar(GLFWwindow *window)
 {
 #ifdef _WIN32
@@ -269,10 +262,6 @@ void customizeTitleBar(GLFWwindow *window)
     (void)window;
 #endif
 }
-
-// =====================================
-// MAIN
-// =====================================
 
 bool purchasePlayer(int laneSelected, PlayerType type, int cost, Economy& economy, Game& game)
 {
