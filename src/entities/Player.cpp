@@ -102,7 +102,7 @@
             return;
         }
         jumpTimer += deltaTime;
-        if(jumpTimer >= Constants::JUMP_DURATION){
+        if(jumpTimer >= GameConfig::JUMP_DURATION){
             y = jumpStartY;
             jumpTimer = 0.0f;
             actionState = ActionState::Moving;
@@ -110,7 +110,7 @@
         }
 
         // Gameplay coordinates grow downward, so decreasing Y raises the player.
-        const float progress = jumpTimer / Constants::JUMP_DURATION;
+        const float progress = jumpTimer / GameConfig::JUMP_DURATION;
         y = jumpStartY - 0.035f * 4.0f * progress * (1.0f - progress); //makes a smooth curve that is 0 at the beginning/end and 1 at the middle. 0.035f is the maximum jump height.
     }
 
@@ -119,7 +119,7 @@
             return;
         }
         duckTimer += deltaTime;
-        if(duckTimer >=Constants::DUCK_DURATION){
+        if(duckTimer >=GameConfig::DUCK_DURATION){
             duckTimer = 0.0f;
             actionState = ActionState::Moving;
         }

@@ -8,7 +8,6 @@
 #include "../entities/Projectile.h"
 #include "../utils/Constants.h"
 #include "../world/Grid.h"
-#include "../utils/WorldLayout.h"
 #include <vector>
 #include <memory>
 #include <utility>
@@ -35,14 +34,14 @@ void GameManager::setGrid(Grid* gameGrid) {
         
         std::unique_ptr<Player> player = nullptr;
         if (type == PlayerType::Defense) {
-            player =  std::make_unique<DefensePlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, Constants::MaxHealthDefense, Constants::speedDefense);
+            player =  std::make_unique<DefensePlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, GameConfig::DEFENSE_PLAYER_HP, GameConfig::DEFENSE_SPEED);
         }
         if (type == PlayerType::Melee) {
-            player =  std::make_unique<MeleePlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, Constants::MaxHealthMelee, Constants::speedMelee);
+            player =  std::make_unique<MeleePlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, GameConfig::MELEE_PLAYER_HP, GameConfig::MELEE_SPEED);
             player->setActionState(ActionState::Moving);
         }
         if (type == PlayerType::Ranged) {
-            player =  std::make_unique<RangedPlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, Constants::MaxHealthRanged, Constants::speedRanged);
+            player =  std::make_unique<RangedPlayer>(playerX, playerY, WorldLayout::PLAYER_WIDTH, WorldLayout::PLAYER_HEIGHT, laneIndex, GameConfig::RANGED_PLAYER_HP, GameConfig::RANGED_SPEED);
             player->setActionState(ActionState::Moving);
         }
         

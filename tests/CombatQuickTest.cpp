@@ -8,6 +8,11 @@
 #include "../src/entities/EasyEnemy.h"
 #include "../src/entities/HardEnemy.h"
 #include "../src/entities/EnemyProjectile.h"
+#include "../src/entities/MediumEnemy.h"
+#include "../src/systems/Economy.h"
+#include "../src/systems/WaveManager.h"
+#include "../src/utils/Constants.h"
+#include "../src/world/Grid.h"
 
 #include <iostream>
 #include <memory>
@@ -457,6 +462,106 @@ int main() {
               "No collision means movement is not blocked");
     }
 
+
+    // A fresh game and a restart both use the real economy constructor.
+    {
+        Economy economy;
+        check(economy.getCoins() == 30, "New game starts with 30 coins");
+        check(economy.spendCoins(10) && economy.spendCoins(10) &&
+              economy.spendCoins(10) && !economy.spendCoins(10),
+              "Starting coins buy exactly three 10-coin melee players");
+        economy = Economy();
+        check(economy.getCoins() == 30, "Restart restores 30 coins");
+    }
+
+    // Simulate an actual unprotected melee duel with production attack timing.
+    // Cover different frame rates so the result cannot depend on one timestep.
+    for (float dt : {1.0f / 30.0f, 1.0f / 60.0f, 1.0f / 144.0f}) {
+        TestGame game;
+        auto* player = game.addPlayer<MeleePlayer>();
+        HardEnemy enemy(0, {0.34f, 0.40f}, GameConfig::HARD_ENEMY_ATTACK_INTERVAL);
+        for (int frame = 0; frame < static_cast<int>(10.0f / dt) &&
+             player->isAlive() && enemy.getHealth() > 0; ++frame) {
+            enemy.update(dt);
+            game.manager.update(dt);
+            game.combat.update(dt, {&enemy});
+        }
+        check(!player->isAlive() && enemy.getHealth() > 0,
+              "Hard enemy defeats one unprotected starter melee player");
+    }
+
+    {
+        EasyEnemy easy(0, {0.50f, 0.40f}, GameConfig::EASY_ENEMY_ATTACK_INTERVAL);
+        MediumEnemy medium(0, {0.50f, 0.40f}, GameConfig::MEDIUM_ENEMY_ATTACK_INTERVAL);
+        HardEnemy hard(0, {0.50f, 0.40f}, GameConfig::HARD_ENEMY_ATTACK_INTERVAL);
+        check(easy.getHealth() == 5 && medium.getHealth() == 5 && hard.getHealth() == 7 &&
+              easy.getDamage() == 1 && medium.getDamage() == 1 && hard.getDamage() == 2,
+              "Enemy health and damage match the project description");
+        check(easy.getSpeed() > 0.0f && easy.getSpeed() == medium.getSpeed() &&
+              hard.getSpeed() > easy.getSpeed(),
+              "Easy and Medium share normal speed; Hard runs faster");
+        WaveManager waves;
+        check(waves.spawnEnemyProjectile(&easy) && waves.spawnEnemyProjectile(&medium) &&
+              !waves.spawnEnemyProjectile(&hard),
+              "Ranged enemies can shoot immediately; Hard only attacks in melee");
+        auto* high = waves.getEnemyProjectileAt(0);
+        auto* low = waves.getEnemyProjectileAt(1);
+        check(high && low && high->getAttackType() == AttackType::High &&
+              low->getAttackType() == AttackType::Low && high->getDamage() == 1 &&
+              low->getDamage() == 1,
+              "Easy shoots high and Medium shoots low, each dealing 1 damage");
+    }
+
+    {
+        TestGame game;
+        auto* player = game.addPlayer<RangedPlayer>();
+        EasyEnemy enemy(0, {0.34f, 0.40f}, GameConfig::EASY_ENEMY_ATTACK_INTERVAL);
+        game.combat.update(0.0f, {&enemy});
+        game.combat.update(0.0f, {&enemy});
+        check(player->isMovementBlocked() && enemy.isMovementBlocked(),
+              "Colliding ranged units stay stopped during attack cooldowns");
+        enemy.takeDamage(5);
+        game.combat.update(0.0f, {&enemy});
+        check(!player->isMovementBlocked(), "Survivor resumes movement after enemy dies");
+    }
+
+    // Verify the production placement path uses the required player stats.
+    {
+        Grid grid;
+        GameManager manager;
+        manager.setGrid(&grid);
+        Player* melee = manager.placePlayer(PlayerType::Melee, 0);
+        Player* ranged = manager.placePlayer(PlayerType::Ranged, 1);
+        Player* defense = manager.placePlayer(PlayerType::Defense, 2);
+        check(melee && ranged && defense, "All player types can be placed on valid lanes");
+        if (melee && ranged && defense) {
+            check(melee->getHealth() == 5 && melee->getMaxHealth() == 5 &&
+                  ranged->getHealth() == 5 && ranged->getMaxHealth() == 5 &&
+                  defense->getHealth() == 7 && defense->getMaxHealth() == 7,
+                  "Placed players have 5 melee, 5 ranged, and 7 defense HP");
+            check(melee->getMoveSpeed() > 0.0f && ranged->getMoveSpeed() > 0.0f &&
+                  defense->getMoveSpeed() == 0.0f && !defense->canAttack(),
+                  "Melee and ranged advance; Defense is stationary and cannot attack");
+            const float meleeX = melee->getX();
+            const float rangedX = ranged->getX();
+            const float defenseX = defense->getX();
+            manager.update(1.0f);
+            check(melee->getX() > meleeX && ranged->getX() > rangedX &&
+                  defense->getX() == defenseX,
+                  "Production player movement matches the description");
+        }
+    }
+
+    {
+        TestGame game;
+        auto* ranged = game.addPlayer<RangedPlayer>();
+        ranged->startAttack(game.manager);
+        ranged->finishAttack();
+        ranged->update(0.5f);
+        check(!ranged->canAttack(), "Ranged cooldown no longer uses the old 0.5-second value");
+        ranged->update(GameConfig::RANGED_ATTACK_INTERVAL - 0.5f);
+        check(ranged->canAttack(), "Ranged attack becomes ready at its configured cooldown");
+    }
 
     std::cout << "\nPassed: " << passed
               << " | Failed: " << failed << '\n';

@@ -17,8 +17,7 @@ uniform vec4 rect;
 uniform int flipX;
 void main()
 {
-    gl_Position = vec4(rect.x + aPos.x * rect.z,
-                       rect.y + aPos.y * rect.w, 0.0, 1.0);
+    gl_Position = vec4(rect.x + aPos.x * rect.z,rect.y + aPos.y * rect.w, 0.0, 1.0);
     TexCoord = aTex;
     if (flipX == 1)
         TexCoord.x = 1.0 - TexCoord.x;
@@ -34,13 +33,12 @@ uniform float opacity;
 void main()
 {
     FragColor = texture(image, TexCoord);
-    FragColor.a = FragColor.a * opacity;
+   
 }
 )";
 
 
-static GLuint compileCutsceneShader(GLenum type, const char *source)
-{
+static GLuint compileShader(GLenum type, const char *source){
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);
@@ -51,22 +49,20 @@ static GLuint compileCutsceneShader(GLenum type, const char *source)
     {
         char log[512] = {};
         glGetShaderInfoLog(shader, 512, nullptr, log);
-        std::cerr << "Cutscene shader error: " << log << '\n';
         glDeleteShader(shader);
         return 0;
     }
     return shader;
 }
 
-bool Cutscene::init()
-{
+bool Cutscene::init(){
     if (ready)
         return true;
 
-    GLuint vertex = compileCutsceneShader(GL_VERTEX_SHADER, cutsceneVertexShader);
-    GLuint fragment = compileCutsceneShader(GL_FRAGMENT_SHADER, cutsceneFragmentShader);
-    if (vertex == 0 || fragment == 0)
-    {
+    GLuint vertex = compileShader(GL_VERTEX_SHADER, cutsceneVertexShader);
+    GLuint fragment = compileShader(GL_FRAGMENT_SHADER, cutsceneFragmentShader);
+
+    if (vertex == 0 || fragment == 0){
         if (vertex != 0)
             glDeleteShader(vertex);
         if (fragment != 0)
@@ -83,16 +79,15 @@ bool Cutscene::init()
 
     int success = 0;
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        std::cerr << "Cutscene shader linking failed.\n";
+    
+    if (!success){
         cleanup();
         return false;
     }
 
   
     float vertices[] = {
-        // position     texture position
+       
         0, 0, 0, 0,
         1, 0, 1, 0,
         1, 1, 1, 1,
@@ -120,7 +115,7 @@ bool Cutscene::init()
     objective = ResourceManager::loadTexture("assets/cutscene/objective.png");
     skipText = ResourceManager::loadTexture("assets/cutscene/skip.png");
 
-    // Movement (M), attack (A), and death (D) pictures.
+   
     playerWalk[0] = ResourceManager::loadTexture("assets/sprites/Melee_M1.png");
     playerWalk[1] = ResourceManager::loadTexture("assets/sprites/Melee_M2.png");
     playerWalk[2] = ResourceManager::loadTexture("assets/sprites/Melee_M3.png");
@@ -150,48 +145,38 @@ bool Cutscene::init()
             playerWalk[0] != 0 && playerAttack[0] != 0 &&
             enemyWalk[0] != 0 && enemyAttack[0] != 0 && enemyDeath[0] != 0;
 
-    if (!ready)
-        std::cerr << "Some cutscene pictures are missing.\n";
 
     return ready;
 }
 
-void Cutscene::start()
-{
+void Cutscene::start(){
     time = 0.0f;
 #ifdef _WIN32
-    // Keep the soundtrack you already chose for this cutscene.
-    musicPlaying = PlaySoundA("assets/cutscene/cinematic.wav", nullptr,
-                              SND_ASYNC | SND_FILENAME) != 0;
+   
+    musicPlaying = PlaySoundA("assets/cutscene/cinematic.wav", nullptr, SND_ASYNC | SND_FILENAME) != 0;
 #endif
 }
 
-void Cutscene::update(float deltaTime)
-{
+void Cutscene::update(float deltaTime){
     if (deltaTime > 0.0f)
         time += deltaTime;
 }
 
-bool Cutscene::finished() const
-{
+bool Cutscene::finished() const{
     return time >= 18.0f;
 }
 
-void Cutscene::stopAudio()
-{
+void Cutscene::stopAudio(){
 #ifdef _WIN32
     if (musicPlaying)
     {
-        PlaySoundA("assets/backgroundsound.wav", nullptr,
-                   SND_ASYNC | SND_LOOP | SND_FILENAME);
+        PlaySoundA("assets/backgroundsound.wav", nullptr, SND_ASYNC | SND_LOOP | SND_FILENAME);
         musicPlaying = false;
     }
 #endif
 }
 
-void Cutscene::drawImage(GLuint texture, float x, float y,
-                         float width, float height, float opacity, bool flip)
-{
+void Cutscene::drawImage(GLuint texture, float x, float y, float width, float height, float opacity, bool flip){
     if (texture == 0)
         return;
 
@@ -208,8 +193,7 @@ void Cutscene::drawImage(GLuint texture, float x, float y,
     glBindVertexArray(0);
 }
 
-void Cutscene::draw(int screenWidth, int screenHeight)
-{
+void Cutscene::draw(int screenWidth, int screenHeight){
     if (!ready || screenWidth <= 0 || screenHeight <= 0)
         return;
 
@@ -232,8 +216,7 @@ void Cutscene::draw(int screenWidth, int screenHeight)
         drawImage(signal, -0.85f, 0.35f, 1.7f, 0.4f);
 
     // Enemy walks LEFT from 3 seconds until the fight begins.
-    if (time >= 3.0f && time < 13.0f)
-    {
+    if (time >= 3.0f && time < 13.0f){
         float enemyX = 0.95f;
         if (time < 10.0f)
             enemyX = 0.95f - (time - 3.0f) * 0.12f;
@@ -250,7 +233,7 @@ void Cutscene::draw(int screenWidth, int screenHeight)
     if (time >= 4.0f && time < 6.7f)
         drawImage(enemyText, -0.8f, -0.92f, 1.6f, 0.3f);
 
-    // Player walks RIGHT from 6 seconds until the fight begins.
+    // Player walks RIGHT until the fight begins.
     if (time >= 6.0f && time < 15.0f)
     {
         float playerX = -1.05f;
@@ -278,18 +261,16 @@ void Cutscene::draw(int screenWidth, int screenHeight)
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    // 13-15 seconds: enemy defeat animation.
-    if (time >= 13.0f && time < 15.0f)
-    {
+    // enemy defeat animation
+    if (time >= 13.0f && time < 15.0f){
         int deathFrame = (int)((time - 13.0f) * 2.0f);
         if (deathFrame > 3)
             deathFrame = 3;
         drawImage(enemyDeath[deathFrame], 0.11f, -0.68f, 0.48f, 0.82f, 1.0f, true);
     }
 
-    // 15-18 seconds: the title and objective.
-    if (time >= 15.0f)
-    {
+    // the title and objective
+    if (time >= 15.0f){
         glClearColor(0.01f, 0.01f, 0.06f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         drawImage(title, -0.85f, -0.05f, 1.7f, 0.58f);
@@ -301,8 +282,7 @@ void Cutscene::draw(int screenWidth, int screenHeight)
     glUseProgram(0);
 }
 
-void Cutscene::cleanup()
-{
+void Cutscene::cleanup(){
     stopAudio();
     if (VBO != 0)
         glDeleteBuffers(1, &VBO);

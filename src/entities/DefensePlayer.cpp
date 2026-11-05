@@ -1,7 +1,6 @@
 #include "../utils/Types.h"
 #include "../utils/Animation.h"
 #include "../entities/Entity.h"
-#include <Constants.h>
 #include "DefensePlayer.h"
 
     DefensePlayer::DefensePlayer(float x, float y, float width, float height, int laneIndex,  int maxHealth,float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed), protectionEnabled(true){

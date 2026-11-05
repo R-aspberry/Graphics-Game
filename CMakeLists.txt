@@ -102,6 +102,7 @@ endif()
 
 add_executable(CombatQuickTest
     tests/CombatQuickTest.cpp
+    src/systems/Economy.cpp
     src/systems/CombatSystem.cpp
     src/systems/CollisionSystem.cpp
     src/systems/GameManager.cpp

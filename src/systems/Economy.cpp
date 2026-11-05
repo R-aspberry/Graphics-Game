@@ -1,7 +1,9 @@
 #include "Economy.h"
+#include "../utils/Constants.h"
+#include <iostream>
 
 Economy::Economy(){
-    coins = 30;
+    coins = GameConfig::INITIAL_COINS;
 }
 
 int Economy::getCoins() {
