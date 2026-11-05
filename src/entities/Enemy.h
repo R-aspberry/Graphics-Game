@@ -9,6 +9,7 @@ class Enemy{
         float speed;
         float attackInterval;
         float timeSinceLastAttack;
+        float attackAnimationTimer;
         float damageFlashTimer;
         int lane;
         int maxHealth;
@@ -28,6 +29,7 @@ class Enemy{
         float getSpeed() const { return speed; }
         float getAttackInterval() const { return attackInterval; }
         float getTimeSinceLastAttack() const { return timeSinceLastAttack; }
+        float getAttackAnimationTimer() const { return attackAnimationTimer; }
         int getLane() const { return lane; }
         int getMaxHealth() const { return maxHealth; }
         glm::vec2 getPosition() const { return position; }
@@ -36,6 +38,7 @@ class Enemy{
         void takeDamage(int incomingDamage);
         bool canAttack() const;
         void resetAttackTimer();
+        bool updateRangedAttack(float deltaTime);
         void setState(EnemyState newState); 
 
         void setMovementBlocked(bool blocked);

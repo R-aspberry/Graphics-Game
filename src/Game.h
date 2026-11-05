@@ -64,7 +64,7 @@ private :
     GLuint projectileTexture = 0;
     GLuint enemyProjectileTexture = 0;
     std::array<std::array<GLuint, 4>, 3> enemyMoveTextures{};
-    
+    std::array<std::array<GLuint, 4>, 3> enemyAttackTextures{};
     bool initialized ;
 
 public :

@@ -852,8 +852,8 @@ else if (action == SoundAction::Mute)
                     game->renderEnemyProjectiles(waveManager);
                     game->renderCollectibles(waveManager);
                     
-                    const bool meleeUnlocked = true;
-                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20);
+                    const bool meleeUnlocked = economy.canAfford(10);
+                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20); // both checks needed because at first ranged and defense not unclocked 
                     const bool defenseUnlocked = collectedCoins >= 30 && economy.canAfford(30);
                     playerCard.draw(isPaused ? -1 : hoveredCard, defenseUnlocked,
                                     meleeUnlocked, rangedUnlocked);

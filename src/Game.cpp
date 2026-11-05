@@ -180,6 +180,23 @@ bool Game::init(){
     enemyMoveTextures[2][2] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_M3.png");
     enemyMoveTextures[2][3] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_M4.png");
 
+
+    enemyAttackTextures[0][0] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A1.png");
+    enemyAttackTextures[0][1] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A2.png");
+    enemyAttackTextures[0][2] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A3.png");
+    enemyAttackTextures[0][3] = loadTexture("assets/sprites/enemies/EASYENEMY/EASYENEMY_A4.png");
+
+    
+    enemyAttackTextures[1][0] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_A1.png");
+    enemyAttackTextures[1][1] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_A2.png");
+    enemyAttackTextures[1][2] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_A3.png");
+    enemyAttackTextures[1][3] = loadTexture("assets/sprites/enemies/MEDIUMENEMY/MEDIUMENEMY_A4.png");
+
+    enemyAttackTextures[2][0] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_A1.png");
+    enemyAttackTextures[2][1] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_A2.png");
+    enemyAttackTextures[2][2] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_A3.png");
+    enemyAttackTextures[2][3] = loadTexture("assets/sprites/enemies/HARDENEMY/HARDENEMY_A4.png");
+
     
     
     
@@ -241,7 +258,7 @@ void Game::renderPlayers()
     
     for(const auto& player : players){
         GLuint texture =0;
-        int frame = (int(animationTimer/0.15f) % 4) + 1; // why did i plus one 
+        int frame = (int(animationTimer/0.15f) % 4) + 1; 
 
         int mov_att = 0; //if mov_att = 0 moving 1 attacking 2 jumping 3 ducking
         if (player->actionState == ActionState::Attacking){
@@ -431,6 +448,87 @@ void Game::renderEnemyProjectiles(WaveManager& waveManager)
     }
 }// method needs review by hana but i approve 
 
+void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) { //this animationTime is not used 
+    if (!initialized || rendere == nullptr || enemy.getState() == EnemyState::DEAD) {
+        return;
+    }
+
+
+    GLuint texture =0;
+        int frame = enemy.getState() == EnemyState::FIGHTING &&
+                    enemy.getEnemyType() != EnemyType::HARD
+            ? static_cast<int>(enemy.getAttackAnimationTimer() / 0.15f) % 4
+            : static_cast<int>(animationTimer / 0.15f) % 4;
+
+        int mov_att = 0; //if mov_att = 0 moving 1 attacking 
+        if (enemy.getState() == EnemyState::MOVING){
+            mov_att = 0;
+        }
+        if (enemy.getState() == EnemyState::FIGHTING){
+            mov_att = 1;
+        }
+
+        if(enemy.getEnemyType() == EnemyType::EASY){
+             if(mov_att == 1){
+                texture = enemyAttackTextures[0][frame];}
+            else{
+                texture = enemyMoveTextures[0][frame];}
+        }
+        else if(enemy.getEnemyType() == EnemyType::MEDIUM){
+             if(mov_att == 1){
+                texture = enemyAttackTextures[1][frame];}
+            else{
+                texture = enemyMoveTextures[1][frame];}
+        }
+        else if(enemy.getEnemyType() == EnemyType::HARD){
+             if(mov_att == 1){
+                texture = enemyAttackTextures[2][frame];}
+            else{
+                texture = enemyMoveTextures[2][frame];}
+        }
+        if (texture == 0){
+            return;
+        }
+        const float width = WorldLayout::ENEMY_WIDTH;
+        const float height = WorldLayout::ENEMY_HEIGHT;
+        const float y = WorldLayout::toRenderY(enemy.getPosition().y, height);
+        if (enemy.getLane() != lane.id) {
+            return;
+        }
+
+        shader.use();
+
+        glUniform1i(
+            glGetUniformLocation(shader.Program, "enemySprite"), 1
+        );
+
+        float healthRatio = (float)enemy.getHealth() / enemy.getMaxHealth();
+        float damageTint = 1.0f - healthRatio;
+
+        if (enemy.getdamageFlashTimer() > 0.0f) {
+            damageTint = 1.0f;
+        }
+
+        if (damageTint < 0.0f) {
+            damageTint = 0.0f;
+        }
+
+        if (damageTint > 1.0f) {
+            damageTint = 1.0f;
+        }
+
+
+        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, damageTint);
+
+        glUniform1i(
+             glGetUniformLocation(shader.Program, "enemySprite"), 0
+         );
+        }
+// i dont like the render enemy method it takes lane ? idk why it also takes animation timer why ? it should just render all active enemies
+//but it is working all good plus gamemanager doesnt hold such an array 
+
+
+
 void Game::render(const Lane& lane, PlayerType type) {
     if (!initialized || rendere == nullptr) {
         return;
@@ -462,58 +560,58 @@ void Game::render(const Lane& lane, PlayerType type) {
     rendere->drawSprite(texture, x, y, width, height, 0.0f);
 } // modified the render method this method is prob useless not removed incase it is being called somehwere else
 
-void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) {
-    if (!initialized || rendere == nullptr || enemy.getState() == EnemyState::DEAD) {
-        return;
-    }
+// void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) {
+//     if (!initialized || rendere == nullptr || enemy.getState() == EnemyState::DEAD) {
+//         return;
+//     }
 
-    const auto type = static_cast<std::size_t>(enemy.getEnemyType());
-    if (type >= enemyMoveTextures.size()) {
-        return;
-    }
+//     const auto type = static_cast<std::size_t>(enemy.getEnemyType());
+//     if (type >= enemyMoveTextures.size()) {
+//         return;
+//     } 
 
-    const auto frame = static_cast<std::size_t>(animationTime * 6.0f) %
-                       enemyMoveTextures[type].size();
-    const GLuint texture = enemyMoveTextures[type][frame];
-    if (texture == 0) {
-        return;
-    }
+//     const auto frame = static_cast<std::size_t>(animationTime * 6.0f) %
+//                        enemyMoveTextures[type].size();
+//     const GLuint texture = enemyMoveTextures[type][frame];
+//     if (texture == 0) {
+//         return;
+//     }
 
-    const float width = WorldLayout::ENEMY_WIDTH;
-    const float height = WorldLayout::ENEMY_HEIGHT;
-    const float y = WorldLayout::toRenderY(enemy.getPosition().y, height);
-    if (enemy.getLane() != lane.id) {
-        return;
-    }
-    shader.use();
+//     const float width = WorldLayout::ENEMY_WIDTH;
+//     const float height = WorldLayout::ENEMY_HEIGHT;
+//     const float y = WorldLayout::toRenderY(enemy.getPosition().y, height);
+//     if (enemy.getLane() != lane.id) {
+//         return;
+//     }
+//     shader.use();
 
-        glUniform1i(
-            glGetUniformLocation(shader.Program, "enemySprite"), 1
-        );
+//         glUniform1i(
+//             glGetUniformLocation(shader.Program, "enemySprite"), 1
+//         );
 
-        float healthRatio = (float)enemy.getHealth() / enemy.getMaxHealth();
-        float damageTint = 1.0f - healthRatio;
+//         float healthRatio = (float)enemy.getHealth() / enemy.getMaxHealth();
+//         float damageTint = 1.0f - healthRatio;
 
-        if (enemy.getdamageFlashTimer() > 0.0f) {
-            damageTint = 1.0f;
-        }
+//         if (enemy.getdamageFlashTimer() > 0.0f) {
+//             damageTint = 1.0f;
+//         }
 
-        if (damageTint < 0.0f) {
-            damageTint = 0.0f;
-        }
+//         if (damageTint < 0.0f) {
+//             damageTint = 0.0f;
+//         }
 
-        if (damageTint > 1.0f) {
-            damageTint = 1.0f;
-        }
+//         if (damageTint > 1.0f) {
+//             damageTint = 1.0f;
+//         }
 
 
-        rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, damageTint);
+//         rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, damageTint);
 
-        glUniform1i(
-            glGetUniformLocation(shader.Program, "enemySprite"), 0
-        );
-}// i dont like the render enemy method it takes lane ? idk why it also takes animation timer why ? it should just render all active enemies
-//but it is working all good plus gamemanager doesnt hold such an array 
+//         glUniform1i(
+//              glGetUniformLocation(shader.Program, "enemySprite"), 0
+//          );
+// }// i dont like the render enemy method it takes lane ? idk why it also takes animation timer why ? it should just render all active enemies
+// //but it is working all good plus gamemanager doesnt hold such an array 
 
 
 void Game::renderCollectibles(const WaveManager& waveManager)
