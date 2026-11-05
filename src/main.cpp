@@ -36,8 +36,15 @@ static const char *vertexShaderSource = R"(
     layout(location = 0) in vec3 aPos;
     layout(location = 1) in vec2 aTexCoord;
     out vec2 TexCoord;
+    uniform bool isOverlay;
+    uniform vec4 overlayRect;
     void main() {
-        gl_Position = vec4(aPos, 1.0);
+        if (isOverlay) {
+            vec2 position = overlayRect.xy + ((aPos.xy + 1.0) * 0.5) * overlayRect.zw;
+            gl_Position = vec4(position, aPos.z, 1.0);
+        } else {
+            gl_Position = vec4(aPos, 1.0);
+        }
         TexCoord = aTexCoord;
     }
 )";
@@ -50,24 +57,80 @@ static const char *fragmentShaderSource = R"(
     uniform vec4 laneBounds[4];
     uniform vec4 selectedFlags;
     uniform int hoveredLane;
+    uniform bool isOverlay;
     void main() {
         vec4 color = texture(backgroundTexture, TexCoord);
-        float x = TexCoord.x;
-        float y = 1.0 - TexCoord.y;
-        for (int i = 0; i < 4; ++i) {
-            vec4 bounds = laneBounds[i];
-            if (x >= bounds.x && x <= bounds.y &&
-                y >= bounds.z && y <= bounds.w) {
-                if (selectedFlags[i] > 0.5) {
-                    color.rgb = mix(color.rgb, vec3(0.6, 0.2, 1.0), 0.4);
-                } else if (hoveredLane == i) {
-                    color.rgb = mix(color.rgb, vec3(0.0, 0.9, 1.0), 0.3);
+        if (!isOverlay) {
+            float x = TexCoord.x;
+            float y = 1.0 - TexCoord.y;
+            for (int i = 0; i < 4; ++i) {
+                vec4 bounds = laneBounds[i];
+                if (x >= bounds.x && x <= bounds.y &&
+                    y >= bounds.z && y <= bounds.w) {
+                    if (selectedFlags[i] > 0.5) {
+                        color.rgb = mix(color.rgb, vec3(0.6, 0.2, 1.0), 0.4);
+                    } else if (hoveredLane == i) {
+                        color.rgb = mix(color.rgb, vec3(0.0, 0.9, 1.0), 0.3);
+                    }
                 }
             }
         }
         FragColor = color;
     }
 )";
+
+GLuint placeEl(const char* path){
+
+    int imageWidth = 0;
+    int imageHeight = 0;
+    int channels = 0;
+
+
+    stbi_set_flip_vertically_on_load(true);
+
+    unsigned char *pixels = stbi_load( path, &imageWidth,&imageHeight,&channels,4);
+    GLuint backgroundTexture = 0;
+
+    glGenTextures(1, &backgroundTexture);
+    glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+
+    glTexParameteri(
+        GL_TEXTURE_2D,
+        GL_TEXTURE_WRAP_S,
+        GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(
+        GL_TEXTURE_2D,
+        GL_TEXTURE_WRAP_T,
+        GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(
+        GL_TEXTURE_2D,
+        GL_TEXTURE_MIN_FILTER,
+        GL_LINEAR_MIPMAP_LINEAR);
+
+    glTexParameteri(
+        GL_TEXTURE_2D,
+        GL_TEXTURE_MAG_FILTER,
+        GL_LINEAR);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        imageWidth,
+        imageHeight,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        pixels);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(pixels);
+
+    return backgroundTexture;
+}
 
 static GLuint compileShader(GLenum kind, const char *source)
 {
@@ -413,15 +476,19 @@ int main()
     int imageHeight = 0;
     int channels = 0;
 
+
+
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char *pixels = stbi_load(
-        "assets/backgrounds/example2.png",
-        &imageWidth,
-        &imageHeight,
-        &channels,
-        4);
+    unsigned char *pixels = stbi_load( "assets/backgrounds/example2.png", &imageWidth,&imageHeight,&channels,4);
+    //e7na delwa2ty han7ot 5 elements
+    GLuint bill =  placeEl( "assets/elements/Billboard.png");
+    GLuint build =  placeEl( "assets/elements/building.png");
+   GLuint camera =  placeEl( "assets/elements/camera.png");
+    GLuint flags =  placeEl( "assets/elements/flags.png");
+    GLuint lifter =  placeEl( "assets/elements/lifter.png");
 
+    
     if (!pixels)
     {
         std::cerr << "Failed to load background: "
@@ -438,11 +505,11 @@ int main()
         return 1;
     }
 
-    std::cout << "Background loaded: "
-              << imageWidth
-              << " x "
-              << imageHeight
-              << '\n';
+    // std::cout << "Background loaded: "
+    //           << imageWidth
+    //           << " x "
+    //           << imageHeight
+    //           << '\n';
 
     GLuint backgroundTexture = 0;
 
@@ -831,12 +898,32 @@ else if (action == SoundAction::Mute)
                     lanes[3].selected ? 1.0f : 0.0f);
                 glUniform1i(glGetUniformLocation(program, "hoveredLane"),
                     currentScreen == AppScreen::PLAYING && !isPaused ? hoveredLane : -1);
+                glUniform1i(glGetUniformLocation(program, "isOverlay"), 0);
                 glUniform1i(glGetUniformLocation(program, "backgroundTexture"), 0);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, backgroundTexture);
                 glBindVertexArray(vao);
                 glDrawArrays(GL_TRIANGLES, 0, 6);
                 glBindVertexArray(0);
+
+                const auto drawElement = [&](GLuint texture, float x, float y,
+                                             float width, float height) {
+                    glUniform1i(glGetUniformLocation(program, "isOverlay"), 1);
+                    glUniform4f(glGetUniformLocation(program, "overlayRect"),
+                                x, y, width, height);
+                    glBindTexture(GL_TEXTURE_2D, texture);
+                    glBindVertexArray(vao);
+                    glDrawArrays(GL_TRIANGLES, 0, 6);
+                };
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                drawElement(build, -0.62f, 0.05f, 0.34f, 0.58f);
+                drawElement(bill, -0.36f, 0.05f, 0.48f, 0.24f);
+                drawElement(camera, 0.69f, 0.05f, 0.18f, 0.36f);
+                drawElement(flags, 0.43f, 0.05f, 0.20f, 0.40f);
+                drawElement(lifter, 0.06f, 0.05f, 0.36f, 0.25f);
+                glBindVertexArray(0);
+                glUniform1i(glGetUniformLocation(program, "isOverlay"), 0);
 
                 if (currentScreen == AppScreen::PLAYING) {
                     for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i) {
