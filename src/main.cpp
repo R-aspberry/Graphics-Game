@@ -485,6 +485,7 @@ int main()
     stbi_image_free(pixels);
 
     int laneSelected = -1;
+    bool defencePLaced= false;
     Economy economy;
     WaveManager waveManager;
     HomeBase homeBase;
@@ -664,8 +665,28 @@ else if (action == SoundAction::Mute)
 
                 if (!isPaused && click && !suppressGameplayClick) {
                     if (hoveredLane >= 0) {
+                        if (defencePLaced && economy.canAfford(30)) {
+                            float clickedX= (float) mouseX/windowWidth;
+                            Player* defence= game->placePlayer(PlayerType::Defense,hoveredLane);
+                            
+                            if(defence!=nullptr){
+                                float x = clickedX- (defence->getWidth()/2);
+                                const Lane& lane =grid.getLanes()[hoveredLane];
+                                float maxright=lane.right-defence->getWidth();
+                                if(x<lane.left){
+                                    x=lane.left;
+                                }
+                                else if(x>maxright){
+                                    x=maxright;
+                                }
+                                defence->setPosition(x,defence->getY());
+                                economy.spendCoins(30);
+                                defencePLaced=false;
+                            }
+                        }
+                        else{
                         grid.toggleLaneSelection(hoveredLane);
-                        laneSelected = grid.getLanes()[hoveredLane].selected ? hoveredLane : -1;
+                        laneSelected = grid.getLanes()[hoveredLane].selected ? hoveredLane : -1;}
                     } else if (hoveredCard >= 0) {
                         const PlayerType type = hoveredCard == 0 ? PlayerType::Defense
                                               : hoveredCard == 1 ? PlayerType::Melee
@@ -675,7 +696,13 @@ else if (action == SoundAction::Mute)
                             (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
                             (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
                         if (unlocked) {
-                            purchasePlayer(laneSelected, type, cost, economy, *game);
+                            if (hoveredCard == 0) {
+                                defencePLaced = true;
+
+                            }
+                            else {
+                                purchasePlayer(laneSelected, type, cost, economy, *game);
+                            }
                         }
                     }
                 }
