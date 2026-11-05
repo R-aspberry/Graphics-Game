@@ -33,6 +33,7 @@ class Enemy{
         int getLane() const { return lane; }
         int getMaxHealth() const { return maxHealth; }
         glm::vec2 getPosition() const { return position; }
+        void setPosition(float x, float y) { position = {x, y}; }
         EnemyState getState() const { return state; }
         void update(float deltaTime);
         void takeDamage(int incomingDamage);

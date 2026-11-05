@@ -23,59 +23,84 @@
 #include "ui/MainMenu.h"
 #include "Game.h"
 #include "utils/ResourceManager.h"
-#include "utils/WorldLayout.h"
 #include "systems/Economy.h"
 #include "systems/WaveManager.h"
 #include "ui/PlayerCard.h"
 #include "ui/HUD.h"
+#include "utils/Constants.h"
 #include "cutscene/Cutscene.h"
+static const char* vertexShaderSource = R"(
+#version 330 core
 
-static const char *vertexShaderSource = R"(
-    #version 330 core
-    layout(location = 0) in vec3 aPos;
-    layout(location = 1) in vec2 aTexCoord;
-    out vec2 TexCoord;
-    uniform bool isOverlay;
-    uniform vec4 overlayRect;
-    void main() {
-        if (isOverlay) {
-            vec2 position = overlayRect.xy + ((aPos.xy + 1.0) * 0.5) * overlayRect.zw;
-            gl_Position = vec4(position, aPos.z, 1.0);
-        } else {
-            gl_Position = vec4(aPos, 1.0);
-        }
-        TexCoord = aTexCoord;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+uniform bool isOverlay;
+uniform vec4 overlayRect;
+
+void main()
+{
+    vec3 position = aPos;
+
+    if (isOverlay)
+    {
+        position.x = overlayRect.x + (aPos.x + 1.0) * overlayRect.z / 2.0;
+        position.y = overlayRect.y + (aPos.y + 1.0) * overlayRect.w / 2.0;
     }
+
+    gl_Position = vec4(position, 1.0);
+    TexCoord = aTexCoord;
+}
 )";
 
-static const char *fragmentShaderSource = R"(
-    #version 330 core
-    in vec2 TexCoord;
-    out vec4 FragColor;
-    uniform sampler2D backgroundTexture;
-    uniform vec4 laneBounds[4];
-    uniform vec4 selectedFlags;
-    uniform int hoveredLane;
-    uniform bool isOverlay;
-    void main() {
-        vec4 color = texture(backgroundTexture, TexCoord);
-        if (!isOverlay) {
-            float x = TexCoord.x;
-            float y = 1.0 - TexCoord.y;
-            for (int i = 0; i < 4; ++i) {
-                vec4 bounds = laneBounds[i];
-                if (x >= bounds.x && x <= bounds.y &&
-                    y >= bounds.z && y <= bounds.w) {
-                    if (selectedFlags[i] > 0.5) {
-                        color.rgb = mix(color.rgb, vec3(0.6, 0.2, 1.0), 0.4);
-                    } else if (hoveredLane == i) {
-                        color.rgb = mix(color.rgb, vec3(0.0, 0.9, 1.0), 0.3);
-                    }
+static const char* fragmentShaderSource = R"(
+#version 330 core
+
+in vec2 TexCoord;
+out vec4 FragColor;
+
+uniform sampler2D backgroundTexture;
+
+uniform vec4 laneBounds[4];
+uniform vec4 selectedFlags;
+uniform int hoveredLane;
+uniform bool isOverlay;
+
+void main()
+{
+    vec4 color = texture(backgroundTexture, TexCoord);
+
+    if (!isOverlay)
+    {
+        float x = TexCoord.x;
+        float y = 1.0 - TexCoord.y;
+
+        for (int i = 0; i < 4; i++)
+        {
+            bool insideLane =
+                x >= laneBounds[i].x &&
+                x <= laneBounds[i].y &&
+                y >= laneBounds[i].z &&
+                y <= laneBounds[i].w;
+
+            if (insideLane)
+            {
+                if (selectedFlags[i] == 1.0)
+                {
+                    color.rgb = mix(color.rgb, vec3(0.6, 0.2, 1.0), 0.4);
+                }
+                else if (hoveredLane == i)
+                {
+                    color.rgb = mix(color.rgb, vec3(0.0, 0.9, 1.0), 0.3);
                 }
             }
         }
-        FragColor = color;
     }
+
+    FragColor = color;
+}
 )";
 
 GLuint placeEl(const char* path){

@@ -35,6 +35,8 @@
         Rect playerBounds = player.getBounds();
 
        if(intersects(playerBounds, enemyBounds)){
+            enemy.setPosition(player.getX() + player.getWidth() - 0.001f,
+                              enemy.getPosition().y);
             player.setMovementBlocked(true);
             enemy.setMovementBlocked(true);
             return true;

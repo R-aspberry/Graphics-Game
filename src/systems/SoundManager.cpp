@@ -32,7 +32,7 @@ bool SoundManager::init()
 
     if (ma_engine_init(nullptr, &engine_) != MA_SUCCESS)
     {
-        std::cerr << "Failed to initialize audio\n";
+        
         return false;
     }
 
@@ -53,9 +53,7 @@ bool SoundManager::playMusic(const char* path, bool loop)
         musicLoaded_ = false;
     }
 
-    ma_uint32 flags =
-        MA_SOUND_FLAG_STREAM |
-        MA_SOUND_FLAG_NO_SPATIALIZATION;
+    ma_uint32 flags =MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_NO_SPATIALIZATION;
 
     if (ma_sound_init_from_file(
             &engine_,
@@ -65,8 +63,7 @@ bool SoundManager::playMusic(const char* path, bool loop)
             nullptr,
             &music_) != MA_SUCCESS)
     {
-        std::cerr << "Failed to load music: "
-                  << path << '\n';
+        
         return false;
     }
 
@@ -89,7 +86,7 @@ bool SoundManager::playMusic(const char* path, bool loop)
 
 void SoundManager::setVolume(float value)
 {
-    // Keep volume between 0.0 and 1.0
+   
     if (value < 0.0f)
         value = 0.0f;
 

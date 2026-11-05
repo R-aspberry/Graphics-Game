@@ -138,7 +138,7 @@ bool Game::init(){
     meleeTextureJ3 = loadTexture("assets/sprites/Melee_J3.png");
     meleeTextureD1 = loadTexture("assets/sprites/Melee_D1.png");
     meleeTextureD2 = loadTexture("assets/sprites/Melee_D2.png");
-    meleeTextureD3 = loadTexture("assets/sprites/Melee_D3.png");
+    meleeTextureD3 = loadTexture("assets/sprites/Melee_D4.png");
 
     projectileTexture = loadTexture("assets/sprites/Projectile.png");
     enemyProjectileTexture = loadTexture("assets/sprites/EnemyProjectile.png");

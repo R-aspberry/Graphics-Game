@@ -1,5 +1,6 @@
 #include "Cutscene.h"
 #include "utils/ResourceManager.h"
+#include "../systems/SoundManager.h"
 
 #include <iostream>
 
@@ -151,10 +152,7 @@ bool Cutscene::init(){
 
 void Cutscene::start(){
     time = 0.0f;
-#ifdef _WIN32
-   
-    musicPlaying = PlaySoundA("assets/cutscene/cinematic.wav", nullptr, SND_ASYNC | SND_FILENAME) != 0;
-#endif
+    musicPlaying = SoundManager::instance().playMusic("assets/cutscene/cinematic.wav", false);
 }
 
 void Cutscene::update(float deltaTime){
@@ -167,13 +165,11 @@ bool Cutscene::finished() const{
 }
 
 void Cutscene::stopAudio(){
-#ifdef _WIN32
     if (musicPlaying)
     {
-        PlaySoundA("assets/backgroundsound.wav", nullptr, SND_ASYNC | SND_LOOP | SND_FILENAME);
+        SoundManager::instance().playMusic("assets/backgroundsound.wav", true);
         musicPlaying = false;
     }
-#endif
 }
 
 void Cutscene::drawImage(GLuint texture, float x, float y, float width, float height, float opacity, bool flip){
