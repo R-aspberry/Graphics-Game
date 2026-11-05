@@ -1,7 +1,7 @@
 #include "Economy.h"
 
 Economy::Economy(){
-    coins = 10000;
+    coins = 30;
 }
 
 int Economy::getCoins() {
