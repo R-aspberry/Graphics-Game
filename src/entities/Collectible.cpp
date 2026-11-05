@@ -1,5 +1,5 @@
 #include "Collectible.h"
-#include "../utils/WorldLayout.h"
+#include "../utils/Constants.h"
 
 Collectible::Collectible(int lane , glm::vec2 position, int reward)
                 : Entity(position.x, position.y, WorldLayout::COLLECTIBLE_WIDTH, WorldLayout::COLLECTIBLE_HEIGHT, lane),

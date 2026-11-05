@@ -32,7 +32,7 @@
         }
         actionState = ActionState::Attacking;
         attackTimer = 0.0f;
-        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f - Constants::ProjectileHeight / 2.0f,Constants::ProjectileWidth, Constants::ProjectileHeight,laneIndex ,Constants::ProjectileSpeed,this );
+        auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f - WorldLayout::PROJECTILE_HEIGHT / 2.0f,WorldLayout::PROJECTILE_WIDTH, WorldLayout::PROJECTILE_HEIGHT,laneIndex ,GameConfig::PLAYER_PROJECTILE_SPEED,this );
         gameManager.addProjectile(std::move(projectile));
     }
 
@@ -40,7 +40,7 @@
         if(actionState == ActionState::Attacking){
             actionState = ActionState::Moving;
             attackTimer = 0.0f;
-            attackCoolDownTimer = Constants::attackIntervals;
+            attackCoolDownTimer = GameConfig::RANGED_ATTACK_INTERVAL;
         }
     }
 
@@ -61,7 +61,7 @@
             return;
         }
         attackTimer +=deltaTime;
-        if (attackTimer >= Constants::attackDuration){
+        if (attackTimer >= GameConfig::ATTACK_ANIMATION_DURATION){
             finishAttack();
         }
         

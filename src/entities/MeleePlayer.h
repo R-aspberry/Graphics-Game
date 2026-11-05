@@ -2,10 +2,11 @@
 #define MELEE_PLAYER_H
 
 #include "Player.h"
+#include "../utils/Constants.h"
 
 class MeleePlayer : public Player {
 private:
-     int attackDamage = 1 ;
+     int attackDamage = GameConfig::MELEE_PLAYER_DAMAGE;
     //float attackRange = 0.3f; //i still dk ??
     float attackCoolDownTimer = 0.0f;
     float attackTimer = 0.0f;

@@ -56,7 +56,7 @@
                 return;
             }
             attackTimer +=deltaTime;
-            if (attackTimer >= Constants::attackDuration){
+            if (attackTimer >= GameConfig::ATTACK_ANIMATION_DURATION){
                 finishAttack();
             }
             

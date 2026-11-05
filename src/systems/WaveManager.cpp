@@ -4,7 +4,6 @@
 #include "../entities/EasyEnemy.h"
 #include "../entities/MediumEnemy.h"
 #include "../entities/HardEnemy.h"
-#include "../utils/WorldLayout.h"
 #include "../world/Grid.h"
 #include <random>
 #include <utility>

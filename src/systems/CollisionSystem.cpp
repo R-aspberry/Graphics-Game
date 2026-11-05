@@ -1,7 +1,7 @@
 #include "CollisionSystem.h"
 #include "../entities/Enemy.h"
 #include "../entities/Player.h"
-#include "../utils/WorldLayout.h"
+#include "../utils/Constants.h"
 #include "../entities/Collectible.h"
 
     bool CollisionSystem::intersects(const Rect& a, const Rect& b) const{

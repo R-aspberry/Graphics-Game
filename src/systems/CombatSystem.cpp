@@ -1,6 +1,6 @@
 #include "CombatSystem.h"
 #include "../entities/DefensePlayer.h"
-#include "../utils/WorldLayout.h"
+#include "../utils/Constants.h"
 #include "../systems/WaveManager.h"
 #include <algorithm>
 
@@ -27,10 +27,10 @@ void CombatSystem::update(float deltaTime, const std::vector<Enemy*>& activeEnem
         }
     }
 
+    updateEncounters(activeEnemies);
     resolvePlayerAttacks(activeEnemies);
     resolveEnemyAttacks(activeEnemies);
     resolvePlayerProjectiles(activeEnemies);
-    updateEncounters(activeEnemies);
 
 }
 
@@ -71,7 +71,7 @@ void CombatSystem::resolvePlayerProjectiles(const std::vector<Enemy*>& activeEne
         for(int j=0;j<activeEnemies.size();j++){
             Enemy* enemy = activeEnemies[j];
             if (projectile!=nullptr && enemy!=nullptr && (*enemy).getHealth() > 0 && (*projectile).getOwner()!=nullptr && (*collisionSystem).projectileHitsTarget(*projectile, *enemy)){
-                enemy->takeDamage(1);
+                enemy->takeDamage(GameConfig::RANGED_PLAYER_DAMAGE);
                 (*projectile).markHit();
                 break;
             }
@@ -122,7 +122,7 @@ void CombatSystem::resolveEnemyProjectiles(const std::vector<EnemyProjectile*>& 
 
 void CombatSystem::resolvePlayerAttack(Player& player, Enemy& enemy){
     player.startAttack(*playerManager);
-    enemy.takeDamage(1);
+    enemy.takeDamage(GameConfig::MELEE_PLAYER_DAMAGE);
 }
 
 void CombatSystem::resolveEnemyAttack(Enemy& enemy, Player& player)
@@ -172,7 +172,10 @@ void CombatSystem::updateEncounters(const std::vector<Enemy*>& activeEnemies){
         for(int j=0 ;j<activeEnemies.size();j++){
             Enemy* enemy= activeEnemies[j];
             if(player!=nullptr && enemy!=nullptr && player->isAlive() && enemy->getHealth() > 0 && (*collisionSystem).playerEnemyEncounter(*player, *enemy)){
-                
+                // Every colliding pair stops, including ranged enemies and
+                // players whose attack is still on cooldown.
+                player->setMovementBlocked(true);
+                enemy->setMovementBlocked(true);
             }
         }
     }

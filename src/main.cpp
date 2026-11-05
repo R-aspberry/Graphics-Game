@@ -10,7 +10,6 @@
 #include <dwmapi.h>
 #endif
 
-
 #include <algorithm>
 #include <iostream>
 #include <vector>
