@@ -90,3 +90,7 @@ namespace WorldLayout {
         return 1.0f - worldY - objectHeight;
     }
 }
+
+
+// please refer to these notes 
+// projectiles are not animated upon hits becuase i have asked menrit and she said translation is enough 

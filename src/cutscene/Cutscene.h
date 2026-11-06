@@ -30,6 +30,7 @@ private:
     GLuint title = 0;
     GLuint objective = 0;
     GLuint skipText = 0;
+    GLuint story =0;
 
     GLuint playerWalk[4] = {};
     GLuint playerAttack[4] = {};

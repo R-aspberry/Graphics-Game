@@ -104,11 +104,12 @@ bool Cutscene::init(){
     glBindVertexArray(0);
 
     
-    background = ResourceManager::loadTexture("assets/backgrounds/cyberpunk.png");
+    background = ResourceManager::loadTexture("assets/cutscene/Neon Energy Core Headquarters.png");
     signal = ResourceManager::loadTexture("assets/cutscene/signal.png");
     enemyText = ResourceManager::loadTexture("assets/cutscene/enemy_line.png");
-    playerText = ResourceManager::loadTexture("assets/cutscene/hero_line2.png");
+    playerText = ResourceManager::loadTexture("assets/cutscene/hero_lane2.png");
     title = ResourceManager::loadTexture("assets/cutscene/title.png");
+    story = ResourceManager::loadTexture("assets/cutscene/story.png");
     objective = ResourceManager::loadTexture("assets/cutscene/objective.png");
     skipText = ResourceManager::loadTexture("assets/cutscene/skip.png");
 
@@ -206,8 +207,10 @@ void Cutscene::draw(int screenWidth, int screenHeight){
 
     int frame = (int)(time * 7.0f) % 4;
 
-    if (time < 3.0f)
+    if (time < 3.0f){
         drawImage(signal, -0.85f, 0.35f, 1.7f, 0.4f);
+        drawImage(story, -0.8f, -1.25f, 1.6f, 0.9f);
+    }
 
     if (time >= 3.0f && time < 13.0f){
         float enemyX = 0.95f;
@@ -250,6 +253,8 @@ void Cutscene::draw(int screenWidth, int screenHeight){
     //     glClearColor(0.65f, 0.55f, 0.9f, 1.0f);
     //     glClear(GL_COLOR_BUFFER_BIT);
     // }
+
+    //if (time >= 12.0f && time < 17.0f)
 
     if (time >= 13.0f && time < 15.0f){
         int deathFrame = (int)((time - 13.0f) * 2.0f);
