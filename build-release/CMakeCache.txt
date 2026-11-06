@@ -14,9 +14,6 @@
 # EXTERNAL cache entries
 ########################
 
-//Build Enemy and WaveManager unit tests
-BUILD_GAME_TESTS:BOOL=ON
-
 //Build shared libraries
 BUILD_SHARED_LIBS:BOOL=OFF
 

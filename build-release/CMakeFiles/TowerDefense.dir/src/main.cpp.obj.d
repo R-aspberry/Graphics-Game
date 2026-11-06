@@ -418,7 +418,6 @@ CMakeFiles/TowerDefense.dir/src/main.cpp.obj: \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Player.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Entity.h \
  C:/Users/user/Desktop/Graphics-Game/src/utils/Types.h \
- C:/Users/user/Desktop/Graphics-Game/src/utils/Animation.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Projectile.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Player.h \
  C:\Users\user\Desktop\Graphics-Game\src\systems/CollisionSystem.h \

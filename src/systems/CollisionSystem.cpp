@@ -57,9 +57,6 @@
                 return true;
             }
         }
-
-    
-
         return false;
     }
 

@@ -5,7 +5,6 @@ CMakeFiles/TowerDefense.dir/src/systems/CollisionSystem.cpp.obj: \
  C:/Users/user/Desktop/Graphics-Game/src/utils/Types.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Player.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Entity.h \
- C:/Users/user/Desktop/Graphics-Game/src/utils/Animation.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Projectile.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Player.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Enemy.h \

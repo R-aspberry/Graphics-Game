@@ -1,17 +1,7 @@
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "SoundManager.h"
-#define MINIAUDIO_IMPLEMENTATION
-#include "SoundManager.h"
-
 #include <algorithm>
-
-#include <algorithm>
-#include <iostream>
-
-#define MINIAUDIO_IMPLEMENTATION
-#include "SoundManager.h"
-
 #include <iostream>
 
 SoundManager& SoundManager::instance()
@@ -31,10 +21,7 @@ bool SoundManager::init()
         return true;
 
     if (ma_engine_init(nullptr, &engine_) != MA_SUCCESS)
-    {
-        std::cerr << "Failed to initialize audio\n";
         return false;
-    }
 
     initialized_ = true;
     applyVolume();
@@ -47,35 +34,23 @@ bool SoundManager::playMusic(const char* path, bool loop)
     if (!initialized_)
         return false;
 
-    if (musicLoaded_)
-    {
-        ma_sound_uninit(&music_);
-        musicLoaded_ = false;
-    }
+    stopMusic();
 
-    ma_uint32 flags =
-        MA_SOUND_FLAG_STREAM |
-        MA_SOUND_FLAG_NO_SPATIALIZATION;
-
-    if (ma_sound_init_from_file(
-            &engine_,
-            path,
-            flags,
-            nullptr,
-            nullptr,
-            &music_) != MA_SUCCESS)
-    {
-        std::cerr << "Failed to load music: "
-                  << path << '\n';
+    ma_uint32 flags = MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_NO_SPATIALIZATION;
+    if (ma_sound_init_from_file( &engine_, path, flags, nullptr, nullptr, &music_) != MA_SUCCESS)
+        
         return false;
-    }
 
     musicLoaded_ = true;
 
-    ma_sound_set_looping(
-        &music_,
-        loop ? MA_TRUE : MA_FALSE
-    );
+    if (loop)
+    {
+        ma_sound_set_looping(&music_, MA_TRUE);
+    }
+    else
+    {
+        ma_sound_set_looping(&music_, MA_FALSE);
+    }
 
     if (ma_sound_start(&music_) != MA_SUCCESS)
     {
@@ -85,6 +60,15 @@ bool SoundManager::playMusic(const char* path, bool loop)
     }
 
     return true;
+}
+
+void SoundManager::stopMusic()
+{
+    if (musicLoaded_)
+    {
+        ma_sound_uninit(&music_);
+        musicLoaded_ = false;
+    }
 }
 
 void SoundManager::setVolume(float value)
@@ -120,20 +104,20 @@ void SoundManager::applyVolume()
 {
     if (initialized_)
     {
-        ma_engine_set_volume(
-            &engine_,
-            muted_ ? 0.0f : volume_
-        );
+        if (muted_)
+        {
+            ma_engine_set_volume(&engine_, 0.0f);
+        }
+        else
+        {
+            ma_engine_set_volume(&engine_, volume_);
+        }
     }
 }
 
 void SoundManager::shutdown()
 {
-    if (musicLoaded_)
-    {
-        ma_sound_uninit(&music_);
-        musicLoaded_ = false;
-    }
+    stopMusic();
 
     if (initialized_)
     {

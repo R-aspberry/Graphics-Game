@@ -133,45 +133,6 @@ TowerDefense/fast:
 .PHONY : TowerDefense/fast
 
 #=============================================================================
-# Target rules for targets named EnemyTests
-
-# Build rule for target.
-EnemyTests: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 EnemyTests
-.PHONY : EnemyTests
-
-# fast build rule for target.
-EnemyTests/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/build
-.PHONY : EnemyTests/fast
-
-#=============================================================================
-# Target rules for targets named WaveManagerTests
-
-# Build rule for target.
-WaveManagerTests: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 WaveManagerTests
-.PHONY : WaveManagerTests
-
-# fast build rule for target.
-WaveManagerTests/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/build
-.PHONY : WaveManagerTests/fast
-
-#=============================================================================
-# Target rules for targets named CombatQuickTest
-
-# Build rule for target.
-CombatQuickTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CombatQuickTest
-.PHONY : CombatQuickTest
-
-# fast build rule for target.
-CombatQuickTest/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/build
-.PHONY : CombatQuickTest/fast
-
-#=============================================================================
 # Target rules for targets named glfw
 
 # Build rule for target.
@@ -218,30 +179,6 @@ test_prep/all: cmake_check_build_system
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_prep/all
 .PHONY : test_prep/all
 
-src/Camera2D.obj: src/Camera2D.cpp.obj
-.PHONY : src/Camera2D.obj
-
-# target to build an object file
-src/Camera2D.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Camera2D.cpp.obj
-.PHONY : src/Camera2D.cpp.obj
-
-src/Camera2D.i: src/Camera2D.cpp.i
-.PHONY : src/Camera2D.i
-
-# target to preprocess a source file
-src/Camera2D.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Camera2D.cpp.i
-.PHONY : src/Camera2D.cpp.i
-
-src/Camera2D.s: src/Camera2D.cpp.s
-.PHONY : src/Camera2D.s
-
-# target to generate assembly for a file
-src/Camera2D.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Camera2D.cpp.s
-.PHONY : src/Camera2D.cpp.s
-
 src/Game.obj: src/Game.cpp.obj
 .PHONY : src/Game.obj
 
@@ -265,30 +202,6 @@ src/Game.s: src/Game.cpp.s
 src/Game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Game.cpp.s
 .PHONY : src/Game.cpp.s
-
-src/InputHandler.obj: src/InputHandler.cpp.obj
-.PHONY : src/InputHandler.obj
-
-# target to build an object file
-src/InputHandler.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/InputHandler.cpp.obj
-.PHONY : src/InputHandler.cpp.obj
-
-src/InputHandler.i: src/InputHandler.cpp.i
-.PHONY : src/InputHandler.i
-
-# target to preprocess a source file
-src/InputHandler.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/InputHandler.cpp.i
-.PHONY : src/InputHandler.cpp.i
-
-src/InputHandler.s: src/InputHandler.cpp.s
-.PHONY : src/InputHandler.s
-
-# target to generate assembly for a file
-src/InputHandler.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/InputHandler.cpp.s
-.PHONY : src/InputHandler.cpp.s
 
 src/Renderer.obj: src/Renderer.cpp.obj
 .PHONY : src/Renderer.obj
@@ -338,30 +251,6 @@ src/Shader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Shader.cpp.s
 .PHONY : src/Shader.cpp.s
 
-src/Window.obj: src/Window.cpp.obj
-.PHONY : src/Window.obj
-
-# target to build an object file
-src/Window.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Window.cpp.obj
-.PHONY : src/Window.cpp.obj
-
-src/Window.i: src/Window.cpp.i
-.PHONY : src/Window.i
-
-# target to preprocess a source file
-src/Window.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Window.cpp.i
-.PHONY : src/Window.cpp.i
-
-src/Window.s: src/Window.cpp.s
-.PHONY : src/Window.s
-
-# target to generate assembly for a file
-src/Window.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/Window.cpp.s
-.PHONY : src/Window.cpp.s
-
 src/cutscene/Cutscene.obj: src/cutscene/Cutscene.cpp.obj
 .PHONY : src/cutscene/Cutscene.obj
 
@@ -392,8 +281,6 @@ src/entities/Collectible.obj: src/entities/Collectible.cpp.obj
 # target to build an object file
 src/entities/Collectible.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Collectible.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Collectible.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Collectible.cpp.obj
 .PHONY : src/entities/Collectible.cpp.obj
 
 src/entities/Collectible.i: src/entities/Collectible.cpp.i
@@ -402,8 +289,6 @@ src/entities/Collectible.i: src/entities/Collectible.cpp.i
 # target to preprocess a source file
 src/entities/Collectible.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Collectible.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Collectible.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Collectible.cpp.i
 .PHONY : src/entities/Collectible.cpp.i
 
 src/entities/Collectible.s: src/entities/Collectible.cpp.s
@@ -412,8 +297,6 @@ src/entities/Collectible.s: src/entities/Collectible.cpp.s
 # target to generate assembly for a file
 src/entities/Collectible.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Collectible.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Collectible.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Collectible.cpp.s
 .PHONY : src/entities/Collectible.cpp.s
 
 src/entities/DefensePlayer.obj: src/entities/DefensePlayer.cpp.obj
@@ -422,7 +305,6 @@ src/entities/DefensePlayer.obj: src/entities/DefensePlayer.cpp.obj
 # target to build an object file
 src/entities/DefensePlayer.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/DefensePlayer.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/DefensePlayer.cpp.obj
 .PHONY : src/entities/DefensePlayer.cpp.obj
 
 src/entities/DefensePlayer.i: src/entities/DefensePlayer.cpp.i
@@ -431,7 +313,6 @@ src/entities/DefensePlayer.i: src/entities/DefensePlayer.cpp.i
 # target to preprocess a source file
 src/entities/DefensePlayer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/DefensePlayer.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/DefensePlayer.cpp.i
 .PHONY : src/entities/DefensePlayer.cpp.i
 
 src/entities/DefensePlayer.s: src/entities/DefensePlayer.cpp.s
@@ -440,7 +321,6 @@ src/entities/DefensePlayer.s: src/entities/DefensePlayer.cpp.s
 # target to generate assembly for a file
 src/entities/DefensePlayer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/DefensePlayer.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/DefensePlayer.cpp.s
 .PHONY : src/entities/DefensePlayer.cpp.s
 
 src/entities/EasyEnemy.obj: src/entities/EasyEnemy.cpp.obj
@@ -449,9 +329,6 @@ src/entities/EasyEnemy.obj: src/entities/EasyEnemy.cpp.obj
 # target to build an object file
 src/entities/EasyEnemy.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/EasyEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/EasyEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/EasyEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/EasyEnemy.cpp.obj
 .PHONY : src/entities/EasyEnemy.cpp.obj
 
 src/entities/EasyEnemy.i: src/entities/EasyEnemy.cpp.i
@@ -460,9 +337,6 @@ src/entities/EasyEnemy.i: src/entities/EasyEnemy.cpp.i
 # target to preprocess a source file
 src/entities/EasyEnemy.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/EasyEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/EasyEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/EasyEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/EasyEnemy.cpp.i
 .PHONY : src/entities/EasyEnemy.cpp.i
 
 src/entities/EasyEnemy.s: src/entities/EasyEnemy.cpp.s
@@ -471,9 +345,6 @@ src/entities/EasyEnemy.s: src/entities/EasyEnemy.cpp.s
 # target to generate assembly for a file
 src/entities/EasyEnemy.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/EasyEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/EasyEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/EasyEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/EasyEnemy.cpp.s
 .PHONY : src/entities/EasyEnemy.cpp.s
 
 src/entities/Enemy.obj: src/entities/Enemy.cpp.obj
@@ -482,9 +353,6 @@ src/entities/Enemy.obj: src/entities/Enemy.cpp.obj
 # target to build an object file
 src/entities/Enemy.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Enemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/Enemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Enemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Enemy.cpp.obj
 .PHONY : src/entities/Enemy.cpp.obj
 
 src/entities/Enemy.i: src/entities/Enemy.cpp.i
@@ -493,9 +361,6 @@ src/entities/Enemy.i: src/entities/Enemy.cpp.i
 # target to preprocess a source file
 src/entities/Enemy.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Enemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/Enemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Enemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Enemy.cpp.i
 .PHONY : src/entities/Enemy.cpp.i
 
 src/entities/Enemy.s: src/entities/Enemy.cpp.s
@@ -504,9 +369,6 @@ src/entities/Enemy.s: src/entities/Enemy.cpp.s
 # target to generate assembly for a file
 src/entities/Enemy.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Enemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/Enemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Enemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Enemy.cpp.s
 .PHONY : src/entities/Enemy.cpp.s
 
 src/entities/EnemyProjectile.obj: src/entities/EnemyProjectile.cpp.obj
@@ -515,8 +377,6 @@ src/entities/EnemyProjectile.obj: src/entities/EnemyProjectile.cpp.obj
 # target to build an object file
 src/entities/EnemyProjectile.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/EnemyProjectile.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/EnemyProjectile.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/EnemyProjectile.cpp.obj
 .PHONY : src/entities/EnemyProjectile.cpp.obj
 
 src/entities/EnemyProjectile.i: src/entities/EnemyProjectile.cpp.i
@@ -525,8 +385,6 @@ src/entities/EnemyProjectile.i: src/entities/EnemyProjectile.cpp.i
 # target to preprocess a source file
 src/entities/EnemyProjectile.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/EnemyProjectile.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/EnemyProjectile.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/EnemyProjectile.cpp.i
 .PHONY : src/entities/EnemyProjectile.cpp.i
 
 src/entities/EnemyProjectile.s: src/entities/EnemyProjectile.cpp.s
@@ -535,8 +393,6 @@ src/entities/EnemyProjectile.s: src/entities/EnemyProjectile.cpp.s
 # target to generate assembly for a file
 src/entities/EnemyProjectile.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/EnemyProjectile.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/EnemyProjectile.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/EnemyProjectile.cpp.s
 .PHONY : src/entities/EnemyProjectile.cpp.s
 
 src/entities/Entity.obj: src/entities/Entity.cpp.obj
@@ -545,8 +401,6 @@ src/entities/Entity.obj: src/entities/Entity.cpp.obj
 # target to build an object file
 src/entities/Entity.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Entity.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Entity.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Entity.cpp.obj
 .PHONY : src/entities/Entity.cpp.obj
 
 src/entities/Entity.i: src/entities/Entity.cpp.i
@@ -555,8 +409,6 @@ src/entities/Entity.i: src/entities/Entity.cpp.i
 # target to preprocess a source file
 src/entities/Entity.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Entity.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Entity.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Entity.cpp.i
 .PHONY : src/entities/Entity.cpp.i
 
 src/entities/Entity.s: src/entities/Entity.cpp.s
@@ -565,8 +417,6 @@ src/entities/Entity.s: src/entities/Entity.cpp.s
 # target to generate assembly for a file
 src/entities/Entity.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Entity.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/Entity.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Entity.cpp.s
 .PHONY : src/entities/Entity.cpp.s
 
 src/entities/HardEnemy.obj: src/entities/HardEnemy.cpp.obj
@@ -575,9 +425,6 @@ src/entities/HardEnemy.obj: src/entities/HardEnemy.cpp.obj
 # target to build an object file
 src/entities/HardEnemy.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/HardEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/HardEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/HardEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/HardEnemy.cpp.obj
 .PHONY : src/entities/HardEnemy.cpp.obj
 
 src/entities/HardEnemy.i: src/entities/HardEnemy.cpp.i
@@ -586,9 +433,6 @@ src/entities/HardEnemy.i: src/entities/HardEnemy.cpp.i
 # target to preprocess a source file
 src/entities/HardEnemy.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/HardEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/HardEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/HardEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/HardEnemy.cpp.i
 .PHONY : src/entities/HardEnemy.cpp.i
 
 src/entities/HardEnemy.s: src/entities/HardEnemy.cpp.s
@@ -597,9 +441,6 @@ src/entities/HardEnemy.s: src/entities/HardEnemy.cpp.s
 # target to generate assembly for a file
 src/entities/HardEnemy.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/HardEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/HardEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/HardEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/HardEnemy.cpp.s
 .PHONY : src/entities/HardEnemy.cpp.s
 
 src/entities/MediumEnemy.obj: src/entities/MediumEnemy.cpp.obj
@@ -608,9 +449,6 @@ src/entities/MediumEnemy.obj: src/entities/MediumEnemy.cpp.obj
 # target to build an object file
 src/entities/MediumEnemy.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/MediumEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/MediumEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/MediumEnemy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/MediumEnemy.cpp.obj
 .PHONY : src/entities/MediumEnemy.cpp.obj
 
 src/entities/MediumEnemy.i: src/entities/MediumEnemy.cpp.i
@@ -619,9 +457,6 @@ src/entities/MediumEnemy.i: src/entities/MediumEnemy.cpp.i
 # target to preprocess a source file
 src/entities/MediumEnemy.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/MediumEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/MediumEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/MediumEnemy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/MediumEnemy.cpp.i
 .PHONY : src/entities/MediumEnemy.cpp.i
 
 src/entities/MediumEnemy.s: src/entities/MediumEnemy.cpp.s
@@ -630,9 +465,6 @@ src/entities/MediumEnemy.s: src/entities/MediumEnemy.cpp.s
 # target to generate assembly for a file
 src/entities/MediumEnemy.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/MediumEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/src/entities/MediumEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/entities/MediumEnemy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/MediumEnemy.cpp.s
 .PHONY : src/entities/MediumEnemy.cpp.s
 
 src/entities/MeleePlayer.obj: src/entities/MeleePlayer.cpp.obj
@@ -641,7 +473,6 @@ src/entities/MeleePlayer.obj: src/entities/MeleePlayer.cpp.obj
 # target to build an object file
 src/entities/MeleePlayer.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/MeleePlayer.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/MeleePlayer.cpp.obj
 .PHONY : src/entities/MeleePlayer.cpp.obj
 
 src/entities/MeleePlayer.i: src/entities/MeleePlayer.cpp.i
@@ -650,7 +481,6 @@ src/entities/MeleePlayer.i: src/entities/MeleePlayer.cpp.i
 # target to preprocess a source file
 src/entities/MeleePlayer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/MeleePlayer.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/MeleePlayer.cpp.i
 .PHONY : src/entities/MeleePlayer.cpp.i
 
 src/entities/MeleePlayer.s: src/entities/MeleePlayer.cpp.s
@@ -659,7 +489,6 @@ src/entities/MeleePlayer.s: src/entities/MeleePlayer.cpp.s
 # target to generate assembly for a file
 src/entities/MeleePlayer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/MeleePlayer.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/MeleePlayer.cpp.s
 .PHONY : src/entities/MeleePlayer.cpp.s
 
 src/entities/Player.obj: src/entities/Player.cpp.obj
@@ -668,7 +497,6 @@ src/entities/Player.obj: src/entities/Player.cpp.obj
 # target to build an object file
 src/entities/Player.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Player.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Player.cpp.obj
 .PHONY : src/entities/Player.cpp.obj
 
 src/entities/Player.i: src/entities/Player.cpp.i
@@ -677,7 +505,6 @@ src/entities/Player.i: src/entities/Player.cpp.i
 # target to preprocess a source file
 src/entities/Player.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Player.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Player.cpp.i
 .PHONY : src/entities/Player.cpp.i
 
 src/entities/Player.s: src/entities/Player.cpp.s
@@ -686,7 +513,6 @@ src/entities/Player.s: src/entities/Player.cpp.s
 # target to generate assembly for a file
 src/entities/Player.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Player.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Player.cpp.s
 .PHONY : src/entities/Player.cpp.s
 
 src/entities/Projectile.obj: src/entities/Projectile.cpp.obj
@@ -695,7 +521,6 @@ src/entities/Projectile.obj: src/entities/Projectile.cpp.obj
 # target to build an object file
 src/entities/Projectile.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Projectile.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Projectile.cpp.obj
 .PHONY : src/entities/Projectile.cpp.obj
 
 src/entities/Projectile.i: src/entities/Projectile.cpp.i
@@ -704,7 +529,6 @@ src/entities/Projectile.i: src/entities/Projectile.cpp.i
 # target to preprocess a source file
 src/entities/Projectile.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Projectile.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Projectile.cpp.i
 .PHONY : src/entities/Projectile.cpp.i
 
 src/entities/Projectile.s: src/entities/Projectile.cpp.s
@@ -713,7 +537,6 @@ src/entities/Projectile.s: src/entities/Projectile.cpp.s
 # target to generate assembly for a file
 src/entities/Projectile.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/Projectile.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/Projectile.cpp.s
 .PHONY : src/entities/Projectile.cpp.s
 
 src/entities/RangedPlayer.obj: src/entities/RangedPlayer.cpp.obj
@@ -722,7 +545,6 @@ src/entities/RangedPlayer.obj: src/entities/RangedPlayer.cpp.obj
 # target to build an object file
 src/entities/RangedPlayer.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/RangedPlayer.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/RangedPlayer.cpp.obj
 .PHONY : src/entities/RangedPlayer.cpp.obj
 
 src/entities/RangedPlayer.i: src/entities/RangedPlayer.cpp.i
@@ -731,7 +553,6 @@ src/entities/RangedPlayer.i: src/entities/RangedPlayer.cpp.i
 # target to preprocess a source file
 src/entities/RangedPlayer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/RangedPlayer.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/RangedPlayer.cpp.i
 .PHONY : src/entities/RangedPlayer.cpp.i
 
 src/entities/RangedPlayer.s: src/entities/RangedPlayer.cpp.s
@@ -740,7 +561,6 @@ src/entities/RangedPlayer.s: src/entities/RangedPlayer.cpp.s
 # target to generate assembly for a file
 src/entities/RangedPlayer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/entities/RangedPlayer.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/entities/RangedPlayer.cpp.s
 .PHONY : src/entities/RangedPlayer.cpp.s
 
 src/glad2.obj: src/glad2.cpp.obj
@@ -797,7 +617,6 @@ src/systems/CollisionSystem.obj: src/systems/CollisionSystem.cpp.obj
 # target to build an object file
 src/systems/CollisionSystem.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/CollisionSystem.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/CollisionSystem.cpp.obj
 .PHONY : src/systems/CollisionSystem.cpp.obj
 
 src/systems/CollisionSystem.i: src/systems/CollisionSystem.cpp.i
@@ -806,7 +625,6 @@ src/systems/CollisionSystem.i: src/systems/CollisionSystem.cpp.i
 # target to preprocess a source file
 src/systems/CollisionSystem.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/CollisionSystem.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/CollisionSystem.cpp.i
 .PHONY : src/systems/CollisionSystem.cpp.i
 
 src/systems/CollisionSystem.s: src/systems/CollisionSystem.cpp.s
@@ -815,7 +633,6 @@ src/systems/CollisionSystem.s: src/systems/CollisionSystem.cpp.s
 # target to generate assembly for a file
 src/systems/CollisionSystem.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/CollisionSystem.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/CollisionSystem.cpp.s
 .PHONY : src/systems/CollisionSystem.cpp.s
 
 src/systems/CombatSystem.obj: src/systems/CombatSystem.cpp.obj
@@ -824,7 +641,6 @@ src/systems/CombatSystem.obj: src/systems/CombatSystem.cpp.obj
 # target to build an object file
 src/systems/CombatSystem.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/CombatSystem.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/CombatSystem.cpp.obj
 .PHONY : src/systems/CombatSystem.cpp.obj
 
 src/systems/CombatSystem.i: src/systems/CombatSystem.cpp.i
@@ -833,7 +649,6 @@ src/systems/CombatSystem.i: src/systems/CombatSystem.cpp.i
 # target to preprocess a source file
 src/systems/CombatSystem.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/CombatSystem.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/CombatSystem.cpp.i
 .PHONY : src/systems/CombatSystem.cpp.i
 
 src/systems/CombatSystem.s: src/systems/CombatSystem.cpp.s
@@ -842,7 +657,6 @@ src/systems/CombatSystem.s: src/systems/CombatSystem.cpp.s
 # target to generate assembly for a file
 src/systems/CombatSystem.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/CombatSystem.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/CombatSystem.cpp.s
 .PHONY : src/systems/CombatSystem.cpp.s
 
 src/systems/Economy.obj: src/systems/Economy.cpp.obj
@@ -851,7 +665,6 @@ src/systems/Economy.obj: src/systems/Economy.cpp.obj
 # target to build an object file
 src/systems/Economy.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/Economy.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/Economy.cpp.obj
 .PHONY : src/systems/Economy.cpp.obj
 
 src/systems/Economy.i: src/systems/Economy.cpp.i
@@ -860,7 +673,6 @@ src/systems/Economy.i: src/systems/Economy.cpp.i
 # target to preprocess a source file
 src/systems/Economy.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/Economy.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/Economy.cpp.i
 .PHONY : src/systems/Economy.cpp.i
 
 src/systems/Economy.s: src/systems/Economy.cpp.s
@@ -869,32 +681,7 @@ src/systems/Economy.s: src/systems/Economy.cpp.s
 # target to generate assembly for a file
 src/systems/Economy.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/Economy.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/Economy.cpp.s
 .PHONY : src/systems/Economy.cpp.s
-
-src/systems/EnemySpawner.obj: src/systems/EnemySpawner.cpp.obj
-.PHONY : src/systems/EnemySpawner.obj
-
-# target to build an object file
-src/systems/EnemySpawner.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/EnemySpawner.cpp.obj
-.PHONY : src/systems/EnemySpawner.cpp.obj
-
-src/systems/EnemySpawner.i: src/systems/EnemySpawner.cpp.i
-.PHONY : src/systems/EnemySpawner.i
-
-# target to preprocess a source file
-src/systems/EnemySpawner.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/EnemySpawner.cpp.i
-.PHONY : src/systems/EnemySpawner.cpp.i
-
-src/systems/EnemySpawner.s: src/systems/EnemySpawner.cpp.s
-.PHONY : src/systems/EnemySpawner.s
-
-# target to generate assembly for a file
-src/systems/EnemySpawner.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/EnemySpawner.cpp.s
-.PHONY : src/systems/EnemySpawner.cpp.s
 
 src/systems/GameManager.obj: src/systems/GameManager.cpp.obj
 .PHONY : src/systems/GameManager.obj
@@ -902,7 +689,6 @@ src/systems/GameManager.obj: src/systems/GameManager.cpp.obj
 # target to build an object file
 src/systems/GameManager.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/GameManager.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/GameManager.cpp.obj
 .PHONY : src/systems/GameManager.cpp.obj
 
 src/systems/GameManager.i: src/systems/GameManager.cpp.i
@@ -911,7 +697,6 @@ src/systems/GameManager.i: src/systems/GameManager.cpp.i
 # target to preprocess a source file
 src/systems/GameManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/GameManager.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/GameManager.cpp.i
 .PHONY : src/systems/GameManager.cpp.i
 
 src/systems/GameManager.s: src/systems/GameManager.cpp.s
@@ -920,7 +705,6 @@ src/systems/GameManager.s: src/systems/GameManager.cpp.s
 # target to generate assembly for a file
 src/systems/GameManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/GameManager.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/GameManager.cpp.s
 .PHONY : src/systems/GameManager.cpp.s
 
 src/systems/SoundManager.obj: src/systems/SoundManager.cpp.obj
@@ -953,8 +737,6 @@ src/systems/WaveManager.obj: src/systems/WaveManager.cpp.obj
 # target to build an object file
 src/systems/WaveManager.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/WaveManager.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/systems/WaveManager.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/WaveManager.cpp.obj
 .PHONY : src/systems/WaveManager.cpp.obj
 
 src/systems/WaveManager.i: src/systems/WaveManager.cpp.i
@@ -963,8 +745,6 @@ src/systems/WaveManager.i: src/systems/WaveManager.cpp.i
 # target to preprocess a source file
 src/systems/WaveManager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/WaveManager.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/systems/WaveManager.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/WaveManager.cpp.i
 .PHONY : src/systems/WaveManager.cpp.i
 
 src/systems/WaveManager.s: src/systems/WaveManager.cpp.s
@@ -973,33 +753,7 @@ src/systems/WaveManager.s: src/systems/WaveManager.cpp.s
 # target to generate assembly for a file
 src/systems/WaveManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/systems/WaveManager.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/systems/WaveManager.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/systems/WaveManager.cpp.s
 .PHONY : src/systems/WaveManager.cpp.s
-
-src/ui/EndMenu.obj: src/ui/EndMenu.cpp.obj
-.PHONY : src/ui/EndMenu.obj
-
-# target to build an object file
-src/ui/EndMenu.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/EndMenu.cpp.obj
-.PHONY : src/ui/EndMenu.cpp.obj
-
-src/ui/EndMenu.i: src/ui/EndMenu.cpp.i
-.PHONY : src/ui/EndMenu.i
-
-# target to preprocess a source file
-src/ui/EndMenu.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/EndMenu.cpp.i
-.PHONY : src/ui/EndMenu.cpp.i
-
-src/ui/EndMenu.s: src/ui/EndMenu.cpp.s
-.PHONY : src/ui/EndMenu.s
-
-# target to generate assembly for a file
-src/ui/EndMenu.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/EndMenu.cpp.s
-.PHONY : src/ui/EndMenu.cpp.s
 
 src/ui/HUD.obj: src/ui/HUD.cpp.obj
 .PHONY : src/ui/HUD.obj
@@ -1049,54 +803,6 @@ src/ui/MainMenu.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/MainMenu.cpp.s
 .PHONY : src/ui/MainMenu.cpp.s
 
-src/ui/Menu.obj: src/ui/Menu.cpp.obj
-.PHONY : src/ui/Menu.obj
-
-# target to build an object file
-src/ui/Menu.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/Menu.cpp.obj
-.PHONY : src/ui/Menu.cpp.obj
-
-src/ui/Menu.i: src/ui/Menu.cpp.i
-.PHONY : src/ui/Menu.i
-
-# target to preprocess a source file
-src/ui/Menu.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/Menu.cpp.i
-.PHONY : src/ui/Menu.cpp.i
-
-src/ui/Menu.s: src/ui/Menu.cpp.s
-.PHONY : src/ui/Menu.s
-
-# target to generate assembly for a file
-src/ui/Menu.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/Menu.cpp.s
-.PHONY : src/ui/Menu.cpp.s
-
-src/ui/PauseMenu.obj: src/ui/PauseMenu.cpp.obj
-.PHONY : src/ui/PauseMenu.obj
-
-# target to build an object file
-src/ui/PauseMenu.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/PauseMenu.cpp.obj
-.PHONY : src/ui/PauseMenu.cpp.obj
-
-src/ui/PauseMenu.i: src/ui/PauseMenu.cpp.i
-.PHONY : src/ui/PauseMenu.i
-
-# target to preprocess a source file
-src/ui/PauseMenu.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/PauseMenu.cpp.i
-.PHONY : src/ui/PauseMenu.cpp.i
-
-src/ui/PauseMenu.s: src/ui/PauseMenu.cpp.s
-.PHONY : src/ui/PauseMenu.s
-
-# target to generate assembly for a file
-src/ui/PauseMenu.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/PauseMenu.cpp.s
-.PHONY : src/ui/PauseMenu.cpp.s
-
 src/ui/PlayerCard.obj: src/ui/PlayerCard.cpp.obj
 .PHONY : src/ui/PlayerCard.obj
 
@@ -1145,54 +851,6 @@ src/ui/SoundSettings.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/SoundSettings.cpp.s
 .PHONY : src/ui/SoundSettings.cpp.s
 
-src/ui/UIManager.obj: src/ui/UIManager.cpp.obj
-.PHONY : src/ui/UIManager.obj
-
-# target to build an object file
-src/ui/UIManager.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/UIManager.cpp.obj
-.PHONY : src/ui/UIManager.cpp.obj
-
-src/ui/UIManager.i: src/ui/UIManager.cpp.i
-.PHONY : src/ui/UIManager.i
-
-# target to preprocess a source file
-src/ui/UIManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/UIManager.cpp.i
-.PHONY : src/ui/UIManager.cpp.i
-
-src/ui/UIManager.s: src/ui/UIManager.cpp.s
-.PHONY : src/ui/UIManager.s
-
-# target to generate assembly for a file
-src/ui/UIManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/ui/UIManager.cpp.s
-.PHONY : src/ui/UIManager.cpp.s
-
-src/utils/Animation.obj: src/utils/Animation.cpp.obj
-.PHONY : src/utils/Animation.obj
-
-# target to build an object file
-src/utils/Animation.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/utils/Animation.cpp.obj
-.PHONY : src/utils/Animation.cpp.obj
-
-src/utils/Animation.i: src/utils/Animation.cpp.i
-.PHONY : src/utils/Animation.i
-
-# target to preprocess a source file
-src/utils/Animation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/utils/Animation.cpp.i
-.PHONY : src/utils/Animation.cpp.i
-
-src/utils/Animation.s: src/utils/Animation.cpp.s
-.PHONY : src/utils/Animation.s
-
-# target to generate assembly for a file
-src/utils/Animation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/utils/Animation.cpp.s
-.PHONY : src/utils/Animation.cpp.s
-
 src/utils/ResourceManager.obj: src/utils/ResourceManager.cpp.obj
 .PHONY : src/utils/ResourceManager.obj
 
@@ -1217,38 +875,12 @@ src/utils/ResourceManager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/utils/ResourceManager.cpp.s
 .PHONY : src/utils/ResourceManager.cpp.s
 
-src/world/Environment.obj: src/world/Environment.cpp.obj
-.PHONY : src/world/Environment.obj
-
-# target to build an object file
-src/world/Environment.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/Environment.cpp.obj
-.PHONY : src/world/Environment.cpp.obj
-
-src/world/Environment.i: src/world/Environment.cpp.i
-.PHONY : src/world/Environment.i
-
-# target to preprocess a source file
-src/world/Environment.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/Environment.cpp.i
-.PHONY : src/world/Environment.cpp.i
-
-src/world/Environment.s: src/world/Environment.cpp.s
-.PHONY : src/world/Environment.s
-
-# target to generate assembly for a file
-src/world/Environment.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/Environment.cpp.s
-.PHONY : src/world/Environment.cpp.s
-
 src/world/Grid.obj: src/world/Grid.cpp.obj
 .PHONY : src/world/Grid.obj
 
 # target to build an object file
 src/world/Grid.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/Grid.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/world/Grid.cpp.obj
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/world/Grid.cpp.obj
 .PHONY : src/world/Grid.cpp.obj
 
 src/world/Grid.i: src/world/Grid.cpp.i
@@ -1257,8 +889,6 @@ src/world/Grid.i: src/world/Grid.cpp.i
 # target to preprocess a source file
 src/world/Grid.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/Grid.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/world/Grid.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/world/Grid.cpp.i
 .PHONY : src/world/Grid.cpp.i
 
 src/world/Grid.s: src/world/Grid.cpp.s
@@ -1267,8 +897,6 @@ src/world/Grid.s: src/world/Grid.cpp.s
 # target to generate assembly for a file
 src/world/Grid.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/Grid.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/src/world/Grid.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/src/world/Grid.cpp.s
 .PHONY : src/world/Grid.cpp.s
 
 src/world/HomeBase.obj: src/world/HomeBase.cpp.obj
@@ -1295,78 +923,6 @@ src/world/HomeBase.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\TowerDefense.dir\build.make CMakeFiles/TowerDefense.dir/src/world/HomeBase.cpp.s
 .PHONY : src/world/HomeBase.cpp.s
 
-tests/CombatQuickTest.obj: tests/CombatQuickTest.cpp.obj
-.PHONY : tests/CombatQuickTest.obj
-
-# target to build an object file
-tests/CombatQuickTest.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/tests/CombatQuickTest.cpp.obj
-.PHONY : tests/CombatQuickTest.cpp.obj
-
-tests/CombatQuickTest.i: tests/CombatQuickTest.cpp.i
-.PHONY : tests/CombatQuickTest.i
-
-# target to preprocess a source file
-tests/CombatQuickTest.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/tests/CombatQuickTest.cpp.i
-.PHONY : tests/CombatQuickTest.cpp.i
-
-tests/CombatQuickTest.s: tests/CombatQuickTest.cpp.s
-.PHONY : tests/CombatQuickTest.s
-
-# target to generate assembly for a file
-tests/CombatQuickTest.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\CombatQuickTest.dir\build.make CMakeFiles/CombatQuickTest.dir/tests/CombatQuickTest.cpp.s
-.PHONY : tests/CombatQuickTest.cpp.s
-
-tests/EnemyTest.obj: tests/EnemyTest.cpp.obj
-.PHONY : tests/EnemyTest.obj
-
-# target to build an object file
-tests/EnemyTest.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/tests/EnemyTest.cpp.obj
-.PHONY : tests/EnemyTest.cpp.obj
-
-tests/EnemyTest.i: tests/EnemyTest.cpp.i
-.PHONY : tests/EnemyTest.i
-
-# target to preprocess a source file
-tests/EnemyTest.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/tests/EnemyTest.cpp.i
-.PHONY : tests/EnemyTest.cpp.i
-
-tests/EnemyTest.s: tests/EnemyTest.cpp.s
-.PHONY : tests/EnemyTest.s
-
-# target to generate assembly for a file
-tests/EnemyTest.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\EnemyTests.dir\build.make CMakeFiles/EnemyTests.dir/tests/EnemyTest.cpp.s
-.PHONY : tests/EnemyTest.cpp.s
-
-tests/WaveManagerTest.obj: tests/WaveManagerTest.cpp.obj
-.PHONY : tests/WaveManagerTest.obj
-
-# target to build an object file
-tests/WaveManagerTest.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/tests/WaveManagerTest.cpp.obj
-.PHONY : tests/WaveManagerTest.cpp.obj
-
-tests/WaveManagerTest.i: tests/WaveManagerTest.cpp.i
-.PHONY : tests/WaveManagerTest.i
-
-# target to preprocess a source file
-tests/WaveManagerTest.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/tests/WaveManagerTest.cpp.i
-.PHONY : tests/WaveManagerTest.cpp.i
-
-tests/WaveManagerTest.s: tests/WaveManagerTest.cpp.s
-.PHONY : tests/WaveManagerTest.s
-
-# target to generate assembly for a file
-tests/WaveManagerTest.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\WaveManagerTests.dir\build.make CMakeFiles/WaveManagerTests.dir/tests/WaveManagerTest.cpp.s
-.PHONY : tests/WaveManagerTest.cpp.s
-
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -1376,30 +932,18 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... update_mappings
-	@echo ... CombatQuickTest
-	@echo ... EnemyTests
 	@echo ... TowerDefense
-	@echo ... WaveManagerTests
 	@echo ... glfw
 	@echo ... glm
-	@echo ... src/Camera2D.obj
-	@echo ... src/Camera2D.i
-	@echo ... src/Camera2D.s
 	@echo ... src/Game.obj
 	@echo ... src/Game.i
 	@echo ... src/Game.s
-	@echo ... src/InputHandler.obj
-	@echo ... src/InputHandler.i
-	@echo ... src/InputHandler.s
 	@echo ... src/Renderer.obj
 	@echo ... src/Renderer.i
 	@echo ... src/Renderer.s
 	@echo ... src/Shader.obj
 	@echo ... src/Shader.i
 	@echo ... src/Shader.s
-	@echo ... src/Window.obj
-	@echo ... src/Window.i
-	@echo ... src/Window.s
 	@echo ... src/cutscene/Cutscene.obj
 	@echo ... src/cutscene/Cutscene.i
 	@echo ... src/cutscene/Cutscene.s
@@ -1454,9 +998,6 @@ help:
 	@echo ... src/systems/Economy.obj
 	@echo ... src/systems/Economy.i
 	@echo ... src/systems/Economy.s
-	@echo ... src/systems/EnemySpawner.obj
-	@echo ... src/systems/EnemySpawner.i
-	@echo ... src/systems/EnemySpawner.s
 	@echo ... src/systems/GameManager.obj
 	@echo ... src/systems/GameManager.i
 	@echo ... src/systems/GameManager.s
@@ -1466,54 +1007,27 @@ help:
 	@echo ... src/systems/WaveManager.obj
 	@echo ... src/systems/WaveManager.i
 	@echo ... src/systems/WaveManager.s
-	@echo ... src/ui/EndMenu.obj
-	@echo ... src/ui/EndMenu.i
-	@echo ... src/ui/EndMenu.s
 	@echo ... src/ui/HUD.obj
 	@echo ... src/ui/HUD.i
 	@echo ... src/ui/HUD.s
 	@echo ... src/ui/MainMenu.obj
 	@echo ... src/ui/MainMenu.i
 	@echo ... src/ui/MainMenu.s
-	@echo ... src/ui/Menu.obj
-	@echo ... src/ui/Menu.i
-	@echo ... src/ui/Menu.s
-	@echo ... src/ui/PauseMenu.obj
-	@echo ... src/ui/PauseMenu.i
-	@echo ... src/ui/PauseMenu.s
 	@echo ... src/ui/PlayerCard.obj
 	@echo ... src/ui/PlayerCard.i
 	@echo ... src/ui/PlayerCard.s
 	@echo ... src/ui/SoundSettings.obj
 	@echo ... src/ui/SoundSettings.i
 	@echo ... src/ui/SoundSettings.s
-	@echo ... src/ui/UIManager.obj
-	@echo ... src/ui/UIManager.i
-	@echo ... src/ui/UIManager.s
-	@echo ... src/utils/Animation.obj
-	@echo ... src/utils/Animation.i
-	@echo ... src/utils/Animation.s
 	@echo ... src/utils/ResourceManager.obj
 	@echo ... src/utils/ResourceManager.i
 	@echo ... src/utils/ResourceManager.s
-	@echo ... src/world/Environment.obj
-	@echo ... src/world/Environment.i
-	@echo ... src/world/Environment.s
 	@echo ... src/world/Grid.obj
 	@echo ... src/world/Grid.i
 	@echo ... src/world/Grid.s
 	@echo ... src/world/HomeBase.obj
 	@echo ... src/world/HomeBase.i
 	@echo ... src/world/HomeBase.s
-	@echo ... tests/CombatQuickTest.obj
-	@echo ... tests/CombatQuickTest.i
-	@echo ... tests/CombatQuickTest.s
-	@echo ... tests/EnemyTest.obj
-	@echo ... tests/EnemyTest.i
-	@echo ... tests/EnemyTest.s
-	@echo ... tests/WaveManagerTest.obj
-	@echo ... tests/WaveManagerTest.i
-	@echo ... tests/WaveManagerTest.s
 .PHONY : help
 
 

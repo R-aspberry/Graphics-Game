@@ -3,7 +3,6 @@
 #include "../entities/MeleePlayer.h"
 #include "../entities/RangedPlayer.h"
 #include "../utils/Types.h"
-#include "../utils/Animation.h"
 #include "../entities/Entity.h"
 #include "../entities/Projectile.h"
 #include "../utils/Constants.h"

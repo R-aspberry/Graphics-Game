@@ -3,7 +3,6 @@
 
 #include "Entity.h"
 #include "../utils/Types.h"
-#include "../utils/Animation.h"
 
 class GameManager;
 
@@ -20,7 +19,7 @@ public:
     float duckTimer;
     float damageFlashTimer;
     float attackRange;
-    Animation animation;
+    
 
 public:
     Player(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed);

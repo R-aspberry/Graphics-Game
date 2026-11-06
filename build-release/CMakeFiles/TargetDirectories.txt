@@ -1,7 +1,4 @@
 C:/Users/user/Desktop/Graphics-Game/build-release/CMakeFiles/TowerDefense.dir
-C:/Users/user/Desktop/Graphics-Game/build-release/CMakeFiles/EnemyTests.dir
-C:/Users/user/Desktop/Graphics-Game/build-release/CMakeFiles/WaveManagerTests.dir
-C:/Users/user/Desktop/Graphics-Game/build-release/CMakeFiles/CombatQuickTest.dir
 C:/Users/user/Desktop/Graphics-Game/build-release/CMakeFiles/edit_cache.dir
 C:/Users/user/Desktop/Graphics-Game/build-release/CMakeFiles/rebuild_cache.dir
 C:/Users/user/Desktop/Graphics-Game/build-release/external/glfw/CMakeFiles/edit_cache.dir

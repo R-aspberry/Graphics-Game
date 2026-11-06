@@ -76,7 +76,7 @@ const char *spriteFragmentShader = R"(
 
         FragColor = vec4(finalColor, pixel.a);
     }
-)"; // understand it at the time of evaluation edited for redtint w for collectible 
+)"; 
 
 Game::Game()
     : combatSystem(&gameManager, &collisionSystem),
@@ -444,12 +444,13 @@ void Game::renderEnemyProjectiles(WaveManager& waveManager)
         const EnemyProjectile* projectile = waveManager.getEnemyProjectileAt(i);
         if (projectile != nullptr && projectile->isActive()) {
             const int laneIndex = projectile->getLaneIndex();
-            if (laneIndex < 0 || laneIndex >= static_cast<int>(lanes.size())) continue;
+            if (laneIndex < 0 || laneIndex >= static_cast<int>(lanes.size())) 
+                continue;
             const float drawHeight = projectile->getHeight() * 1.5f;
             const float drawWidth = drawHeight * 2.0f;
             const Lane& lane = lanes[laneIndex];
-            if (projectile->getX() < lane.left ||
-                projectile->getX() + drawWidth > lane.right) continue;
+            if (projectile->getX() < lane.left || projectile->getX() + drawWidth > lane.right) 
+                continue;
             const float drawY = projectile->getY() -
                 (drawHeight - projectile->getHeight()) * 0.5f;
             shader.use();
@@ -464,7 +465,7 @@ void Game::renderEnemyProjectiles(WaveManager& waveManager)
             glUniform1f(glGetUniformLocation(shader.Program, "brightness"), 1.0f);
         }
     }
-}// method needs review by hana but i approve 
+} 
 
 void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) { //this animationTime is not used 
     if (!initialized || rendere == nullptr || enemy.getState() == EnemyState::DEAD) {
@@ -542,10 +543,6 @@ void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime
              glGetUniformLocation(shader.Program, "enemySprite"), 0
          );
         }
-// i dont like the render enemy method it takes lane ? idk why it also takes animation timer why ? it should just render all active enemies
-//but it is working all good plus gamemanager doesnt hold such an array 
-
-
 
 void Game::render(const Lane& lane, PlayerType type) {
     if (!initialized || rendere == nullptr) {
@@ -576,61 +573,7 @@ void Game::render(const Lane& lane, PlayerType type) {
         WorldLayout::standingY(lane, height),
         height);
     rendere->drawSprite(texture, x, y, width, height, 0.0f);
-} // modified the render method this method is prob useless not removed incase it is being called somehwere else
-
-// void Game::renderEnemy(const Enemy& enemy, const Lane& lane, float animationTime) {
-//     if (!initialized || rendere == nullptr || enemy.getState() == EnemyState::DEAD) {
-//         return;
-//     }
-
-//     const auto type = static_cast<std::size_t>(enemy.getEnemyType());
-//     if (type >= enemyMoveTextures.size()) {
-//         return;
-//     } 
-
-//     const auto frame = static_cast<std::size_t>(animationTime * 6.0f) %
-//                        enemyMoveTextures[type].size();
-//     const GLuint texture = enemyMoveTextures[type][frame];
-//     if (texture == 0) {
-//         return;
-//     }
-
-//     const float width = WorldLayout::ENEMY_WIDTH;
-//     const float height = WorldLayout::ENEMY_HEIGHT;
-//     const float y = WorldLayout::toRenderY(enemy.getPosition().y, height);
-//     if (enemy.getLane() != lane.id) {
-//         return;
-//     }
-//     shader.use();
-
-//         glUniform1i(
-//             glGetUniformLocation(shader.Program, "enemySprite"), 1
-//         );
-
-//         float healthRatio = (float)enemy.getHealth() / enemy.getMaxHealth();
-//         float damageTint = 1.0f - healthRatio;
-
-//         if (enemy.getdamageFlashTimer() > 0.0f) {
-//             damageTint = 1.0f;
-//         }
-
-//         if (damageTint < 0.0f) {
-//             damageTint = 0.0f;
-//         }
-
-//         if (damageTint > 1.0f) {
-//             damageTint = 1.0f;
-//         }
-
-
-//         rendere->drawSprite(texture, enemy.getPosition().x, y, width, height, damageTint);
-
-//         glUniform1i(
-//              glGetUniformLocation(shader.Program, "enemySprite"), 0
-//          );
-// }// i dont like the render enemy method it takes lane ? idk why it also takes animation timer why ? it should just render all active enemies
-// //but it is working all good plus gamemanager doesnt hold such an array 
-
+}
 
 void Game::renderCollectibles(const WaveManager& waveManager)
 {
@@ -686,15 +629,10 @@ void Game::render() {
     }
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // are these 2 lines needed 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
     renderPlayers();
     renderProjectiles();
 }
-
-// void Game::update(float deltaTime){
-//     gameManager.update(deltaTime);
-//     gameManager.cleanupInactiveEntities();
-// }
 
 void Game::update(float deltaTime, const std::vector<Enemy*>& enemies) {
     animationTimer+=deltaTime;
@@ -721,117 +659,3 @@ void Game::collectDrops(WaveManager& waveManager, Economy& economy) {
         }
     }
 }
-// bool Game::init()
-// {
-//     if (initialized)
-//     {
-//         return true;
-//     }
-
-//     spriteShader = std::make_unique<Shader>(
-//         spriteVertexShader,
-//         spriteFragmentShader);
-
-//     if (spriteShader->Program == 0)
-//     {
-//         std::cerr << "Failed to initialize sprite shader.\n";
-//         spriteShader.reset();
-//         return false;
-//     }
-
-//     renderer = std::make_unique<Renderer>(*spriteShader, 1000.0f, 700.0f);
-
-//     meleeTexture = ResourceManager::loadTexture(
-//         "assets/sprites/Melee_M1.png");
-
-//     rangedTexture = ResourceManager::loadTexture(
-//         "assets/sprites/Ranged_M1.png");
-
-//     defenseTexture = ResourceManager::loadTexture(
-//         "assets/sprites/Defense.png");
-
-//     if (meleeTexture == 0)
-//     {
-//         std::cerr << "Failed to load Melee sprite.\n";
-//         renderer.reset();
-//         spriteShader.reset();
-//         return false;
-//     }
-
-//     const char *enemyFolders[3] = {
-//         "EASYENEMY",
-//         "MEDIUMENEMY",
-//         "HARDENEMY"};
-
-//     for (int type = 0; type < 3; type++)
-//     {
-//         for (int frame = 0; frame < 4; frame++)
-//         {
-//             std::string folder = enemyFolders[type];
-
-//             std::string path =
-//                 "assets/sprites/enemies/" + folder + "/" +
-//                 folder + "_M" + std::to_string(frame + 1) + ".png";
-
-//             enemyMoveTextures[type][frame] =
-//                 ResourceManager::loadTexture(path);
-//         }
-//     }
-
-//     initialized = true;
-//     std::cout << "Gameplay renderer initialized.\n";
-//     return true;
-// }
-
-// void Game::update(float deltaTime)
-// {
-//     // We'll add animation and enemy movement here next.
-//     (void)deltaTime;
-// }
-
-
-// void Game::renderEnemy(
-//     const Enemy &enemy,
-//     const Lane &lane,
-//     float animationTime)
-// {
-//     if (!initialized || !renderer)
-//     {
-//         return;
-//     }
-
-//     if (enemy.getState() == EnemyState::DEAD)
-//     {
-//         return;
-//     }
-
-//     int type = 0;
-
-//     if (dynamic_cast<const MediumEnemy *>(&enemy))
-//     {
-//         type = 1;
-//     }
-//     else if (dynamic_cast<const HardEnemy *>(&enemy))
-//     {
-//         type = 2;
-//     }
-
-//     int frame = static_cast<int>(animationTime * 6.0f) % 4;
-
-//     unsigned int texture = enemyMoveTextures[type][frame];
-
-//     if (texture == 0)
-//     {
-//         return;
-//     }
-
-//     float width = 0.075f;
-//     float height = 0.11f;
-
-//     float x = enemy.getPosition().x / 1000.0f - width / 2.0f;
-
-//     float laneCenterY = (lane.top + lane.bottom) / 2.0f;
-//     float y = 1.0f - laneCenterY - height / 2.0f;
-
-//     renderer->drawSprite(texture, x, y, width, height);
-// }

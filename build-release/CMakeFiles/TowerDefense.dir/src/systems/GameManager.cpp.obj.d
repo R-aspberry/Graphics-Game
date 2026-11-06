@@ -3,7 +3,6 @@ CMakeFiles/TowerDefense.dir/src/systems/GameManager.cpp.obj: \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Player.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Entity.h \
  C:/Users/user/Desktop/Graphics-Game/src/utils/Types.h \
- C:/Users/user/Desktop/Graphics-Game/src/utils/Animation.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/DefensePlayer.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Player.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/MeleePlayer.h \
@@ -153,7 +152,6 @@ CMakeFiles/TowerDefense.dir/src/systems/GameManager.cpp.obj: \
  C:/Users/user/Desktop/Graphics-Game/src/world/Grid.h \
  C:/msys64/ucrt64/include/c++/16.2.0/array \
  C:/msys64/ucrt64/include/c++/16.2.0/compare \
- C:/Users/user/Desktop/Graphics-Game/src/utils/Animation.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Entity.h \
  C:/Users/user/Desktop/Graphics-Game/src/entities/Projectile.h \
  C:/msys64/ucrt64/include/c++/16.2.0/utility \

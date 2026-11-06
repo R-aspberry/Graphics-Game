@@ -89,9 +89,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/TowerDefense.dir/DependInfo.cmake"
-  "CMakeFiles/EnemyTests.dir/DependInfo.cmake"
-  "CMakeFiles/WaveManagerTests.dir/DependInfo.cmake"
-  "CMakeFiles/CombatQuickTest.dir/DependInfo.cmake"
   "external/glfw/src/CMakeFiles/glfw.dir/DependInfo.cmake"
   "external/glfw/src/CMakeFiles/update_mappings.dir/DependInfo.cmake"
   "external/glm/glm/CMakeFiles/glm.dir/DependInfo.cmake"

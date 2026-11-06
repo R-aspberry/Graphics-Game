@@ -518,6 +518,7 @@ int main()
                 if (cutscene.finished() || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
                 {
                     cutscene.stopAudio();
+                    audio.playMusic("assets/backgroundsound.wav", true);
                     currentScreen = AppScreen::PLAYING;
                     suppressGameplayClick = true;
                 }

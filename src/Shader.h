@@ -8,10 +8,5 @@ class Shader{
         ~ Shader();
         void use();
         GLuint Program =0 ;
-    private :
-        
-        //GLuint compileTheShader(GLenum shaderType , const char* glsl);
-
-    
 
 };

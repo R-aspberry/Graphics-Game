@@ -5,8 +5,6 @@
 #include <iostream>
 
 
-
-
 void SoundSettings::init()
 {
     
@@ -129,8 +127,6 @@ void SoundSettings::init()
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
-
 
     
     auto loadButtonTexture = [](const char* path) {

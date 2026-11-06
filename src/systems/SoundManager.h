@@ -10,6 +10,7 @@ public:
 
     bool init();
     bool playMusic(const char* path, bool loop = true);
+    void stopMusic();
 
     void setVolume(float value);
     float getVolume() const;
