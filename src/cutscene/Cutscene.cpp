@@ -242,7 +242,7 @@ void Cutscene::draw(int screenWidth, int screenHeight){
     }
 
 
-    if (time >= 7.0f && time < 12.0f)
+    if (time >= 7.0f && time < 13.0f)
         drawImage(playerText, -0.8f, -1.25f, 1.6f, 0.9f);
 
     if (time >= 11.0f && time < 11.13f)
@@ -265,7 +265,7 @@ void Cutscene::draw(int screenWidth, int screenHeight){
         drawImage(objective, -0.80f, -0.50f, 1.6f, 0.27f);
     }
 
-    drawImage(skipText, 0.40f, -0.96f, 0.55f, 0.13f);
+    drawImage(skipText, 0.50f, -0.96f, 0.55f, 0.13f);
     glDisable(GL_BLEND);
     glUseProgram(0);
 }
