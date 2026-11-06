@@ -7,9 +7,6 @@ namespace GameConfig {
     // Playfield
     inline constexpr int LANE_COUNT = 4;
 
-    // Movement tuning in normalized world units per second. The description
-    // gives no numeric speeds; Defense is stationary and Hard runs faster
-    // than the normal-speed Easy and Medium enemies.
     inline constexpr float MELEE_SPEED = 0.09f;
     inline constexpr float RANGED_SPEED = 0.08f;
     inline constexpr float DEFENSE_SPEED = 0.0f;
@@ -19,15 +16,14 @@ namespace GameConfig {
     inline constexpr float MEDIUM_ENEMY_SPEED = 0.045f;
     inline constexpr float HARD_ENEMY_SPEED = 0.08f;
 
-    // Required player health and damage (Defense does not attack).
+    // Required player health and damage .
     inline constexpr int MELEE_PLAYER_HP = 5;
     inline constexpr int RANGED_PLAYER_HP = 5;
     inline constexpr int DEFENSE_PLAYER_HP = 7;
     inline constexpr int MELEE_PLAYER_DAMAGE = 1;
     inline constexpr int RANGED_PLAYER_DAMAGE = 1;
 
-    // Attack cooldown tuning in seconds; exact timings are not specified.
-    inline constexpr float MELEE_ATTACK_INTERVAL = 0.35f; // cooldown after the 0.5s melee animation
+    inline constexpr float MELEE_ATTACK_INTERVAL = 0.35f; // cooldown after the melee animation
     inline constexpr float RANGED_ATTACK_INTERVAL = 1.5f;
 
     // Player animation timings and projectile movement.
@@ -36,11 +32,9 @@ namespace GameConfig {
     inline constexpr float ATTACK_ANIMATION_DURATION = 0.5f;
     inline constexpr float PLAYER_PROJECTILE_SPEED = 0.5f;
 
-    // Enemy attack cadence (health and damage remain as required by the spec)
+    // Enemy attack cadence 
     inline constexpr float EASY_ENEMY_ATTACK_INTERVAL = 4.0f;
     inline constexpr float MEDIUM_ENEMY_ATTACK_INTERVAL = 3.75f;
-    // Three 2-damage hits defeat an unprotected 5-HP player. The hard enemy
-    // must be a threat before a starter melee player can land seven hits.
     inline constexpr float HARD_ENEMY_ATTACK_INTERVAL = 1.0f;
 
     // Enemy spawning
@@ -48,11 +42,11 @@ namespace GameConfig {
 
     // Economy
     inline constexpr int INITIAL_COINS = 30;
-    inline constexpr int EASY_ENEMY_REWARD = 10; // one kill can fund another Melee player
-    inline constexpr int MEDIUM_ENEMY_REWARD = 12;
-    inline constexpr int HARD_ENEMY_REWARD = 18;
+    inline constexpr int EASY_ENEMY_REWARD = 10; 
+    inline constexpr int MEDIUM_ENEMY_REWARD = 15;
+    inline constexpr int HARD_ENEMY_REWARD = 20;
 
-    // Required enemy health
+    // enemy health
     inline constexpr int EASY_ENEMY_HP = 5;
     inline constexpr int MEDIUM_ENEMY_HP = 5;
     inline constexpr int HARD_ENEMY_HP = 7;
