@@ -107,7 +107,7 @@ bool Cutscene::init(){
     background = ResourceManager::loadTexture("assets/backgrounds/cyberpunk.png");
     signal = ResourceManager::loadTexture("assets/cutscene/signal.png");
     enemyText = ResourceManager::loadTexture("assets/cutscene/enemy_line.png");
-    playerText = ResourceManager::loadTexture("assets/cutscene/hero_line.png");
+    playerText = ResourceManager::loadTexture("assets/cutscene/hero_line2.png");
     title = ResourceManager::loadTexture("assets/cutscene/title.png");
     objective = ResourceManager::loadTexture("assets/cutscene/objective.png");
     skipText = ResourceManager::loadTexture("assets/cutscene/skip.png");
@@ -149,6 +149,10 @@ bool Cutscene::init(){
 void Cutscene::start(){
     time = 0.0f;
     musicPlaying = SoundManager::instance().playMusic("assets/cutscene/cinematic.wav", false);
+}
+
+void Cutscene::reset(){
+    time = 0.0f;
 }
 
 void Cutscene::update(float deltaTime){
@@ -195,7 +199,6 @@ void Cutscene::draw(int screenWidth, int screenHeight){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Draw the city without stretching it.
     float bgWidth = 2.0f * (1967.0f / 799.0f) * screenHeight / screenWidth;
     if (bgWidth < 2.0f)
         bgWidth = 2.0f;
@@ -203,11 +206,9 @@ void Cutscene::draw(int screenWidth, int screenHeight){
 
     int frame = (int)(time * 7.0f) % 4;
 
-    // 0-3 seconds: the warning appears.
     if (time < 3.0f)
         drawImage(signal, -0.85f, 0.35f, 1.7f, 0.4f);
 
-    // Enemy walks LEFT from 3 seconds until the fight begins.
     if (time >= 3.0f && time < 13.0f){
         float enemyX = 0.95f;
         if (time < 10.0f)
@@ -221,11 +222,9 @@ void Cutscene::draw(int screenWidth, int screenHeight){
             drawImage(enemyWalk[frame], enemyX, -0.68f, 0.48f, 0.82f, 1.0f, true);
     }
 
-    // Enemy speaks before the player arrives.
     if (time >= 4.0f && time < 6.7f)
         drawImage(enemyText, -0.8f, -0.92f, 1.6f, 0.3f);
 
-    // Player walks RIGHT until the fight begins.
     if (time >= 6.0f && time < 15.0f)
     {
         float playerX = -1.05f;
@@ -242,18 +241,16 @@ void Cutscene::draw(int screenWidth, int screenHeight){
             drawImage(playerWalk[frame], playerX, -0.68f, 0.53f, 0.99f);
     }
 
-    // The player answers.
-    if (time >= 7.0f && time < 10.0f)
-        drawImage(playerText, -0.8f, -0.92f, 1.6f, 0.3f);
 
-    // A short bright hit during the fight, without complicated effects.
+    if (time >= 7.0f && time < 12.0f)
+        drawImage(playerText, -0.8f, -1.25f, 1.6f, 0.9f);
+
     if (time >= 11.0f && time < 11.13f)
     {
         glClearColor(0.65f, 0.55f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    // enemy defeat animation
     if (time >= 13.0f && time < 15.0f){
         int deathFrame = (int)((time - 13.0f) * 2.0f);
         if (deathFrame > 3)
@@ -261,7 +258,6 @@ void Cutscene::draw(int screenWidth, int screenHeight){
         drawImage(enemyDeath[deathFrame], 0.11f, -0.68f, 0.48f, 0.82f, 1.0f, true);
     }
 
-    // the title and objective
     if (time >= 15.0f){
         glClearColor(0.01f, 0.01f, 0.06f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);

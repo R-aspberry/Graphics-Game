@@ -7,6 +7,7 @@ class Cutscene
 public:
     bool init();
     void start();
+    void reset();
     void update(float deltaTime);
     void draw(int screenWidth, int screenHeight);
     bool finished() const;
