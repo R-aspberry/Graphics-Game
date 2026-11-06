@@ -242,14 +242,14 @@ void Cutscene::draw(int screenWidth, int screenHeight){
     }
 
 
-    if (time >= 7.0f && time < 13.0f)
+    if (time >= 7.0f && time < 12.0f)
         drawImage(playerText, -0.8f, -1.25f, 1.6f, 0.9f);
 
-    if (time >= 11.0f && time < 11.13f)
-    {
-        glClearColor(0.65f, 0.55f, 0.9f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
+    // if (time >= 11.0f && time < 11.13f)
+    // {
+    //     glClearColor(0.65f, 0.55f, 0.9f, 1.0f);
+    //     glClear(GL_COLOR_BUFFER_BIT);
+    // }
 
     if (time >= 13.0f && time < 15.0f){
         int deathFrame = (int)((time - 13.0f) * 2.0f);
