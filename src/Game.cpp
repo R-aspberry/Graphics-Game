@@ -411,9 +411,18 @@ void Game::renderPlayers()
 
 void Game::renderProjectiles()
 {
+    const Grid* grid = gameManager.getGrid();
+    if (grid == nullptr) return;
+    const auto& lanes = grid->getLanes();
+
     for (Projectile* projectile : gameManager.getActiveProjectiles()) {
+        const int laneIndex = projectile->getLaneIndex();
+        if (laneIndex < 0 || laneIndex >= static_cast<int>(lanes.size())) continue;
         const float drawHeight = projectile->getHeight() * 1.5f;
         const float drawWidth = drawHeight * 3.0f;
+        const Lane& lane = lanes[laneIndex];
+        if (projectile->getX() < lane.left ||
+            projectile->getX() + drawWidth > lane.right) continue;
         const float drawY = projectile->getY() -
             (drawHeight - projectile->getHeight()) * 0.5f;
         shader.use();
@@ -427,11 +436,20 @@ void Game::renderProjectiles()
 
 void Game::renderEnemyProjectiles(WaveManager& waveManager)
 {
+    const Grid* grid = gameManager.getGrid();
+    if (grid == nullptr) return;
+    const auto& lanes = grid->getLanes();
+
     for (std::size_t i = 0; i < waveManager.getEnemyProjectilesCount(); ++i) {
         const EnemyProjectile* projectile = waveManager.getEnemyProjectileAt(i);
         if (projectile != nullptr && projectile->isActive()) {
+            const int laneIndex = projectile->getLaneIndex();
+            if (laneIndex < 0 || laneIndex >= static_cast<int>(lanes.size())) continue;
             const float drawHeight = projectile->getHeight() * 1.5f;
             const float drawWidth = drawHeight * 2.0f;
+            const Lane& lane = lanes[laneIndex];
+            if (projectile->getX() < lane.left ||
+                projectile->getX() + drawWidth > lane.right) continue;
             const float drawY = projectile->getY() -
                 (drawHeight - projectile->getHeight()) * 0.5f;
             shader.use();

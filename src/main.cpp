@@ -23,7 +23,7 @@
 #include "ui/MainMenu.h"
 #include "Game.h"
 #include "utils/ResourceManager.h"
-#include "utils/WorldLayout.h"
+#include "utils/Constants.h"
 #include "systems/Economy.h"
 #include "systems/WaveManager.h"
 #include "ui/PlayerCard.h"
@@ -78,52 +78,25 @@ static const char *fragmentShaderSource = R"(
     }
 )";
 
-GLuint placeEl(const char* path){
+GLuint placeEl(const char *path)
+{
 
     int imageWidth = 0;
     int imageHeight = 0;
     int channels = 0;
 
-
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char *pixels = stbi_load( path, &imageWidth,&imageHeight,&channels,4);
+    unsigned char *pixels = stbi_load(path, &imageWidth, &imageHeight, &channels, 4);
     GLuint backgroundTexture = 0;
 
     glGenTextures(1, &backgroundTexture);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_WRAP_S,
-        GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_WRAP_T,
-        GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_MIN_FILTER,
-        GL_LINEAR_MIPMAP_LINEAR);
-
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_MAG_FILTER,
-        GL_LINEAR);
-
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA,
-        imageWidth,
-        imageHeight,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        pixels);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(pixels);
@@ -139,7 +112,8 @@ static GLuint compileShader(GLenum kind, const char *source)
 
     GLint success = GL_FALSE;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (success == GL_FALSE) {
+    if (success == GL_FALSE)
+    {
         char log[1024] = {};
         glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
         std::cerr << "Shader compilation failed: " << log << '\n';
@@ -159,24 +133,16 @@ enum class AppScreen
     LOST
 };
 
-
-
 static AppScreen currentScreen = AppScreen::MENU;
 
 static bool suppressGameplayClick = false;
 static bool startNewGameRequested = false;
 
-
-void mouseButtonCallback(
-    GLFWwindow *window,
-    int button,
-    int action,
-    int mods)
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
     (void)mods;
 
-    if (button != GLFW_MOUSE_BUTTON_LEFT ||
-        action != GLFW_PRESS)
+    if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS)
     {
         return;
     }
@@ -188,11 +154,10 @@ void mouseButtonCallback(
 
     double mouseX = 0.0;
     double mouseY = 0.0;
-
-    glfwGetCursorPos(window, &mouseX, &mouseY);
-
     int width = 0;
     int height = 0;
+
+    glfwGetCursorPos(window, &mouseX, &mouseY);
 
     glfwGetWindowSize(window, &width, &height);
 
@@ -206,10 +171,8 @@ void mouseButtonCallback(
 
     // START BUTTON
 
-    if (x >= -0.46 && x <= -0.10 &&
-        y >= 0.00 && y <= 0.20)
+    if (x >= -0.46 && x <= -0.10 && y >= 0.00 && y <= 0.20)
     {
-
         currentScreen = AppScreen::CUTSCENE;
         suppressGameplayClick = true;
         startNewGameRequested = true;
@@ -217,17 +180,14 @@ void mouseButtonCallback(
 
     // EXIT BUTTON
 
-    else if (x >= 0.10 && x <= 0.46 &&
-             y >= 0.00 && y <= 0.20)
+    else if (x >= 0.10 && x <= 0.46 && y >= 0.00 && y <= 0.20)
     {
-
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
-    else if (x >= -0.24 && x <= 0.24 &&
-         y >= -0.32 && y <= -0.12)
-{
-    currentScreen = AppScreen::SOUND_SETTINGS;
-}
+    else if (x >= -0.24 && x <= 0.24 && y >= -0.32 && y <= -0.12)
+    {
+        currentScreen = AppScreen::SOUND_SETTINGS;
+    }
 }
 
 void customizeTitleBar(GLFWwindow *window)
@@ -240,34 +200,25 @@ void customizeTitleBar(GLFWwindow *window)
 
     BOOL darkMode = FALSE;
 
-    DwmSetWindowAttribute(
-        hwnd,
-        20,
-        &darkMode,
-        sizeof(darkMode));
+    DwmSetWindowAttribute(hwnd, 20, &darkMode, sizeof(darkMode));
 
-    DwmSetWindowAttribute(
-        hwnd,
-        35,
-        &background,
-        sizeof(background));
+    DwmSetWindowAttribute(hwnd, 35, &background, sizeof(background));
 
-    DwmSetWindowAttribute(
-        hwnd,
-        36,
-        &textColor,
-        sizeof(textColor));
+    DwmSetWindowAttribute(hwnd, 36, &textColor, sizeof(textColor));
+
 #else
     (void)window;
 #endif
 }
 
-bool purchasePlayer(int laneSelected, PlayerType type, int cost, Economy& economy, Game& game)
+bool purchasePlayer(int laneSelected, PlayerType type, int cost, Economy &economy, Game &game)
 {
-    if (laneSelected < 0 || laneSelected >= 4 || !economy.canAfford(cost)) {
+    if (laneSelected < 0 || laneSelected >= 4 || !economy.canAfford(cost))
+    {
         return false;
     }
-    if (game.placePlayer(type, laneSelected) == nullptr) {
+    if (game.placePlayer(type, laneSelected) == nullptr)
+    {
         return false;
     }
     return economy.spendCoins(cost);
@@ -275,53 +226,48 @@ bool purchasePlayer(int laneSelected, PlayerType type, int cost, Economy& econom
 
 int main()
 {
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialize GLFW\n";
-        return 1;
-    }
+    glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(
-        GLFW_OPENGL_PROFILE,
-        GLFW_OPENGL_CORE_PROFILE);
-
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* videoMode = monitor ? glfwGetVideoMode(monitor) : nullptr;
-
-    GLFWwindow *window = glfwCreateWindow(
-        videoMode ? videoMode->width : 1000,
-        videoMode ? videoMode->height : 700,
-        "Tower Defense Game",
-        monitor,
-        nullptr);
-
-    if (!window)
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *videoMode = nullptr;
+    if (monitor != nullptr)
     {
-        std::cerr << "Failed to create window\n";
-        glfwTerminate();
-        return 1;
+        videoMode = glfwGetVideoMode(monitor);
     }
+
+    int initialWindowWidth = 1000;
+    int initialWindowHeight = 700;
+
+    if (videoMode != nullptr)
+    {
+        initialWindowWidth = videoMode->width;
+        initialWindowHeight = videoMode->height;
+    }
+
+    GLFWwindow *window = glfwCreateWindow(initialWindowWidth, initialWindowHeight, "Tower Defense Game", monitor, nullptr);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    GLFWcursor *cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+    glfwSetCursor(window, cursor);
 
     customizeTitleBar(window);
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+    // Retain a quick key press until the frame loop reads it.
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
-    if (!gladLoadGL(glfwGetProcAddress))
+    gladLoadGL(glfwGetProcAddress);
+
+    SoundManager &audio = SoundManager::instance();
+
+    if (audio.init())
     {
-        std::cerr << "Failed to initialize GLAD\n";
-
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
-    SoundManager& audio = SoundManager::instance();
-
-    if (audio.init()) {
         audio.playMusic("assets/backgroundsound.wav", true);
     }
     std::cout << "OpenGL context initialized\n";
@@ -336,44 +282,16 @@ int main()
     Grid grid;
     std::unique_ptr<Game> game = std::make_unique<Game>();
     game->setGrid(&grid);
-    if (!game->init()) {
-        std::cerr << "Failed to initialize game resources\n";
-        game.reset();
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
+    game->init();
 
     // Play the cinematic between Start and actual gameplay.
     Cutscene cutscene;
     const bool cutsceneReady = cutscene.init();
-    if (!cutsceneReady)
-        std::cerr << "Cutscene assets unavailable: Start will open gameplay directly.\n";
 
-    glfwSetMouseButtonCallback(
-        window,
-        mouseButtonCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
-    GLuint vert = compileShader(
-        GL_VERTEX_SHADER,
-        vertexShaderSource);
-
-    GLuint frag = compileShader(
-        GL_FRAGMENT_SHADER,
-        fragmentShaderSource);
-
-    if (!vert || !frag)
-    {
-        if (vert)
-            glDeleteShader(vert);
-        if (frag)
-            glDeleteShader(frag);
-
-        game.reset();
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
+    GLuint vert = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
+    GLuint frag = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
     GLuint program = glCreateProgram();
 
@@ -384,33 +302,10 @@ int main()
 
     GLint linked = 0;
 
-    glGetProgramiv(
-        program,
-        GL_LINK_STATUS,
-        &linked);
+    glGetProgramiv(program, GL_LINK_STATUS, &linked);
 
     glDeleteShader(vert);
     glDeleteShader(frag);
-
-    if (!linked)
-    {
-        char log[1024] = {};
-
-        glGetProgramInfoLog(
-            program,
-            sizeof(log),
-            nullptr,
-            log);
-
-        std::cerr << "Shader program link error: "
-                  << log << '\n';
-
-        glDeleteProgram(program);
-        game.reset();
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
 
     const float vertices[] = {
         // X       Y      Z      U      V
@@ -431,30 +326,13 @@ int main()
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(vertices),
-        vertices,
-        GL_STATIC_DRAW);
-
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        5 * sizeof(float),
-        (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
 
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(
-        1,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        5 * sizeof(float),
-        (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
     glEnableVertexAttribArray(1);
 
@@ -464,83 +342,37 @@ int main()
     int imageHeight = 0;
     int channels = 0;
 
-
-
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char *pixels = stbi_load( "assets/backgrounds/example2.png", &imageWidth,&imageHeight,&channels,4);
+    unsigned char *pixels = stbi_load("assets/backgrounds/example2.png", &imageWidth, &imageHeight, &channels, 4);
     //e7na delwa2ty han7ot 5 elements
-    GLuint bill =  placeEl( "assets/elements/Billboard.png");
-    GLuint build =  placeEl( "assets/elements/building.png");
-   GLuint camera =  placeEl( "assets/elements/camera.png");
-    GLuint flags =  placeEl( "assets/elements/flags.png");
-    GLuint lifter =  placeEl( "assets/elements/lifter.png");
-
-    
-    if (!pixels)
-    {
-        std::cerr << "Failed to load background: "
-                  << stbi_failure_reason()
-                  << '\n';
-
-        glDeleteProgram(program);
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
-
-        game.reset();
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 1;
-    }
-
-    // std::cout << "Background loaded: "
-    //           << imageWidth
-    //           << " x "
-    //           << imageHeight
-    //           << '\n';
+    GLuint bill = placeEl("assets/elements/Billboard.png");
+    GLuint build = placeEl("assets/elements/building.png");
+    GLuint camera = placeEl("assets/elements/camera.png");
+    GLuint flags = placeEl("assets/elements/flags.png");
+    GLuint lifter = placeEl("assets/elements/lifter.png");
 
     GLuint backgroundTexture = 0;
 
     glGenTextures(1, &backgroundTexture);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
 
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_WRAP_S,
-        GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_WRAP_T,
-        GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_MIN_FILTER,
-        GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_MAG_FILTER,
-        GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA,
-        imageWidth,
-        imageHeight,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(pixels);
 
     int laneSelected = -1;
-    bool defencePLaced= false;
+    bool defencePLaced = false;
     Economy economy;
     WaveManager waveManager;
     HomeBase homeBase;
@@ -553,6 +385,7 @@ int main()
     int hoveredLane = -1;
     int hoveredCard = -1;
     int collectedCoins = 0;
+    float gameplayTime = 0.0f;
 
     auto restartGame = [&]()
     {
@@ -561,9 +394,20 @@ int main()
         waveManager = WaveManager();
         game->reset();
         collectedCoins = 0;
+        gameplayTime = 0.0f;
         laneSelected = -1;
-        for (int i = 0; i < 4; ++i) {
-            if (grid.getLanes()[i].selected) {
+        defencePLaced = false;
+        hoveredLane = -1;
+        hoveredCard = -1;
+        isPaused = false;
+        previousUpState = GLFW_RELEASE;
+        previousDownState = GLFW_RELEASE;
+        suppressGameplayClick = true;
+        glfwSetWindowTitle(window, "Tower Defense Game");
+        for (int i = 0; i < 4; ++i)
+        {
+            if (grid.getLanes()[i].selected)
+            {
                 grid.toggleLaneSelection(i);
             }
         }
@@ -572,10 +416,13 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        if (startNewGameRequested) {
+        if (startNewGameRequested)
+        {
             restartGame();
-            if (cutsceneReady) cutscene.start();
-            else currentScreen = AppScreen::PLAYING;
+            if (cutsceneReady)
+                cutscene.start();
+            else
+                currentScreen = AppScreen::PLAYING;
             startNewGameRequested = false;
         }
         const double currentTime = glfwGetTime();
@@ -585,14 +432,18 @@ int main()
         lastFrameTime = currentTime;
 
         const int escapeState = glfwGetKey(window, GLFW_KEY_ESCAPE);
-        if (currentScreen == AppScreen::PLAYING &&
-            escapeState == GLFW_PRESS &&
-            previousEscapeState == GLFW_RELEASE) {
+        if (currentScreen == AppScreen::PLAYING && escapeState == GLFW_PRESS && previousEscapeState == GLFW_RELEASE)
+        {
             isPaused = !isPaused;
             suppressGameplayClick = true;
-            glfwSetWindowTitle(window, isPaused
-                ? "Tower Defense Game - PAUSED"
-                : "Tower Defense Game");
+            if (isPaused)
+            {
+                glfwSetWindowTitle(window, "Tower Defense Game - PAUSED");
+            }
+            else
+            {
+                glfwSetWindowTitle(window, "Tower Defense Game");
+            }
         }
         previousEscapeState = escapeState;
 
@@ -604,89 +455,74 @@ int main()
             &framebufferWidth,
             &framebufferHeight);
 
-        if (framebufferWidth <= 0 ||
-            framebufferHeight <= 0)
+        if (framebufferWidth <= 0 || framebufferHeight <= 0)
         {
             glfwSwapBuffers(window);
             continue;
         }
 
-        glViewport(
-            0,
-            0,
-            framebufferWidth,
-            framebufferHeight);
-
-        glClearColor(
-            0.1f,
-            0.1f,
-            0.15f,
-            1.0f);
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
+        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-       if (currentScreen == AppScreen::MENU) {
-        mainMenu.draw();
-}
-    
-        else if (currentScreen == AppScreen::SOUND_SETTINGS) {
-           soundSettings.draw();
+        if (currentScreen == AppScreen::MENU)
+        {
+            mainMenu.draw();
+        }
 
-    double mx, my;
-    glfwGetCursorPos(window, &mx, &my);
+        else if (currentScreen == AppScreen::SOUND_SETTINGS)
+        {
+            soundSettings.draw();
 
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
+            double mx, my;
+            glfwGetCursorPos(window, &mx, &my);
 
-    int mouseState = glfwGetMouseButton(
-        window, GLFW_MOUSE_BUTTON_LEFT
-    );
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
 
-    if (width > 0 && height > 0 &&
-        mouseState == GLFW_PRESS &&
-        previousLeftMouseState == GLFW_RELEASE)
-    {
-        float x = static_cast<float>(2.0 * mx / width - 1.0);
-        float y = static_cast<float>(1.0 - 2.0 * my / height);
+            int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
-        SoundAction action = soundSettings.handleClick(x, y);
+            if (width > 0 && height > 0 && mouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE)
+            {
+                float x = static_cast<float>(2.0 * mx / width - 1.0);
+                float y = static_cast<float>(1.0 - 2.0 * my / height);
 
-        
-if (action == SoundAction::Back)
-{
-    currentScreen = AppScreen::MENU;
-}
-else if (action == SoundAction::VolumeUp)
-{
-    audio.setVolume(audio.getVolume() + 0.1f);
-}
-else if (action == SoundAction::VolumeDown)
-{
-    audio.setVolume(audio.getVolume() - 0.1f);
-}
-else if (action == SoundAction::Mute)
-{
-    audio.toggleMute();
-}
+                SoundAction action = soundSettings.handleClick(x, y);
 
+                if (action == SoundAction::Back)
+                {
+                    currentScreen = AppScreen::MENU;
+                }
+                else if (action == SoundAction::VolumeUp)
+                {
+                    audio.setVolume(audio.getVolume() + 0.1f);
+                }
+                else if (action == SoundAction::VolumeDown)
+                {
+                    audio.setVolume(audio.getVolume() - 0.1f);
+                }
+                else if (action == SoundAction::Mute)
+                {
+                    audio.toggleMute();
+                }
+            }
 
-        // VolumeUp, VolumeDown and Mute
-        // will be connected to the audio system next.
-    }
-
-    previousLeftMouseState = mouseState;
-
-            
-}           else {
-            if (currentScreen == AppScreen::CUTSCENE) {
+            previousLeftMouseState = mouseState;
+        }
+        else
+        {
+            if (currentScreen == AppScreen::CUTSCENE)
+            {
                 cutscene.update(deltaTime);
-                if (cutscene.finished() ||
-                    glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS ||
-                    glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+                if (cutscene.finished() || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+                {
                     cutscene.stopAudio();
                     currentScreen = AppScreen::PLAYING;
                     suppressGameplayClick = true;
-                } else {
+                }
+                else
+                {
                     cutscene.draw(framebufferWidth, framebufferHeight);
                 }
             }
@@ -697,98 +533,138 @@ else if (action == SoundAction::Mute)
             int windowHeight = 0;
             glfwGetWindowSize(window, &windowWidth, &windowHeight);
             const int leftMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-            const bool click = leftMouseState == GLFW_PRESS &&
-                               previousLeftMouseState == GLFW_RELEASE;
-            if (leftMouseState == GLFW_RELEASE) {
+            const bool click = leftMouseState == GLFW_PRESS && previousLeftMouseState == GLFW_RELEASE;
+            if (leftMouseState == GLFW_RELEASE)
+            {
                 suppressGameplayClick = false;
             }
 
-            if (currentScreen == AppScreen::PLAYING) {
-                if (!isPaused && windowWidth > 0 && windowHeight > 0) {
-                    hoveredLane = grid.getLaneAtPosition(
-                        static_cast<float>(mouseX / windowWidth),
-                        static_cast<float>(mouseY / windowHeight));
+            if (currentScreen == AppScreen::PLAYING)
+            {
+                if (!isPaused && windowWidth > 0 && windowHeight > 0)
+                {
+                    hoveredLane = grid.getLaneAtPosition(static_cast<float>(mouseX / windowWidth), static_cast<float>(mouseY / windowHeight));
                     const float x = static_cast<float>(2.0 * mouseX / windowWidth - 1.0);
                     const float y = static_cast<float>(1.0 - 2.0 * mouseY / windowHeight);
                     hoveredCard = -1;
-                    if (y >= 0.55f && y <= 0.95f) {
-                        if (x >= -0.90f && x <= -0.68f) hoveredCard = 0;
-                        else if (x >= -0.62f && x <= -0.40f) hoveredCard = 1;
-                        else if (x >= -0.34f && x <= -0.12f) hoveredCard = 2;
+                    if (y >= 0.55f && y <= 0.95f)
+                    {
+                        if (x >= -0.90f && x <= -0.68f)
+                            hoveredCard = 0;
+                        else if (x >= -0.62f && x <= -0.40f)
+                            hoveredCard = 1;
+                        else if (x >= -0.34f && x <= -0.12f)
+                            hoveredCard = 2;
                     }
                 }
 
-                if (!isPaused && click && !suppressGameplayClick) {
-                    if (hoveredLane >= 0) {
-                        if (defencePLaced && economy.canAfford(30)) {
-                            float clickedX= (float) mouseX/windowWidth;
-                            Player* defence= game->placePlayer(PlayerType::Defense,hoveredLane);
-                            
-                            if(defence!=nullptr){
-                                float x = clickedX- (defence->getWidth()/2);
-                                const Lane& lane =grid.getLanes()[hoveredLane];
-                                float maxright=lane.right-defence->getWidth();
-                                if(x<lane.left){
-                                    x=lane.left;
+                if (!isPaused && click && !suppressGameplayClick)
+                {
+                    if (hoveredLane >= 0)
+                    {
+                        if (defencePLaced && economy.canAfford(30))
+                        {
+                            float clickedX = (float)mouseX / windowWidth;
+                            Player *defence = game->placePlayer(PlayerType::Defense, hoveredLane);
+
+                            if (defence != nullptr)
+                            {
+                                float x = clickedX - (defence->getWidth() / 2);
+                                const Lane &lane = grid.getLanes()[hoveredLane];
+                                float maxright = lane.right - defence->getWidth();
+                                if (x < lane.left)
+                                {
+                                    x = lane.left;
                                 }
-                                else if(x>maxright){
-                                    x=maxright;
+                                else if (x > maxright)
+                                {
+                                    x = maxright;
                                 }
-                                defence->setPosition(x,defence->getY());
+                                defence->setPosition(x, defence->getY());
                                 economy.spendCoins(30);
-                                defencePLaced=false;
+                                defencePLaced = false;
                             }
                         }
-                        else{
-                        grid.toggleLaneSelection(hoveredLane);
-                        laneSelected = -1;}
-                    } else if (hoveredCard >= 0) {
-                        const PlayerType type = hoveredCard == 0 ? PlayerType::Defense
-                                              : hoveredCard == 1 ? PlayerType::Melee
-                                                                 : PlayerType::Ranged;
-                        const int cost = hoveredCard == 0 ? 30 : hoveredCard == 1 ? 10 : 20;
+                        else
+                        {
+                            grid.toggleLaneSelection(hoveredLane);
+                            laneSelected = -1;
+                        }
+                    }
+                    else if (hoveredCard >= 0)
+                    {
+                        PlayerType type = PlayerType::Ranged;
+                        int cost = 20;
+                        if (hoveredCard == 0)
+                        {
+                            type = PlayerType::Defense;
+                            cost = 30;
+                        }
+                        else if (hoveredCard == 1)
+                        {
+                            type = PlayerType::Melee;
+                            cost = 10;
+                        }
                         const bool unlocked = hoveredCard == 1 ||
-                            (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
-                            (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
-                        if (unlocked) {
-                            if (hoveredCard == 0) {
-                                defencePLaced = true;// one defense only placed at a time not more we care about mouse click not lanes selected 
-
+                                              (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
+                                              (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
+                        if (unlocked)
+                        {
+                            if (hoveredCard == 0)
+                            {
+                                defencePLaced = true; // one defense only placed at a time not more we care about mouse click not lanes selected
                             }
-                            else {
-                                for(const auto& lane :grid.getLanes()){
-                                if(lane.selected){                            
-                                    laneSelected = lane.id;
-                                    purchasePlayer(laneSelected, type, cost, economy, *game);
+                            else
+                            {
+                                for (const auto &lane : grid.getLanes())
+                                {
+                                    if (lane.selected)
+                                    {
+                                        laneSelected = lane.id;
+                                        purchasePlayer(laneSelected, type, cost, economy, *game);
+                                    }
                                 }
-                            }
                             }
                         }
                     }
                 }
 
-                if (!isPaused) {
+                if (!isPaused)
+                {
+                    gameplayTime += deltaTime;
                     const int upState =
                         glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
                         glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
                     const int downState =
                         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
                         glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
-                    if (upState && previousUpState == GLFW_RELEASE) {
-                        for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->jumpPlayers();
-                        }
+                    if (upState && previousUpState == GLFW_RELEASE)
+                    {
+                        game->jumpPlayers();
                     }
-                    if (downState && previousDownState == GLFW_RELEASE) {
-                        for (const Lane& lane : grid.getLanes()) {
-                            if (lane.selected) game->duckPlayers();
-                        }
+                    if (downState && previousDownState == GLFW_RELEASE)
+                    {
+                        game->duckPlayers();
                     }
-                    previousUpState = upState ? GLFW_PRESS : GLFW_RELEASE;
-                    previousDownState = downState ? GLFW_PRESS : GLFW_RELEASE;
+                    if (upState)
+                    {
+                        previousUpState = GLFW_PRESS;
+                    }
+                    else
+                    {
+                        previousUpState = GLFW_RELEASE;
+                    }
+                    if (downState)
+                    {
+                        previousDownState = GLFW_PRESS;
+                    }
+                    else
+                    {
+                        previousDownState = GLFW_RELEASE;
+                    }
 
                     waveManager.update(deltaTime);
-                    std::vector<EnemyProjectile*> shots;
+                    std::vector<EnemyProjectile *> shots;
 
                     for (size_t i = 0; i < waveManager.getEnemyProjectilesCount(); i++)
                     {
@@ -797,34 +673,40 @@ else if (action == SoundAction::Mute)
 
                     // Check bullet collisions
                     game->getCombatSystem().resolveEnemyProjectiles(shots);
-                    std::vector<Enemy*> enemies;
+                    std::vector<Enemy *> enemies;
                     enemies.reserve(waveManager.getActiveEnemyCount());
-                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i) {
-                        if (Enemy* enemy = waveManager.getEnemyAt(i)) {
+                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i)
+                    {
+                        if (Enemy *enemy = waveManager.getEnemyAt(i))
+                        {
                             enemies.push_back(enemy);
                         }
                     }
                     game->update(deltaTime, enemies);
-                    //game->collectDrops(waveManager, economy); // this is wrong because it doesnt update collected coins 
 
-                    // Collect drops only when a living player touches one in its lane.
-                    for (std::size_t i = waveManager.getDropCount(); i > 0; --i) {
-                        Collectible* drop = waveManager.getDropAt(i - 1);
-                        if (drop == nullptr) continue;
+                    for (std::size_t i = waveManager.getDropCount(); i > 0; --i)
+                    {
+                        Collectible *drop = waveManager.getDropAt(i - 1);
+                        if (drop == nullptr)
+                            continue;
                         bool collected = false;
-                        for (Player* player : game->getPlayersInLane(drop->getLane())) {
-                            if (player == nullptr || !player->isAlive()) continue;
+                        for (Player *player : game->getPlayersInLane(drop->getLane()))
+                        {
+                            if (player == nullptr || !player->isAlive())
+                                continue;
                             const bool overlaps =
                                 player->getX() < drop->getX() + drop->getWidth() &&
                                 player->getX() + player->getWidth() > drop->getX() &&
                                 player->getY() < drop->getY() + drop->getHeight() &&
                                 player->getY() + player->getHeight() > drop->getY();
-                            if (overlaps) {
+                            if (overlaps)
+                            {
                                 collected = drop->collect();
                                 break;
                             }
                         }
-                        if (collected) {
+                        if (collected)
+                        {
                             const int reward = drop->getValueOfCoins();
                             economy.addCoins(reward);
                             collectedCoins += reward;
@@ -832,14 +714,18 @@ else if (action == SoundAction::Mute)
                         }
                     }
 
-                    if (waveManager.hasEnemyReachedBase(WorldLayout::HOME_BASE_X)) {
+                    if (waveManager.hasEnemyReachedBase(WorldLayout::HOME_BASE_X))
+                    {
                         homeBase.enemyReached();
                     }
-                    if (homeBase.isDestroyed()) {
+                    if (homeBase.isDestroyed())
+                    {
                         currentScreen = AppScreen::LOST;
                         isPaused = false;
                         glfwSetWindowTitle(window, "Tower Defense Game - YOU LOST!");
-                    } else if (waveManager.hasWon()) {
+                    }
+                    else if (waveManager.hasWon())
+                    {
                         currentScreen = AppScreen::WON;
                         isPaused = false;
 
@@ -849,17 +735,25 @@ else if (action == SoundAction::Mute)
                     }
                 }
 
-                if (click && isPaused && windowWidth > 0 && windowHeight > 0) {
+                if (click && isPaused && windowWidth > 0 && windowHeight > 0)
+                {
                     const double x = 2.0 * mouseX / windowWidth - 1.0;
                     const double y = 1.0 - 2.0 * mouseY / windowHeight;
-                    if (x >= -0.24 && x <= 0.24 && y >= 0.20 && y <= 0.48) {
+                    if (x >= -0.24 && x <= 0.24 && y >= 0.20 && y <= 0.48)
+                    {
                         isPaused = false;
+                        glfwSetWindowTitle(window, "Tower Defense Game");
                         suppressGameplayClick = true;
-                    } else if (x >= -0.24 && x <= 0.24 && y >= -0.48 && y <= -0.20) {
+                    }
+                    else if (x >= -0.24 && x <= 0.24 && y >= -0.48 && y <= -0.20)
+                    {
                         currentScreen = AppScreen::MENU;
                         isPaused = false;
+                        glfwSetWindowTitle(window, "Tower Defense Game");
                         suppressGameplayClick = true;
-                    } else if (x >= -0.24 && x <= 0.24 && y >= -0.14 && y <= 0.14) {
+                    }
+                    else if (x >= -0.24 && x <= 0.24 && y >= -0.14 && y <= 0.14)
+                    {
                         restartGame();
                         currentScreen = AppScreen::PLAYING;
                         isPaused = false;
@@ -868,24 +762,34 @@ else if (action == SoundAction::Mute)
                 }
             }
 
-            if (currentScreen == AppScreen::PLAYING) {
+            if (currentScreen == AppScreen::PLAYING)
+            {
                 glUseProgram(program);
-                const auto& lanes = grid.getLanes();
+                const auto &lanes = grid.getLanes();
                 float bounds[16];
-                for (int i = 0; i < 4; ++i) {
+                for (int i = 0; i < 4; ++i)
+                {
                     bounds[i * 4] = lanes[i].left;
                     bounds[i * 4 + 1] = lanes[i].right;
                     bounds[i * 4 + 2] = lanes[i].top;
                     bounds[i * 4 + 3] = lanes[i].bottom;
                 }
                 glUniform4fv(glGetUniformLocation(program, "laneBounds[0]"), 4, bounds);
-                glUniform4f(glGetUniformLocation(program, "selectedFlags"),
-                    lanes[0].selected ? 1.0f : 0.0f,
-                    lanes[1].selected ? 1.0f : 0.0f,
-                    lanes[2].selected ? 1.0f : 0.0f,
-                    lanes[3].selected ? 1.0f : 0.0f);
-                glUniform1i(glGetUniformLocation(program, "hoveredLane"),
-                    currentScreen == AppScreen::PLAYING && !isPaused ? hoveredLane : -1);
+                float selectedFlags[4] = {};
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (lanes[i].selected)
+                    {
+                        selectedFlags[i] = 1.0f;
+                    }
+                }
+                glUniform4fv(glGetUniformLocation(program, "selectedFlags"), 1, selectedFlags);
+                int visibleHoveredLane = -1;
+                if (currentScreen == AppScreen::PLAYING && !isPaused)
+                {
+                    visibleHoveredLane = hoveredLane;
+                }
+                glUniform1i(glGetUniformLocation(program, "hoveredLane"), visibleHoveredLane);
                 glUniform1i(glGetUniformLocation(program, "isOverlay"), 0);
                 glUniform1i(glGetUniformLocation(program, "backgroundTexture"), 0);
                 glActiveTexture(GL_TEXTURE0);
@@ -894,8 +798,8 @@ else if (action == SoundAction::Mute)
                 glDrawArrays(GL_TRIANGLES, 0, 6);
                 glBindVertexArray(0);
 
-                const auto drawElement = [&](GLuint texture, float x, float y,
-                                             float width, float height) {
+                const auto drawElement = [&](GLuint texture, float x, float y, float width, float height)
+                {
                     glUniform1i(glGetUniformLocation(program, "isOverlay"), 1);
                     glUniform4f(glGetUniformLocation(program, "overlayRect"),
                                 x, y, width, height);
@@ -913,56 +817,73 @@ else if (action == SoundAction::Mute)
                 glBindVertexArray(0);
                 glUniform1i(glGetUniformLocation(program, "isOverlay"), 0);
 
-                if (currentScreen == AppScreen::PLAYING) {
-                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i) {
-                        const Enemy* enemy = waveManager.getEnemyAt(i);
-                        if (enemy != nullptr && enemy->getLane() >= 0 && enemy->getLane() < 4) {
-                            game->renderEnemy(
-                                *enemy,
-                                lanes[enemy->getLane()],
-                                static_cast<float>(currentTime));
+                if (currentScreen == AppScreen::PLAYING)
+                {
+                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i)
+                    {
+                        const Enemy *enemy = waveManager.getEnemyAt(i);
+                        if (enemy != nullptr && enemy->getLane() >= 0 && enemy->getLane() < 4)
+                        {
+                            game->renderEnemy(*enemy, lanes[enemy->getLane()], gameplayTime);
                         }
                     }
                     game->render();
                     game->renderEnemyProjectiles(waveManager);
                     game->renderCollectibles(waveManager);
-                    
+
                     const bool meleeUnlocked = economy.canAfford(10);
-                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20); // both checks needed because at first ranged and defense not unclocked 
+                    const bool rangedUnlocked = collectedCoins >= 20 && economy.canAfford(20); // both checks needed because at first ranged and defense not unclocked
                     const bool defenseUnlocked = collectedCoins >= 30 && economy.canAfford(30);
-                    playerCard.draw(isPaused ? -1 : hoveredCard, defenseUnlocked,
-                                    meleeUnlocked, rangedUnlocked);
+                    int visibleHoveredCard = -1;
+                    if (!isPaused)
+                    {
+                        visibleHoveredCard = hoveredCard;
+                    }
+                    playerCard.draw(visibleHoveredCard, defenseUnlocked, meleeUnlocked, rangedUnlocked);
                     hud.drawCoins(economy.getCoins(), framebufferWidth, framebufferHeight);
-                    for (int lane = 0; lane < 4; ++lane) {
-                        for (Player* player : game->getPlayersInLane(lane)) {
-                            if (player != nullptr && player->isAlive()) {
+                    for (int lane = 0; lane < 4; ++lane)
+                    {
+                        for (Player *player : game->getPlayersInLane(lane))
+                        {
+                            if (player != nullptr && player->isAlive())
+                            {
                                 hud.drawhealth(static_cast<int>(player->getX() * framebufferWidth),
-                                    static_cast<int>((1.0f - player->getY()) * framebufferHeight),
-                                    38, 5, player->getHealth(), player->getMaxHealth());
+                                               static_cast<int>((1.0f - player->getY()) * framebufferHeight),
+                                               38, 5, player->getHealth(), player->getMaxHealth());
                             }
                         }
                     }
-                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i) {
-                        const Enemy* enemy = waveManager.getEnemyAt(i);
-                        if (enemy != nullptr && enemy->getState() != EnemyState::DEAD) {
+                    for (std::size_t i = 0; i < waveManager.getActiveEnemyCount(); ++i)
+                    {
+                        const Enemy *enemy = waveManager.getEnemyAt(i);
+                        if (enemy != nullptr && enemy->getState() != EnemyState::DEAD)
+                        {
                             hud.drawhealth(static_cast<int>(enemy->getPosition().x * framebufferWidth),
-                                static_cast<int>((1.0f - enemy->getPosition().y) * framebufferHeight),
-                                38, 5, enemy->getHealth(), enemy->getMaxHealth());
+                                           static_cast<int>((1.0f - enemy->getPosition().y) * framebufferHeight),
+                                           38, 5, enemy->getHealth(), enemy->getMaxHealth());
                         }
                     }
-                    if (isPaused) mainMenu.escTab();
+                    if (isPaused)
+                        mainMenu.escTab();
                 }
-            } else if (currentScreen == AppScreen::WON || currentScreen == AppScreen::LOST) {
+            }
+            else if (currentScreen == AppScreen::WON || currentScreen == AppScreen::LOST)
+            {
                 mainMenu.endMenu(currentScreen == AppScreen::WON);
-                if (click && !suppressGameplayClick && windowWidth > 0 && windowHeight > 0) {
+                if (click && !suppressGameplayClick && windowWidth > 0 && windowHeight > 0)
+                {
                     const double x = 2.0 * mouseX / windowWidth - 1.0;
                     const double y = 1.0 - 2.0 * mouseY / windowHeight;
-                    if (x >= -0.24 && x <= 0.24 && y >= -0.14 && y <= 0.14) {
+                    if (x >= -0.24 && x <= 0.24 && y >= -0.14 && y <= 0.14)
+                    {
                         restartGame();
                         audio.playMusic("assets/backgroundsound.wav", true);
                         currentScreen = AppScreen::PLAYING;
-                    } else if (x >= -0.24 && x <= 0.24 && y >= -0.48 && y <= -0.20) {
+                    }
+                    else if (x >= -0.24 && x <= 0.24 && y >= -0.48 && y <= -0.20)
+                    {
                         currentScreen = AppScreen::MENU;
+                        glfwSetWindowTitle(window, "Tower Defense Game");
                         audio.playMusic("assets/backgroundsound.wav", true);
                     }
                     suppressGameplayClick = true;
@@ -971,21 +892,24 @@ else if (action == SoundAction::Mute)
             previousLeftMouseState = leftMouseState;
         }
 
-                glfwSwapBuffers(window);
+        glfwSwapBuffers(window);
     }
 
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
     glDeleteProgram(program);
     glDeleteTextures(1, &backgroundTexture);
+    const GLuint elementTextures[] = {bill, build, camera, flags, lifter};
+    glDeleteTextures(5, elementTextures);
 
-    cutscene.cleanup(); 
+    cutscene.cleanup();
     audio.shutdown();
     game.reset();
     ResourceManager::clear();
     hud.cleanup();
     glfwSetMouseButtonCallback(window, nullptr);
     soundSettings.cleanup();
+    glfwDestroyCursor(cursor);
     glfwDestroyWindow(window);
     glfwTerminate();
 
