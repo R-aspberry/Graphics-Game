@@ -213,8 +213,13 @@ void customizeTitleBar(GLFWwindow *window)
 
 bool purchasePlayer(int laneSelected, PlayerType type, int cost, Economy &economy, Game &game)
 {
-    if (laneSelected < 0 || laneSelected >= 4 || !economy.canAfford(cost))
+    if (laneSelected < 0 || laneSelected >= 4)
     {
+        return false;
+    }
+    if (!economy.canAfford(cost))
+    {
+        SoundManager::instance().playEffect("assets/cannot_afford.wav");
         return false;
     }
     if (game.placePlayer(type, laneSelected) == nullptr)
@@ -563,7 +568,11 @@ int main()
                 {
                     if (hoveredLane >= 0)
                     {
-                        if (defencePLaced && economy.canAfford(30))
+                        if (defencePLaced && !economy.canAfford(30))
+                        {
+                            audio.playEffect("assets/cannot_afford.wav");
+                        }
+                        else if (defencePLaced && economy.canAfford(30))
                         {
                             float clickedX = (float)mouseX / windowWidth;
                             Player *defence = game->placePlayer(PlayerType::Defense, hoveredLane);
@@ -609,7 +618,11 @@ int main()
                         const bool unlocked = hoveredCard == 1 ||
                                               (hoveredCard == 2 && collectedCoins >= 20 && economy.canAfford(cost)) ||
                                               (hoveredCard == 0 && collectedCoins >= 30 && economy.canAfford(cost));
-                        if (unlocked)
+                        if (!economy.canAfford(cost))
+                        {
+                            audio.playEffect("assets/cannot_afford.wav");
+                        }
+                        else if (unlocked)
                         {
                             if (hoveredCard == 0)
                             {
@@ -642,10 +655,12 @@ int main()
                     if (upState && previousUpState == GLFW_RELEASE)
                     {
                         game->jumpPlayers();
+                        audio.playEffect("assets/jump.wav");
                     }
                     if (downState && previousDownState == GLFW_RELEASE)
                     {
                         game->duckPlayers();
+                        audio.playEffect("assets/duck.wav");
                     }
                     if (upState)
                     {
@@ -710,6 +725,7 @@ int main()
                         {
                             const int reward = drop->getValueOfCoins();
                             economy.addCoins(reward);
+                            audio.playEffect("assets/coin_pickup.wav");
                             collectedCoins += reward;
                             waveManager.removeDropAt(i - 1);
                         }
@@ -722,6 +738,7 @@ int main()
                     if (homeBase.isDestroyed())
                     {
                         currentScreen = AppScreen::LOST;
+                        audio.playEffect("assets/lose.wav");
                         isPaused = false;
                         glfwSetWindowTitle(window, "Tower Defense Game - YOU LOST!");
                     }

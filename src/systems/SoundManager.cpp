@@ -62,6 +62,11 @@ bool SoundManager::playMusic(const char* path, bool loop)
     return true;
 }
 
+bool SoundManager::playEffect(const char* path)
+{
+    return initialized_ && ma_engine_play_sound(&engine_, path, nullptr) == MA_SUCCESS;
+}
+
 void SoundManager::stopMusic()
 {
     if (musicLoaded_)

@@ -4,7 +4,7 @@
 #include <Constants.h>
 #include "RangedPlayer.h"
 #include "GameManager.h"
-
+#include "../systems/SoundManager.h"
 
 
     RangedPlayer::RangedPlayer(float x, float y, float width, float height, int laneIndex, int maxHealth, float moveSpeed) : Player (x,y,width,height,laneIndex,maxHealth,moveSpeed){
@@ -33,6 +33,8 @@
         attackTimer = 0.0f;
         auto projectile  = std::make_unique<Projectile>( x + width, y + height / 2.0f - WorldLayout::PROJECTILE_HEIGHT / 2.0f,WorldLayout::PROJECTILE_WIDTH, WorldLayout::PROJECTILE_HEIGHT,laneIndex ,GameConfig::PLAYER_PROJECTILE_SPEED,this );
         gameManager.addProjectile(std::move(projectile));
+        SoundManager::instance().playEffect("assets/player_shot.wav");
+
     }
 
     void RangedPlayer::finishAttack(){

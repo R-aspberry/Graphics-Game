@@ -1,6 +1,7 @@
 # include "WaveManager.h"
 #include "../world/Grid.h"
 #include "../utils/Constants.h" 
+#include "SoundManager.h"
 #include "../entities/EasyEnemy.h"
 #include "../entities/MediumEnemy.h"
 #include "../entities/HardEnemy.h"
@@ -149,6 +150,8 @@ bool WaveManager::spawnEnemy() {
 
     activeEnemies.push_back(std::move(enemy));
     dropGenerated.push_back(false);
+    if (enemiesSpawnedInWave == 0)
+        SoundManager::instance().playEffect("assets/new_wave.wav");
     return true;
   
 }
@@ -224,6 +227,7 @@ bool WaveManager::spawnEnemyProjectile(Enemy *enemy) {
         type
     );
     enemyProjectiles.push_back(std::move(projectile));
+    SoundManager::instance().playEffect("assets/enemy_shot.wav");
     enemy->resetAttackTimer();
     return true;
 }
